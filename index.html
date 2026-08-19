@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Gestión ICE V8.3</title>
+<title>Gestión ICE V8.4 Mobile</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Segoe UI,sans-serif;background:#e8e8e8;color:#1f2937}
@@ -58,6 +58,42 @@ select,input{font:inherit}
 .result{border:1px solid #dce2e4;border-radius:13px;padding:11px;margin-bottom:8px;cursor:pointer;display:grid;grid-template-columns:1fr auto}
 .pageNote{background:#e8fbfc;border:1px solid #b8e9eb;border-radius:14px;padding:12px;margin-bottom:14px}
 @media(max-width:900px){.app{grid-template-columns:76px 1fr}.right{grid-column:1/-1}.routeCards,.panelGrid{grid-template-columns:1fr}}
+.backBtn{display:none;border:0;background:#ffffff22;color:#fff;font-size:34px;line-height:1;width:42px;height:42px;border-radius:12px;cursor:pointer;margin-right:10px}
+@media(max-width:700px){
+  body{background:#f3f4f5;padding-bottom:76px}
+  .app{display:block;margin:0;min-height:100vh;max-width:none;box-shadow:none;background:#f3f4f5}
+  .sidebar{position:fixed;left:0;right:0;bottom:0;z-index:1000;height:72px;padding:7px 6px;display:grid;grid-template-columns:repeat(5,1fr);gap:5px;background:linear-gradient(90deg,#39b7bc,#279da2);box-shadow:0 -4px 16px #0002}
+  .brand{display:none}
+  .navbtn{width:100%;min-height:56px;height:56px;border-radius:12px;font-size:11px;background:transparent}
+  .navbtn:hover,.navbtn.active{background:#ffffff2b;outline:none}
+  .left{display:block;border-right:0;min-height:calc(100vh - 72px)}
+  .right{display:none;min-height:calc(100vh - 72px)}
+  .app.detail-open .left{display:none}
+  .app.detail-open .right{display:block}
+  .head,.detailHead{height:60px;position:sticky;top:0;z-index:40;padding:0 14px}
+  .head h2{font-size:20px}
+  .content,.detail{height:auto;min-height:calc(100vh - 132px);overflow:visible;padding:12px}
+  .backBtn{display:inline-flex;align-items:center;justify-content:center}
+  .stats{grid-template-columns:1fr 1.25fr 1fr;gap:7px}
+  .stat{padding:10px 6px;border-radius:13px}
+  .stat b{font-size:20px}
+  .routeResultValue{font-size:30px}
+  .routeResultCard{min-height:82px}
+  .client{padding:13px;border-radius:16px;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+  .client b{font-size:15px;word-break:break-word}
+  .score{font-size:24px}
+  .scoreHero{min-width:58px;padding:7px 9px}
+  .routeCards,.panelGrid{grid-template-columns:1fr}
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .chips{padding-bottom:2px}
+  .updateBar{display:none}
+  .searchCard{margin-top:2px}
+  .importModal{padding:8px;align-items:center}
+  .importBox{max-height:92vh;overflow:auto}
+  .overlay{padding:8px}
+  .searchPanel{max-height:94vh;border-radius:18px}
+}
+
 
 .iceHelp{margin-top:7px;background:#f5fbfb;border:1px solid #d6eeee;border-radius:10px;padding:9px 10px}
 .iceHelp .meaning{font-size:12px;color:#334155;font-weight:700}
@@ -152,13 +188,13 @@ select,input{font:inherit}
   <button class="navbtn" id="nav-panel" onclick="navTo('panel')">Panel</button>
 </aside>
 
-<section class="left">
-  <div class="head"><h2 id="pageTitle">Gestión ICE <small style="font-size:11px">V8.3</small></h2><span>☰ ⌕</span></div>
+<section class="left" id="leftPane">
+  <div class="head"><h2 id="pageTitle">Gestión ICE <small style="font-size:11px">V8.4</small></h2><span>☰ ⌕</span></div>
   <div class="content" id="mainContent"></div>
 </section>
 
-<section class="right">
-  <div class="detailHead">Detalle del cliente</div>
+<section class="right" id="detailPane">
+  <div class="detailHead" id="detailHead"><button class="backBtn" onclick="closeDetail()">‹</button><span>Detalle del cliente</span></div>
   <div class="detail" id="detail"><div class="pageNote">Seleccioná un cliente para ver sus desvíos ICE.</div></div>
 </section>
 </div>
@@ -206,6 +242,7 @@ function devCount(c){return PILLARS.reduce((a,p)=>a+((c.pillars[p]||[]).length),
 function initials(n){return n.split(" ").slice(0,2).map(x=>x[0]||"").join("").toUpperCase()}
 function setActive(name){document.querySelectorAll(".navbtn").forEach(b=>b.classList.remove("active"));document.getElementById("nav-"+name).classList.add("active")}
 function navTo(name){
+  closeDetail(false);
   setActive(name);
   if(name==="ice") renderICE();
   if(name==="ruta") renderRoutes();
@@ -318,7 +355,20 @@ function renderPanel(){
 function selectClient(code){
   selected=DATA.find(c=>c.code===code);
   renderDetail(selected);
+  if(window.matchMedia('(max-width:700px)').matches){
+    document.querySelector('.app').classList.add('detail-open');
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
 }
+
+function closeDetail(clearSelected=true){
+  const app=document.querySelector('.app');
+  if(app) app.classList.remove('detail-open');
+  if(clearSelected) selected=null;
+  if(window.matchMedia('(max-width:700px)').matches) window.scrollTo({top:0,behavior:'smooth'});
+}
+
+window.addEventListener('popstate',()=>closeDetail());
 
 
 const ICE_GUIDE = {
@@ -525,6 +575,8 @@ function guideFor(concept, pillar){
 }
 
 function renderDetail(c){
+  const dh=document.getElementById("detailHead");
+  if(dh) dh.querySelector("span").textContent = c ? "Cliente · "+c.code : "Detalle del cliente";
   if(!c)return;
   const affected=PILLARS.filter(p=>(c.pillars[p]||[]).length).length;
   let h=`<div class="person"><div class="avatar">${initials(c.name)}</div><div><b style="font-size:20px">${c.name}</b><div style="color:#8190a0;margin-top:5px">Ruta ${c.route} · Código ${c.code}</div></div></div>`;
