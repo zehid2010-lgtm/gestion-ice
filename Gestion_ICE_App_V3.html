@@ -1,0 +1,838 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gestión ICE V8.3</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Segoe UI,sans-serif;background:#e8e8e8;color:#1f2937}
+.app{max-width:1380px;margin:20px auto;background:#fff;min-height:820px;display:grid;grid-template-columns:90px 1fr 1.05fr;box-shadow:0 5px 25px #0002}
+.sidebar{background:linear-gradient(#52c2c7,#2ca9ae);padding:18px 10px;display:flex;flex-direction:column;align-items:center;gap:14px}
+.brand{color:#fff;font-weight:900;font-style:italic;font-size:22px;margin-bottom:8px}
+.navbtn{width:68px;min-height:62px;border:0;border-radius:14px;background:#ffffff16;color:#fff;font-weight:700;cursor:pointer}
+.navbtn:hover,.navbtn.active{background:#ffffff35;outline:2px solid #ffffff33}
+.left{background:#f3f4f5;border-right:1px solid #d7dadd}
+.head{height:72px;background:#4fc1c6;color:#fff;padding:0 20px;display:flex;align-items:center;justify-content:space-between}
+.head h2{margin:0;font-size:22px}
+.content{padding:14px;height:748px;overflow:auto}
+.searchCard{background:#fff;border:1px solid #dbe2e4;border-radius:16px;padding:13px;display:flex;gap:10px;align-items:center;cursor:pointer;margin-bottom:12px}
+.searchIcon{width:42px;height:42px;border-radius:12px;background:#4fc1c6;color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px}
+.searchText b{display:block} .searchText span{font-size:12px;color:#80909c}
+.chips{display:flex;gap:8px;overflow:auto;margin-bottom:12px}
+.chip{border:1px solid #d5dde0;background:#fff;border-radius:999px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+.chip.active{background:#4fc1c6;color:#fff;border-color:#4fc1c6}
+select,input{font:inherit}
+.routeSelect{width:100%;padding:12px;border:1px solid #d8dde0;border-radius:12px;background:#fff;margin-bottom:12px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.stat{background:#fff;border:1px solid #d9dee0;border-radius:14px;padding:12px;text-align:center}
+.stat b{display:block;font-size:22px} .stat span{font-size:12px;color:#8190a0}
+.client{border-radius:15px;padding:14px;color:#fff;margin-bottom:11px;display:grid;grid-template-columns:1fr auto;cursor:pointer}
+.client b{font-size:16px} .client small{display:block;margin-top:4px}
+.score{font-size:28px;font-weight:900;align-self:center}
+.c1{background:#f8b018}.c2{background:#f47d28}.c3{background:#f1483d}.c4{background:#31b2b7}.c5{background:#39ad70}
+.right{background:#fff}
+.detailHead{height:72px;background:#4fc1c6;color:#fff;padding:0 20px;display:flex;align-items:center}
+.detail{padding:16px;height:748px;overflow:auto}
+.person{border:1px solid #dfe4e6;border-radius:16px;padding:14px;display:flex;gap:12px;align-items:center}
+.avatar{width:54px;height:54px;border-radius:50%;background:#4fc1c6;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
+.kpi{border:1px solid #dfe4e6;border-radius:14px;padding:12px;text-align:center} .kpi b{font-size:22px;display:block} .kpi span{font-size:12px;color:#8190a0}
+.pillar{border:1px solid #dfe4e6;border-radius:14px;overflow:hidden;margin:12px 0}
+.pillarTitle{background:#f1f3f4;padding:12px;font-weight:900;display:flex;justify-content:space-between}
+.dev{padding:12px;border-top:1px solid #e5e7e9;display:grid;grid-template-columns:1fr auto;gap:10px} .dev small{display:block;color:#83909a;margin-top:3px}
+.viewTitle{font-size:20px;font-weight:900;margin-bottom:14px}
+.routeCards,.panelGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.box{background:#fff;border:1px solid #dce2e4;border-radius:15px;padding:15px;cursor:pointer}
+.box b{font-size:25px;display:block} .box span{font-size:12px;color:#7d8b96}
+.task{background:#fff;border:1px solid #dce2e4;border-radius:14px;padding:13px;margin-bottom:10px;cursor:pointer}
+.task b{display:block} .task span{font-size:12px;color:#7d8b96}
+.badge{display:inline-block;background:#e94a43;color:#fff;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:800}
+.overlay{display:none;position:fixed;inset:0;background:#0008;z-index:50;align-items:flex-start;justify-content:center;padding:20px}
+.overlay.show{display:flex}
+.searchPanel{width:min(680px,100%);max-height:90vh;background:#fff;border-radius:20px;overflow:hidden}
+.searchTop{background:#4fc1c6;color:#fff;padding:14px;display:flex;gap:10px;align-items:center}
+.searchTop button{border:0;background:#ffffff25;color:#fff;border-radius:10px;width:38px;height:38px;font-size:20px;cursor:pointer}
+.searchInput{width:calc(100% - 28px);margin:14px;padding:13px;border:2px solid #dce7e8;border-radius:13px}
+.results{padding:0 14px 14px;max-height:65vh;overflow:auto}
+.result{border:1px solid #dce2e4;border-radius:13px;padding:11px;margin-bottom:8px;cursor:pointer;display:grid;grid-template-columns:1fr auto}
+.pageNote{background:#e8fbfc;border:1px solid #b8e9eb;border-radius:14px;padding:12px;margin-bottom:14px}
+@media(max-width:900px){.app{grid-template-columns:76px 1fr}.right{grid-column:1/-1}.routeCards,.panelGrid{grid-template-columns:1fr}}
+
+.iceHelp{margin-top:7px;background:#f5fbfb;border:1px solid #d6eeee;border-radius:10px;padding:9px 10px}
+.iceHelp .meaning{font-size:12px;color:#334155;font-weight:700}
+.iceHelp .action{font-size:11px;color:#64748b;margin-top:4px;line-height:1.35}
+.iceHelp .action b{color:#0f766e}
+.infoTag{display:inline-block;margin-left:6px;background:#e5f7f8;color:#188c91;border-radius:999px;padding:2px 7px;font-size:9px;font-weight:800;vertical-align:middle}
+
+
+.updateBar{
+  display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap
+}
+.updateBtn{
+  border:0;background:linear-gradient(135deg,#154c79,#1f77b4);color:#fff;
+  border-radius:12px;padding:10px 13px;font-size:12px;font-weight:800;cursor:pointer;
+  box-shadow:0 3px 8px rgba(0,0,0,.12)
+}
+.updateBtn.secondary{background:#fff;color:#29414d;border:1px solid #d6e0e3;box-shadow:none}
+.updateInfo{font-size:10px;color:#788792}
+.routePill{
+  position:relative;overflow:hidden;border-radius:16px!important;
+  transition:transform .15s ease, box-shadow .15s ease
+}
+.routePill:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(0,0,0,.10)}
+.routePill .progressTrack{
+  height:7px;background:#edf1f2;border-radius:999px;margin-top:10px;overflow:hidden
+}
+.routePill .progressFill{height:100%;border-radius:999px}
+.routePill .routeScore{font-size:30px!important;font-weight:900!important}
+.routePill .routeStatus{font-size:10px;font-weight:800;margin-top:3px}
+.scoreHero{
+  border-radius:999px;padding:6px 12px;color:#fff;display:inline-block;
+  min-width:62px;text-align:center;box-shadow:0 3px 10px rgba(0,0,0,.12)
+}
+.s0{background:#d73027}.s1{background:#f46d43}.s2{background:#fdae61}.s3{background:#a6d96a;color:#173b1f}.s4{background:#1a9850}
+.importModal{
+  display:none;position:fixed;inset:0;background:rgba(16,24,32,.62);z-index:2000;
+  align-items:flex-start;justify-content:center;padding:24px
+}
+.importModal.show{display:flex}
+.importBox{
+  width:min(720px,100%);background:#fff;border-radius:20px;overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.25)
+}
+.importHead{background:#4fc1c6;color:#fff;padding:16px 18px;display:flex;justify-content:space-between;align-items:center}
+.importBody{padding:18px}
+.fileDrop{
+  border:2px dashed #c8d8dc;border-radius:16px;padding:16px;margin-bottom:12px;background:#f9fbfb
+}
+.fileDrop b{display:block;margin-bottom:5px}
+.fileDrop small{color:#71808b}
+.fileInput{width:100%;margin-top:10px}
+.importActions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+.importNote{background:#fff8e8;border:1px solid #f0d48b;border-radius:12px;padding:10px;font-size:11px;color:#69521a;margin-top:10px}
+.importOk{background:#eaf8ef;border:1px solid #b8e0c4;border-radius:12px;padding:10px;font-size:11px;color:#1f6a37;margin-top:10px;display:none}
+
+
+.routeResultCard{
+  color:#fff!important;
+  border:none!important;
+  min-height:88px;
+  display:flex!important;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  box-shadow:0 5px 14px rgba(0,0,0,.12);
+}
+.routeResultCard.s3{color:#173b1f!important}
+.routeResultValue{
+  font-size:34px;
+  line-height:1;
+  font-weight:900;
+  letter-spacing:-1px;
+}
+.routeResultLabel{
+  margin-top:8px;
+  font-size:12px;
+  font-weight:800;
+  opacity:.95;
+}
+
+</style>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand">fisil</div>
+  <button class="navbtn active" id="nav-ice" onclick="navTo('ice')">ICE</button>
+  <button class="navbtn" id="nav-ruta" onclick="navTo('ruta')">Ruta</button>
+  <button class="navbtn" id="nav-clientes" onclick="navTo('clientes')">Clientes</button>
+  <button class="navbtn" id="nav-tareas" onclick="navTo('tareas')">Tareas</button>
+  <button class="navbtn" id="nav-panel" onclick="navTo('panel')">Panel</button>
+</aside>
+
+<section class="left">
+  <div class="head"><h2 id="pageTitle">Gestión ICE <small style="font-size:11px">V8.3</small></h2><span>☰ ⌕</span></div>
+  <div class="content" id="mainContent"></div>
+</section>
+
+<section class="right">
+  <div class="detailHead">Detalle del cliente</div>
+  <div class="detail" id="detail"><div class="pageNote">Seleccioná un cliente para ver sus desvíos ICE.</div></div>
+</section>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="searchPanel">
+    <div class="searchTop"><button onclick="closeSearch()">‹</button><b>Buscar cliente o desvío</b></div>
+    <input class="searchInput" id="searchInput" placeholder="Nombre, código, ruta o desvío..." oninput="renderSearch()">
+    <div class="results" id="results"></div>
+  </div>
+</div>
+
+<script>
+let DATA = [{"route": "3143", "code": "3136344", "name": "Sinchicay Rosario Mario", "score": 0.2175, "priority": "ALTA", "pillars": {"ACTIVACION": [{"concept": "Plataforma Meals​ ", "achieved": 0, "target": 4, "result": 0}, {"concept": "Zona de Ahorro", "achieved": 0, "target": 6, "result": 0}, {"concept": "Plataforma My Breaks​ - Zona de Impulso", "achieved": 0, "target": 4, "result": 0}, {"concept": "Plataforma Flexible (Replenish o Morning Time)", "achieved": 0, "target": 3, "result": 0}, {"concept": "Ejecucion Epicos", "achieved": 0, "target": 3, "result": 0}], "EDF": [{"concept": "SOCI COLAS", "achieved": 0, "target": 4, "result": 0}, {"concept": "SOCI SABORES", "achieved": 0, "target": 5, "result": 0}, {"concept": "SOCI STILLS", "achieved": 0, "target": 5, "result": 0}, {"concept": "Primer bandeja Consumo Personal", "achieved": 0, "target": 3, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 8.75, "target": 10, "result": 0.875}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 7, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 8, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO MS RET Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}], "SOVI": [{"concept": "SOVI NARTD", "achieved": 0, "target": 5, "result": 0}, {"concept": "SOVI STILLS", "achieved": 0, "target": 2.5, "result": 0}, {"concept": "SOVI SABORES", "achieved": 0, "target": 2.5, "result": 0}]}}, {"route": "3142", "code": "3185683", "name": "Navarro Claudia Viviana", "score": 0.2836138655367576, "priority": "ALTA", "pillars": {"ACTIVACION": [{"concept": "Plataforma Meals​ ", "achieved": 0, "target": 4, "result": 0}, {"concept": "Zona de Ahorro", "achieved": 0, "target": 6, "result": 0}, {"concept": "Plataforma My Breaks​ - Zona de Impulso", "achieved": 0, "target": 4, "result": 0}, {"concept": "Plataforma Flexible (Replenish o Morning Time)", "achieved": 0, "target": 3, "result": 0}, {"concept": "Ejecucion Epicos", "achieved": 0, "target": 3, "result": 0}], "EDF": [{"concept": "SOCI COLAS", "achieved": 0, "target": 4, "result": 0}, {"concept": "SOCI SABORES", "achieved": 0, "target": 5, "result": 0}, {"concept": "SOCI STILLS", "achieved": 4.771118827365017, "target": 5, "result": 0.9542237654730034}, {"concept": "Mejor Posición", "achieved": 0, "target": 3, "result": 0}, {"concept": "Libre de Contaminación​", "achieved": 0, "target": 3, "result": 0}, {"concept": "Llenado al 75%​", "achieved": 0, "target": 3, "result": 0}, {"concept": "Primer bandeja Consumo Personal", "achieved": 0, "target": 3, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 7.5, "target": 10, "result": 0.75}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 7, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 8, "result": 0}], "PRECIO": [{"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}], "SOVI": [{"concept": "SOVI NARTD", "achieved": 4.7027464038998765, "target": 5, "result": 0.9405492807799753}, {"concept": "SOVI STILLS", "achieved": 2.387521222410866, "target": 2.5, "result": 0.9550084889643464}, {"concept": "SOVI SABORES", "achieved": 0, "target": 2.5, "result": 0}]}}, {"route": "3143", "code": "3199017", "name": "Sp- Hermanos S.R.L", "score": 0.28973522265367757, "priority": "ALTA", "pillars": {"ACTIVACION": [{"concept": "Plataforma Meals​ ", "achieved": 0, "target": 4, "result": 0}, {"concept": "Zona de Ahorro", "achieved": 0, "target": 6, "result": 0}, {"concept": "Plataforma Flexible (Replenish o Morning Time)", "achieved": 0, "target": 3, "result": 0}, {"concept": "Ejecucion Epicos", "achieved": 0, "target": 3, "result": 0}], "EDF": [{"concept": "Cobertura Puertas", "achieved": 3, "target": 4, "result": 0.75}, {"concept": "SOCI COLAS", "achieved": 3.6878079796534733, "target": 4, "result": 0.9219519949133683}, {"concept": "SOCI SABORES", "achieved": 0, "target": 5, "result": 0}, {"concept": "SOCI STILLS", "achieved": 0, "target": 5, "result": 0}, {"concept": "EDF Exclusivo SS", "achieved": 0, "target": 3, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 9.285714285714286, "target": 10, "result": 0.9285714285714286}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 10, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 5, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO MS RET Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO MS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors SS", "achieved": 0, "target": 1, "result": 0}, {"concept": "CORE Stills #2", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCNS MS Freq", "achieved": 0, "target": 1, "result": 0}], "SOVI": [{"concept": "SOVI NARTD", "achieved": 0, "target": 5, "result": 0}, {"concept": "SOVI STILLS", "achieved": 0, "target": 2.5, "result": 0}, {"concept": "SOVI SABORES", "achieved": 0, "target": 2.5, "result": 0}]}}, {"route": "3140", "code": "3136960", "name": "Garcia Silvia Del Valle", "score": 0.3808333333333333, "priority": "ALTA", "pillars": {"ACTIVACION": [{"concept": "Plataforma Meals​ ", "achieved": 0, "target": 4, "result": 0}, {"concept": "Zona de Ahorro", "achieved": 0, "target": 6, "result": 0}, {"concept": "Plataforma My Breaks​ - Zona de Impulso", "achieved": 0, "target": 4, "result": 0}, {"concept": "Plataforma Flexible (Replenish o Morning Time)", "achieved": 0, "target": 3, "result": 0}, {"concept": "Ejecucion Epicos", "achieved": 0, "target": 3, "result": 0}], "EDF": [{"concept": "Cobertura Puertas", "achieved": 1.3333333333333333, "target": 4, "result": 0.3333333333333333}, {"concept": "Primer bandeja Consumo Personal", "achieved": 0, "target": 3, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 3.75, "target": 10, "result": 0.375}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 7, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 8, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO MS RET Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}]}}, {"route": "3141", "code": "3194596", "name": "Perez Carlos Antonio", "score": 0.39, "priority": "ALTA", "pillars": {"DISPONIBILIDAD": [{"concept": "Combinada Portafolio Imperdonable", "achieved": 0, "target": 3, "result": 0}, {"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 12, "target": 15, "result": 0.8}], "ACTIVACION": [{"concept": "Zona de My Breaks - Zona de Impulso", "achieved": 0, "target": 20, "result": 0}, {"concept": "Replenish Time", "achieved": 0, "target": 10, "result": 0}], "PRECIO": [{"concept": "SSD CCO SS Frequency  ​", "achieved": 0, "target": 4, "result": 0}, {"concept": "SSD CCO SS Entry Pack​", "achieved": 0, "target": 3, "result": 0}, {"concept": "Stills (Any from priority portfolio)", "achieved": 0, "target": 3, "result": 0}], "EDF": [{"concept": "SOCI COLAS", "achieved": 0, "target": 5, "result": 0}, {"concept": "SOCI SABORES", "achieved": 0, "target": 5, "result": 0}, {"concept": "SOCI STILLS", "achieved": 0, "target": 5, "result": 0}]}}, {"route": "3145", "code": "3135732", "name": "4K S.A.", "score": 0.4, "priority": "ALTA", "pillars": {"DISPONIBILIDAD": [{"concept": "Combinada Portafolio Imperdonable", "achieved": 0, "target": 3, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 12, "result": 0}], "ACTIVACION": [{"concept": "Zona de My Breaks - Zona de Impulso", "achieved": 0, "target": 20, "result": 0}, {"concept": "Replenish Time", "achieved": 0, "target": 10, "result": 0}], "PRECIO": [{"concept": "SSD CCO SS Frequency  ​", "achieved": 0, "target": 4, "result": 0}, {"concept": "SSD CCO SS Entry Pack​", "achieved": 0, "target": 3, "result": 0}, {"concept": "Stills (Any from priority portfolio)", "achieved": 0, "target": 3, "result": 0}], "EDF": [{"concept": "SOCI STILLS", "achieved": 0, "target": 5, "result": 0}]}}, {"route": "3141", "code": "3101452", "name": "Fernandez Karina Nora", "score": 0.4, "priority": "ALTA", "pillars": {"DISPONIBILIDAD": [{"concept": "Combinada Portafolio Imperdonable", "achieved": 0, "target": 3, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 12, "result": 0}], "ACTIVACION": [{"concept": "Zona de My Breaks - Zona de Impulso", "achieved": 0, "target": 20, "result": 0}], "PRECIO": [{"concept": "SSD CCO SS Frequency  ​", "achieved": 0, "target": 4, "result": 0}, {"concept": "SSD CCO SS Entry Pack​", "achieved": 0, "target": 3, "result": 0}, {"concept": "Stills (Any from priority portfolio)", "achieved": 0, "target": 3, "result": 0}], "EDF": [{"concept": "SOCI COLAS", "achieved": 0, "target": 5, "result": 0}, {"concept": "SOCI SABORES", "achieved": 0, "target": 5, "result": 0}, {"concept": "SOCI STILLS", "achieved": 0, "target": 5, "result": 0}]}}, {"route": "3142", "code": "3137157", "name": "Cajchaya Valdivia Julio Cesar", "score": 0.414883816707851, "priority": "ALTA", "pillars": {"EDF": [{"concept": "Cobertura Puertas", "achieved": 3, "target": 4, "result": 0.75}, {"concept": "SOCI COLAS", "achieved": 3.988381670785104, "target": 4, "result": 0.997095417696276}, {"concept": "SOCI SABORES", "achieved": 0, "target": 5, "result": 0}, {"concept": "EDF Exclusivo SS", "achieved": 0, "target": 3, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 5, "target": 10, "result": 0.5}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 10, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 5, "result": 0}], "ACTIVACION": [{"concept": "Zona de Ahorro", "achieved": 0, "target": 6, "result": 0}, {"concept": "Plataforma Flexible (Replenish o Morning Time)", "achieved": 0, "target": 3, "result": 0}, {"concept": "Ejecucion Epicos", "achieved": 0, "target": 3, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO MS RET Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO MS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors SS", "achieved": 0, "target": 1, "result": 0}, {"concept": "CORE Stills #2", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCNS MS Freq", "achieved": 0, "target": 1, "result": 0}], "SOVI": [{"concept": "SOVI SABORES", "achieved": 0, "target": 2.5, "result": 0}]}}, {"route": "3140", "code": "3100959", "name": "Quiroga Osvaldo Milton", "score": 0.41491598217641057, "priority": "ALTA", "pillars": {"EDF": [{"concept": "Cobertura Puertas", "achieved": 1, "target": 4, "result": 0.25}, {"concept": "SOCI COLAS", "achieved": 0, "target": 4, "result": 0}, {"concept": "SOCI SABORES", "achieved": 0, "target": 5, "result": 0}, {"concept": "SOCI STILLS", "achieved": 0, "target": 5, "result": 0}, {"concept": "EDF Exclusivo SS", "achieved": 0, "target": 3, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 7.142857142857143, "target": 10, "result": 0.7142857142857143}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 10, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 5, "result": 0}], "ACTIVACION": [{"concept": "Plataforma Flexible (Replenish o Morning Time)", "achieved": 0, "target": 3, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors SS", "achieved": 0, "target": 1, "result": 0}, {"concept": "CORE Stills #2", "achieved": 0, "target": 1, "result": 0}], "SOVI": [{"concept": "SOVI NARTD", "achieved": 0, "target": 5, "result": 0}, {"concept": "SOVI STILLS", "achieved": 0, "target": 2.5, "result": 0}, {"concept": "SOVI SABORES", "achieved": 2.348741074783916, "target": 2.5, "result": 0.9394964299135664}]}}, {"route": "3141", "code": "3139767", "name": "Corvalan Gustavo Javier", "score": 0.43666666666666665, "priority": "ALTA", "pillars": {"DISPONIBILIDAD": [{"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 10, "result": 0}, {"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 6.666666666666666, "target": 10, "result": 0.6666666666666666}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}], "ACTIVACION": [{"concept": "Plataforma Meals​ ", "achieved": 0, "target": 4, "result": 0}, {"concept": "Zona de Ahorro", "achieved": 0, "target": 6, "result": 0}, {"concept": "Plataforma My Breaks​ - Zona de Impulso", "achieved": 0, "target": 6, "result": 0}, {"concept": "Ejecucion Epicos", "achieved": 0, "target": 4, "result": 0}], "PRECIO": [{"concept": "CCO MS RET Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}], "EDF": [{"concept": "Primer bandeja Consumo Personal", "achieved": 0, "target": 3, "result": 0}]}}, {"route": "3143", "code": "3136325", "name": "Ale Gregorio Moises", "score": 0.4442857142857143, "priority": "ALTA", "pillars": {"ACTIVACION": [{"concept": "Plataforma Meals​ ", "achieved": 0, "target": 4, "result": 0}, {"concept": "Zona de Ahorro", "achieved": 0, "target": 6, "result": 0}, {"concept": "Plataforma Flexible (Replenish o Morning Time)", "achieved": 0, "target": 3, "result": 0}, {"concept": "Ejecucion Epicos", "achieved": 0, "target": 3, "result": 0}], "EDF": [{"concept": "Cobertura Puertas", "achieved": 1, "target": 4, "result": 0.25}, {"concept": "EDF Exclusivo SS", "achieved": 0, "target": 3, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 6.428571428571429, "target": 10, "result": 0.6428571428571429}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 10, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 5, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO MS RET Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO MS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors SS", "achieved": 0, "target": 1, "result": 0}, {"concept": "CORE Stills #2", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCNS MS Freq", "achieved": 0, "target": 1, "result": 0}]}}, {"route": "3140", "code": "3195754", "name": "Alvarez Amalia Ahurora", "score": 0.44916666666666666, "priority": "ALTA", "pillars": {"ACTIVACION": [{"concept": "Plataforma Meals​ ", "achieved": 0, "target": 4, "result": 0}, {"concept": "Zona de Ahorro", "achieved": 0, "target": 6, "result": 0}, {"concept": "Plataforma My Breaks​ - Zona de Impulso", "achieved": 0, "target": 4, "result": 0}, {"concept": "Ejecucion Epicos", "achieved": 0, "target": 3, "result": 0}], "EDF": [{"concept": "Cobertura Puertas", "achieved": 2.6666666666666665, "target": 4, "result": 0.6666666666666666}, {"concept": "Primer bandeja Consumo Personal", "achieved": 0, "target": 3, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 6.25, "target": 10, "result": 0.625}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 7, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 8, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO MS RET Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}]}}, {"route": "3142", "code": "3171270", "name": "Pedraza Sergio Adrian", "score": 0.455, "priority": "ALTA", "pillars": {"EDF": [{"concept": "Cobertura Puertas", "achieved": 2, "target": 4, "result": 0.5}, {"concept": "SOCI COLAS", "achieved": 0, "target": 4, "result": 0}, {"concept": "SOCI SABORES", "achieved": 0, "target": 5, "result": 0}, {"concept": "EDF Exclusivo SS", "achieved": 0, "target": 3, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 5, "target": 10, "result": 0.5}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 10, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 5, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO MS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors SS", "achieved": 0, "target": 1, "result": 0}, {"concept": "CORE Stills #2", "achieved": 0, "target": 1, "result": 0}], "SOVI": [{"concept": "SOVI NARTD", "achieved": 0, "target": 5, "result": 0}, {"concept": "SOVI SABORES", "achieved": 0, "target": 2.5, "result": 0}]}}, {"route": "3141", "code": "3193727", "name": "Fernandez Jose Luis", "score": 0.4608333333333334, "priority": "ALTA", "pillars": {"ACTIVACION": [{"concept": "Plataforma Meals​ ", "achieved": 0, "target": 4, "result": 0}, {"concept": "Zona de Ahorro", "achieved": 0, "target": 6, "result": 0}, {"concept": "Plataforma My Breaks​ - Zona de Impulso", "achieved": 0, "target": 4, "result": 0}, {"concept": "Ejecucion Epicos", "achieved": 0, "target": 3, "result": 0}], "EDF": [{"concept": "Cobertura Puertas", "achieved": 1.3333333333333333, "target": 4, "result": 0.3333333333333333}, {"concept": "Primer bandeja Consumo Personal", "achieved": 0, "target": 3, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 8.75, "target": 10, "result": 0.875}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 7, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 8, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO MS RET Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}]}}, {"route": "3141", "code": "3135102", "name": "Panificacion Las Delicias Srl", "score": 0.46333333333333326, "priority": "ALTA", "pillars": {"ACTIVACION": [{"concept": "Plataforma Meals​ ", "achieved": 0, "target": 4, "result": 0}, {"concept": "Zona de Ahorro", "achieved": 0, "target": 6, "result": 0}, {"concept": "Plataforma Flexible (Replenish o Morning Time)", "achieved": 0, "target": 3, "result": 0}, {"concept": "Ejecucion Epicos", "achieved": 0, "target": 3, "result": 0}], "EDF": [{"concept": "Cobertura Puertas", "achieved": 1.3333333333333333, "target": 4, "result": 0.3333333333333333}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 5, "target": 10, "result": 0.5}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 7, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 8, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO MS RET Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}]}}, {"route": "3144", "code": "3197374", "name": "Gonzalez Andrea Viviana", "score": 0.46333333333333326, "priority": "ALTA", "pillars": {"ACTIVACION": [{"concept": "Plataforma Meals​ ", "achieved": 0, "target": 4, "result": 0}, {"concept": "Zona de Ahorro", "achieved": 0, "target": 6, "result": 0}, {"concept": "Plataforma Flexible (Replenish o Morning Time)", "achieved": 0, "target": 3, "result": 0}, {"concept": "Ejecucion Epicos", "achieved": 0, "target": 3, "result": 0}], "EDF": [{"concept": "Cobertura Puertas", "achieved": 1.3333333333333333, "target": 4, "result": 0.3333333333333333}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 5, "target": 10, "result": 0.5}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 7, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 8, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO MS RET Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}]}}, {"route": "3140", "code": "3139865", "name": "Gonzalez Miguel Angel", "score": 0.47174451994666, "priority": "ALTA", "pillars": {"EDF": [{"concept": "Cobertura Puertas", "achieved": 2, "target": 4, "result": 0.5}, {"concept": "SOCI COLAS", "achieved": 0, "target": 4, "result": 0}, {"concept": "SOCI SABORES", "achieved": 4.749945078760026, "target": 5, "result": 0.9499890157520052}, {"concept": "SOCI STILLS", "achieved": 0, "target": 5, "result": 0}, {"concept": "EDF Exclusivo SS", "achieved": 0, "target": 3, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 5, "result": 0}], "ACTIVACION": [{"concept": "Zona de Ahorro", "achieved": 0, "target": 6, "result": 0}, {"concept": "Plataforma My Breaks​ - Zona de Impulso", "achieved": 0, "target": 4, "result": 0}, {"concept": "Plataforma Flexible (Replenish o Morning Time)", "achieved": 0, "target": 3, "result": 0}, {"concept": "Ejecucion Epicos", "achieved": 0, "target": 3, "result": 0}], "PRECIO": [{"concept": "CCO SS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO MS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors SS", "achieved": 0, "target": 1, "result": 0}, {"concept": "CORE Stills #2", "achieved": 0, "target": 1, "result": 0}], "SOVI": [{"concept": "SOVI NARTD", "achieved": 0, "target": 5, "result": 0}, {"concept": "SOVI STILLS", "achieved": 0, "target": 2.5, "result": 0}, {"concept": "SOVI SABORES", "achieved": 2.4245069159059778, "target": 2.5, "result": 0.9698027663623912}]}}, {"route": "3142", "code": "3136703", "name": "Veliz Pedro Miguel", "score": 0.473333334, "priority": "ALTA", "pillars": {"ACTIVACION": [{"concept": "Plataforma Meals​ ", "achieved": 0, "target": 4, "result": 0}, {"concept": "Plataforma Flexible (Replenish o Morning Time)", "achieved": 0, "target": 3, "result": 0}], "EDF": [{"concept": "SOCI COLAS", "achieved": 0, "target": 4, "result": 0}, {"concept": "SOCI STILLS", "achieved": 0, "target": 5, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 7.5, "target": 10, "result": 0.75}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 7, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 8, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}], "SOVI": [{"concept": "SOVI NARTD", "achieved": 0, "target": 5, "result": 0}, {"concept": "SOVI STILLS", "achieved": 0, "target": 2.5, "result": 0}]}}, {"route": "3145", "code": "3135478", "name": "Gutierrez Carlos Eduardo", "score": 0.4758333333333333, "priority": "ALTA", "pillars": {"ACTIVACION": [{"concept": "Plataforma Meals​ ", "achieved": 0, "target": 4, "result": 0}, {"concept": "Zona de Ahorro", "achieved": 0, "target": 6, "result": 0}, {"concept": "Plataforma Flexible (Replenish o Morning Time)", "achieved": 0, "target": 3, "result": 0}, {"concept": "Ejecucion Epicos", "achieved": 0, "target": 3, "result": 0}], "EDF": [{"concept": "Cobertura Puertas", "achieved": 1.3333333333333333, "target": 4, "result": 0.3333333333333333}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 6.25, "target": 10, "result": 0.625}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 7, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 8, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO MS RET Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}]}}, {"route": "3143", "code": "3139681", "name": "El Malik S. A. S.", "score": 0.4785899719541949, "priority": "ALTA", "pillars": {"EDF": [{"concept": "Cobertura Puertas", "achieved": 3, "target": 4, "result": 0.75}, {"concept": "SOCI SABORES", "achieved": 0, "target": 5, "result": 0}, {"concept": "SOCI STILLS", "achieved": 0, "target": 5, "result": 0}, {"concept": "EDF Exclusivo SS", "achieved": 0, "target": 3, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 7.142857142857143, "target": 10, "result": 0.7142857142857143}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 10, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 5, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO MS RET Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO MS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors SS", "achieved": 0, "target": 1, "result": 0}, {"concept": "CORE Stills #2", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCNS MS Freq", "achieved": 0, "target": 1, "result": 0}], "SOVI": [{"concept": "SOVI NARTD", "achieved": 4.716140052562349, "target": 5, "result": 0.9432280105124698}, {"concept": "SOVI STILLS", "achieved": 0, "target": 2.5, "result": 0}, {"concept": "SOVI SABORES", "achieved": 0, "target": 2.5, "result": 0}]}}, {"route": "3142", "code": "3134065", "name": "Sale Ruth Noemi", "score": 0.4885714285714286, "priority": "ALTA", "pillars": {"EDF": [{"concept": "SOCI COLAS", "achieved": 0, "target": 4, "result": 0}, {"concept": "SOCI SABORES", "achieved": 0, "target": 5, "result": 0}, {"concept": "SOCI STILLS", "achieved": 0, "target": 5, "result": 0}, {"concept": "EDF Exclusivo SS", "achieved": 0, "target": 3, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 7.857142857142857, "target": 10, "result": 0.7857142857142857}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 10, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}], "PRECIO": [{"concept": "CCO MS RET Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO MS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors SS", "achieved": 0, "target": 1, "result": 0}, {"concept": "CORE Stills #2", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCNS MS Freq", "achieved": 0, "target": 1, "result": 0}], "SOVI": [{"concept": "SOVI NARTD", "achieved": 0, "target": 5, "result": 0}, {"concept": "SOVI STILLS", "achieved": 0, "target": 2.5, "result": 0}, {"concept": "SOVI SABORES", "achieved": 0, "target": 2.5, "result": 0}]}}, {"route": "3145", "code": "3185808", "name": "Caceres Sandra Beatriz", "score": 0.4933333333333333, "priority": "ALTA", "pillars": {"DISPONIBILIDAD": [{"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 10, "result": 0}, {"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 3.333333333333333, "target": 10, "result": 0.3333333333333333}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}], "ACTIVACION": [{"concept": "Plataforma Meals​ ", "achieved": 0, "target": 4, "result": 0}, {"concept": "Zona de Ahorro", "achieved": 0, "target": 6, "result": 0}, {"concept": "Ejecucion Epicos", "achieved": 0, "target": 4, "result": 0}], "PRECIO": [{"concept": "CCO MS RET Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}]}}, {"route": "3141", "code": "3134755", "name": "Lizarraga Martin Gaston", "score": 0.4933333333333333, "priority": "ALTA", "pillars": {"DISPONIBILIDAD": [{"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 10, "result": 0}, {"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 3.333333333333333, "target": 10, "result": 0.3333333333333333}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}], "ACTIVACION": [{"concept": "Plataforma Meals​ ", "achieved": 0, "target": 4, "result": 0}, {"concept": "Zona de Ahorro", "achieved": 0, "target": 6, "result": 0}, {"concept": "Ejecucion Epicos", "achieved": 0, "target": 4, "result": 0}], "PRECIO": [{"concept": "CCO MS RET Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}]}}, {"route": "3142", "code": "3134961", "name": "Feres Carlos Alejandro", "score": 0.4933333333333333, "priority": "ALTA", "pillars": {"DISPONIBILIDAD": [{"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 10, "result": 0}, {"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 3.333333333333333, "target": 10, "result": 0.3333333333333333}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}], "ACTIVACION": [{"concept": "Plataforma Meals​ ", "achieved": 0, "target": 4, "result": 0}, {"concept": "Zona de Ahorro", "achieved": 0, "target": 6, "result": 0}, {"concept": "Ejecucion Epicos", "achieved": 0, "target": 4, "result": 0}], "PRECIO": [{"concept": "CCO MS RET Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}]}}, {"route": "3141", "code": "3177426", "name": "Carmena Marcelo Ramon", "score": 0.52, "priority": "MEDIA", "pillars": {"DISPONIBILIDAD": [{"concept": "Combinada Portafolio Imperdonable", "achieved": 0, "target": 3, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 12, "result": 0}, {"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 12, "target": 15, "result": 0.8}], "ACTIVACION": [{"concept": "Zona de My Breaks - Zona de Impulso", "achieved": 0, "target": 20, "result": 0}], "PRECIO": [{"concept": "SSD CCO SS Frequency  ​", "achieved": 0, "target": 4, "result": 0}, {"concept": "SSD CCO SS Entry Pack​", "achieved": 0, "target": 3, "result": 0}, {"concept": "Stills (Any from priority portfolio)", "achieved": 0, "target": 3, "result": 0}]}}, {"route": "3144", "code": "3198791", "name": "Puig Juan Ruben", "score": 0.5266666666666666, "priority": "MEDIA", "pillars": {"DISPONIBILIDAD": [{"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 10, "result": 0}, {"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 6.666666666666666, "target": 10, "result": 0.6666666666666666}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}], "ACTIVACION": [{"concept": "Plataforma Meals​ ", "achieved": 0, "target": 4, "result": 0}, {"concept": "Zona de Ahorro", "achieved": 0, "target": 6, "result": 0}, {"concept": "Ejecucion Epicos", "achieved": 0, "target": 4, "result": 0}], "PRECIO": [{"concept": "CCO MS RET Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}]}}, {"route": "3145", "code": "3195816", "name": "Alderete Nuñez Humberto Martin", "score": 0.5275, "priority": "MEDIA", "pillars": {"ACTIVACION": [{"concept": "Plataforma Meals​ ", "achieved": 0, "target": 4, "result": 0}, {"concept": "Zona de Ahorro", "achieved": 0, "target": 6, "result": 0}, {"concept": "Plataforma My Breaks​ - Zona de Impulso", "achieved": 0, "target": 4, "result": 0}, {"concept": "Plataforma Flexible (Replenish o Morning Time)", "achieved": 0, "target": 3, "result": 0}, {"concept": "Ejecucion Epicos", "achieved": 0, "target": 3, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 8.75, "target": 10, "result": 0.875}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 8, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO MS RET Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}], "EDF": [{"concept": "Primer bandeja Consumo Personal", "achieved": 0, "target": 3, "result": 0}]}}, {"route": "3140", "code": "3174712", "name": "Juarez Raul Armando", "score": 0.5333333333333333, "priority": "MEDIA", "pillars": {"DISPONIBILIDAD": [{"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 10, "result": 0}, {"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 3.333333333333333, "target": 10, "result": 0.3333333333333333}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}], "PRECIO": [{"concept": "CCO MS RET Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}], "ACTIVACION": [{"concept": "Zona de Ahorro", "achieved": 0, "target": 6, "result": 0}, {"concept": "Ejecucion Epicos", "achieved": 0, "target": 4, "result": 0}]}}, {"route": "3143", "code": "3140038", "name": "Boullhesen Jose Ricardo", "score": 0.5372999947230778, "priority": "MEDIA", "pillars": {"EDF": [{"concept": "Cobertura Puertas", "achieved": 2.6666666666666665, "target": 4, "result": 0.6666666666666666}, {"concept": "SOCI COLAS", "achieved": 3.6466661056411116, "target": 4, "result": 0.9116665264102779}, {"concept": "SOCI SABORES", "achieved": 0, "target": 5, "result": 0}, {"concept": "SOCI STILLS", "achieved": 0, "target": 5, "result": 0}, {"concept": "Primer bandeja Consumo Personal", "achieved": 0, "target": 3, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 8.75, "target": 10, "result": 0.875}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 7, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO MS RET Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}], "SOVI": [{"concept": "SOVI NARTD", "achieved": 0, "target": 5, "result": 0}, {"concept": "SOVI STILLS", "achieved": 0, "target": 2.5, "result": 0}, {"concept": "SOVI SABORES", "achieved": 0, "target": 2.5, "result": 0}]}}, {"route": "3145", "code": "3191599", "name": "Tucuman Kiosco S.R.L", "score": 0.54, "priority": "MEDIA", "pillars": {"DISPONIBILIDAD": [{"concept": "Combinada Portafolio Imperdonable", "achieved": 0, "target": 3, "result": 0}, {"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 12, "target": 15, "result": 0.8}], "ACTIVACION": [{"concept": "Zona de My Breaks - Zona de Impulso", "achieved": 0, "target": 20, "result": 0}, {"concept": "Replenish Time", "achieved": 0, "target": 10, "result": 0}], "PRECIO": [{"concept": "SSD CCO SS Frequency  ​", "achieved": 0, "target": 4, "result": 0}, {"concept": "SSD CCO SS Entry Pack​", "achieved": 0, "target": 3, "result": 0}, {"concept": "Stills (Any from priority portfolio)", "achieved": 0, "target": 3, "result": 0}]}}, {"route": "3141", "code": "3191621", "name": "Tucuman Kioscos S.R.L", "score": 0.54, "priority": "MEDIA", "pillars": {"DISPONIBILIDAD": [{"concept": "Combinada Portafolio Imperdonable", "achieved": 0, "target": 3, "result": 0}, {"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 12, "target": 15, "result": 0.8}], "ACTIVACION": [{"concept": "Zona de My Breaks - Zona de Impulso", "achieved": 0, "target": 20, "result": 0}, {"concept": "Replenish Time", "achieved": 0, "target": 10, "result": 0}], "PRECIO": [{"concept": "SSD CCO SS Frequency  ​", "achieved": 0, "target": 4, "result": 0}, {"concept": "SSD CCO SS Entry Pack​", "achieved": 0, "target": 3, "result": 0}, {"concept": "Stills (Any from priority portfolio)", "achieved": 0, "target": 3, "result": 0}]}}, {"route": "3142", "code": "3170125", "name": "Albertus Silvia Liliana", "score": 0.5541666666666667, "priority": "MEDIA", "pillars": {"EDF": [{"concept": "Cobertura Puertas", "achieved": 2.6666666666666665, "target": 4, "result": 0.6666666666666666}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 8.75, "target": 10, "result": 0.875}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 7, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 8, "result": 0}], "ACTIVACION": [{"concept": "Zona de Ahorro", "achieved": 0, "target": 6, "result": 0}, {"concept": "Plataforma Flexible (Replenish o Morning Time)", "achieved": 0, "target": 3, "result": 0}, {"concept": "Ejecucion Epicos", "achieved": 0, "target": 3, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO MS RET Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}]}}, {"route": "3142", "code": "3135190", "name": "Salguero Martin Adan", "score": 0.5558721147834731, "priority": "MEDIA", "pillars": {"EDF": [{"concept": "Cobertura Puertas", "achieved": 3, "target": 4, "result": 0.75}, {"concept": "SOCI COLAS", "achieved": 0, "target": 4, "result": 0}, {"concept": "SOCI SABORES", "achieved": 0, "target": 5, "result": 0}, {"concept": "SOCI STILLS", "achieved": 4.771118827365017, "target": 5, "result": 0.9542237654730034}, {"concept": "EDF Exclusivo SS", "achieved": 0, "target": 3, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 6.428571428571429, "target": 10, "result": 0.6428571428571429}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 5, "result": 0}], "ACTIVACION": [{"concept": "Plataforma Flexible (Replenish o Morning Time)", "achieved": 0, "target": 3, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO MS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors SS", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCNS MS Freq", "achieved": 0, "target": 1, "result": 0}], "SOVI": [{"concept": "SOVI NARTD", "achieved": 0, "target": 5, "result": 0}, {"concept": "SOVI STILLS", "achieved": 2.387521222410866, "target": 2.5, "result": 0.9550084889643464}, {"concept": "SOVI SABORES", "achieved": 0, "target": 2.5, "result": 0}]}}, {"route": "3145", "code": "3170688", "name": "Acuña Pinto Marcelo Fabian", "score": 0.56, "priority": "MEDIA", "pillars": {"ACTIVACION": [{"concept": "Plataforma Meals​ ", "achieved": 0, "target": 4, "result": 0}, {"concept": "Plataforma Flexible (Replenish o Morning Time)", "achieved": 0, "target": 3, "result": 0}], "EDF": [{"concept": "Cobertura Puertas", "achieved": 2, "target": 4, "result": 0.5}, {"concept": "EDF Exclusivo SS", "achieved": 0, "target": 3, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 5, "target": 10, "result": 0.5}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 10, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 5, "result": 0}], "PRECIO": [{"concept": "CCO MS RET Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO MS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors SS", "achieved": 0, "target": 1, "result": 0}, {"concept": "CORE Stills #2", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCNS MS Freq", "achieved": 0, "target": 1, "result": 0}]}}, {"route": "3143", "code": "3137159", "name": "Cabral Albaro Patricio", "score": 0.5635714285714286, "priority": "MEDIA", "pillars": {"EDF": [{"concept": "Cobertura Puertas", "achieved": 3, "target": 4, "result": 0.75}, {"concept": "SOCI SABORES", "achieved": 0, "target": 5, "result": 0}, {"concept": "EDF Exclusivo SS", "achieved": 0, "target": 3, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 7.857142857142857, "target": 10, "result": 0.7857142857142857}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 10, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 5, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO MS RET Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO MS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors SS", "achieved": 0, "target": 1, "result": 0}, {"concept": "CORE Stills #2", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCNS MS Freq", "achieved": 0, "target": 1, "result": 0}], "SOVI": [{"concept": "SOVI SABORES", "achieved": 0, "target": 2.5, "result": 0}]}}, {"route": "3141", "code": "3199835", "name": "Montenegro Hebe Josefina", "score": 0.5671963003865268, "priority": "MEDIA", "pillars": {"ACTIVACION": [{"concept": "Plataforma Meals​ ", "achieved": 0, "target": 4, "result": 0}, {"concept": "Zona de Ahorro", "achieved": 0, "target": 6, "result": 0}, {"concept": "Plataforma Flexible (Replenish o Morning Time)", "achieved": 0, "target": 3, "result": 0}, {"concept": "Ejecucion Epicos", "achieved": 0, "target": 3, "result": 0}], "EDF": [{"concept": "SOCI COLAS", "achieved": 0, "target": 4, "result": 0}, {"concept": "SOCI SABORES", "achieved": 4.969630038652678, "target": 5, "result": 0.9939260077305356}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 8.75, "target": 10, "result": 0.875}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 7, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO MS RET Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}]}}, {"route": "3144", "code": "3173817", "name": "Angel Emiliano Gabriel", "score": 0.5766666666666667, "priority": "MEDIA", "pillars": {"DISPONIBILIDAD": [{"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 10, "result": 0}, {"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 6.666666666666666, "target": 10, "result": 0.6666666666666666}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}], "PRECIO": [{"concept": "CCO MS RET Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}], "ACTIVACION": [{"concept": "Plataforma My Breaks​ - Zona de Impulso", "achieved": 0, "target": 6, "result": 0}], "EDF": [{"concept": "Primer bandeja Consumo Personal", "achieved": 0, "target": 3, "result": 0}]}}, {"route": "3143", "code": "3136062", "name": "Carmena Marcelo Ramon", "score": 0.58, "priority": "MEDIA", "pillars": {"DISPONIBILIDAD": [{"concept": "Combinada Portafolio Imperdonable", "achieved": 0, "target": 3, "result": 0}, {"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 6, "target": 15, "result": 0.4}], "ACTIVACION": [{"concept": "Zona de My Breaks - Zona de Impulso", "achieved": 0, "target": 20, "result": 0}], "PRECIO": [{"concept": "SSD CCO SS Frequency  ​", "achieved": 0, "target": 4, "result": 0}, {"concept": "SSD CCO SS Entry Pack​", "achieved": 0, "target": 3, "result": 0}, {"concept": "Stills (Any from priority portfolio)", "achieved": 0, "target": 3, "result": 0}]}}, {"route": "3141", "code": "3139450", "name": "Contreras Angelica Yolanda", "score": 0.5833333336666666, "priority": "MEDIA", "pillars": {"DISPONIBILIDAD": [{"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 10, "result": 0}, {"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 6.666666666666666, "target": 10, "result": 0.6666666666666666}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}], "ACTIVACION": [{"concept": "Zona de Ahorro", "achieved": 0, "target": 6, "result": 0}, {"concept": "Ejecucion Epicos", "achieved": 0, "target": 4, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}]}}, {"route": "3144", "code": "3136356", "name": "Navarro Claudia Natalia", "score": 0.5966666666666667, "priority": "MEDIA", "pillars": {"ACTIVACION": [{"concept": "Plataforma Meals​ ", "achieved": 0, "target": 4, "result": 0}, {"concept": "Zona de Ahorro", "achieved": 0, "target": 6, "result": 0}, {"concept": "Plataforma Flexible (Replenish o Morning Time)", "achieved": 0, "target": 3, "result": 0}, {"concept": "Ejecucion Epicos", "achieved": 0, "target": 3, "result": 0}], "EDF": [{"concept": "Cobertura Puertas", "achieved": 2.6666666666666665, "target": 4, "result": 0.6666666666666666}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 8, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO MS RET Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}]}}, {"route": "3143", "code": "3195888", "name": "Faguma S.R.L", "score": 0.5978571428571429, "priority": "MEDIA", "pillars": {"EDF": [{"concept": "Cobertura Puertas", "achieved": 3, "target": 4, "result": 0.75}, {"concept": "SOCI STILLS", "achieved": 0, "target": 5, "result": 0}, {"concept": "EDF Exclusivo SS", "achieved": 0, "target": 3, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 9.285714285714286, "target": 10, "result": 0.9285714285714286}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}], "ACTIVACION": [{"concept": "Zona de Ahorro", "achieved": 0, "target": 6, "result": 0}, {"concept": "Ejecucion Epicos", "achieved": 0, "target": 3, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO MS RET Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO MS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors SS", "achieved": 0, "target": 1, "result": 0}, {"concept": "CORE Stills #2", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCNS MS Freq", "achieved": 0, "target": 1, "result": 0}], "SOVI": [{"concept": "SOVI NARTD", "achieved": 0, "target": 5, "result": 0}, {"concept": "SOVI STILLS", "achieved": 0, "target": 2.5, "result": 0}]}}, {"route": "3143", "code": "3199635", "name": "Carmena Marcelo Ramom", "score": 0.6, "priority": "MEDIA", "pillars": {"ACTIVACION": [{"concept": "Zona de My Breaks - Zona de Impulso", "achieved": 0, "target": 20, "result": 0}, {"concept": "Replenish Time", "achieved": 0, "target": 10, "result": 0}], "PRECIO": [{"concept": "SSD CCO SS Frequency  ​", "achieved": 0, "target": 4, "result": 0}, {"concept": "SSD CCO SS Entry Pack​", "achieved": 0, "target": 3, "result": 0}, {"concept": "Stills (Any from priority portfolio)", "achieved": 0, "target": 3, "result": 0}]}}, {"route": "3144", "code": "3134214", "name": "Ginard Claudia Ines", "score": 0.6014285714285714, "priority": "MEDIA", "pillars": {"EDF": [{"concept": "Cobertura Puertas", "achieved": 2, "target": 4, "result": 0.5}, {"concept": "EDF Exclusivo SS", "achieved": 0, "target": 3, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 7.142857142857143, "target": 10, "result": 0.7142857142857143}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 10, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 5, "result": 0}], "ACTIVACION": [{"concept": "Plataforma Flexible (Replenish o Morning Time)", "achieved": 0, "target": 3, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO MS RET Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO MS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors SS", "achieved": 0, "target": 1, "result": 0}, {"concept": "CORE Stills #2", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCNS MS Freq", "achieved": 0, "target": 1, "result": 0}]}}, {"route": "3142", "code": "3195830", "name": "Ortiz Carlos Adrian", "score": 0.6025, "priority": "MEDIA", "pillars": {"ACTIVACION": [{"concept": "Plataforma Meals​ ", "achieved": 0, "target": 4, "result": 0}, {"concept": "Zona de Ahorro", "achieved": 0, "target": 6, "result": 0}, {"concept": "Plataforma Flexible (Replenish o Morning Time)", "achieved": 0, "target": 3, "result": 0}, {"concept": "Ejecucion Epicos", "achieved": 0, "target": 3, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 8.75, "target": 10, "result": 0.875}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO MS RET Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}], "EDF": [{"concept": "SOCI SABORES", "achieved": 0, "target": 5, "result": 0}], "SOVI": [{"concept": "SOVI SABORES", "achieved": 0, "target": 2.5, "result": 0}]}}, {"route": "3145", "code": "3135460", "name": "Grau Martin", "score": 0.6028571428571429, "priority": "MEDIA", "pillars": {"DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 9.285714285714286, "target": 10, "result": 0.9285714285714286}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 10, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 5, "result": 0}], "PRECIO": [{"concept": "CCO SS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors SS", "achieved": 0, "target": 1, "result": 0}], "EDF": [{"concept": "SOCI SABORES", "achieved": 0, "target": 5, "result": 0}], "SOVI": [{"concept": "SOVI NARTD", "achieved": 0, "target": 5, "result": 0}, {"concept": "SOVI STILLS", "achieved": 0, "target": 2.5, "result": 0}, {"concept": "SOVI SABORES", "achieved": 0, "target": 2.5, "result": 0}]}}, {"route": "3142", "code": "3137772", "name": "Martin Sergio Alberto", "score": 0.6083333336666666, "priority": "MEDIA", "pillars": {"ACTIVACION": [{"concept": "Plataforma Meals​ ", "achieved": 0, "target": 4, "result": 0}, {"concept": "Plataforma Flexible (Replenish o Morning Time)", "achieved": 0, "target": 3, "result": 0}], "EDF": [{"concept": "Cobertura Puertas", "achieved": 2.6666666666666665, "target": 4, "result": 0.6666666666666666}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 7.5, "target": 10, "result": 0.75}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 7, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 8, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}]}}, {"route": "3145", "code": "3110093", "name": "Ingrao Alberto Sebastian", "score": 0.62, "priority": "MEDIA", "pillars": {"DISPONIBILIDAD": [{"concept": "Combinada Portafolio Imperdonable", "achieved": 0, "target": 3, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 12, "result": 0}, {"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 12, "target": 15, "result": 0.8}], "ACTIVACION": [{"concept": "Replenish Time", "achieved": 0, "target": 10, "result": 0}], "PRECIO": [{"concept": "SSD CCO SS Frequency  ​", "achieved": 0, "target": 4, "result": 0}, {"concept": "SSD CCO SS Entry Pack​", "achieved": 0, "target": 3, "result": 0}, {"concept": "Stills (Any from priority portfolio)", "achieved": 0, "target": 3, "result": 0}]}}, {"route": "3142", "code": "3137367", "name": "Lazarte Facundo Nicolas", "score": 0.62, "priority": "MEDIA", "pillars": {"DISPONIBILIDAD": [{"concept": "Combinada Portafolio Imperdonable", "achieved": 0, "target": 3, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 12, "result": 0}, {"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 12, "target": 15, "result": 0.8}], "ACTIVACION": [{"concept": "Replenish Time", "achieved": 0, "target": 10, "result": 0}], "PRECIO": [{"concept": "SSD CCO SS Frequency  ​", "achieved": 0, "target": 4, "result": 0}, {"concept": "SSD CCO SS Entry Pack​", "achieved": 0, "target": 3, "result": 0}, {"concept": "Stills (Any from priority portfolio)", "achieved": 0, "target": 3, "result": 0}]}}, {"route": "3145", "code": "3175162", "name": "Portillo Carlos Ariel", "score": 0.6207142857142857, "priority": "MEDIA", "pillars": {"EDF": [{"concept": "Cobertura Puertas", "achieved": 3, "target": 4, "result": 0.75}, {"concept": "SOCI COLAS", "achieved": 0, "target": 4, "result": 0}, {"concept": "SOCI SABORES", "achieved": 0, "target": 5, "result": 0}, {"concept": "SOCI STILLS", "achieved": 0, "target": 5, "result": 0}, {"concept": "EDF Exclusivo SS", "achieved": 0, "target": 3, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 8.571428571428571, "target": 10, "result": 0.8571428571428571}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}], "ACTIVACION": [{"concept": "Plataforma Flexible (Replenish o Morning Time)", "achieved": 0, "target": 3, "result": 0}], "PRECIO": [{"concept": "CCO MS RET Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO MS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors SS", "achieved": 0, "target": 1, "result": 0}, {"concept": "CORE Stills #2", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCNS MS Freq", "achieved": 0, "target": 1, "result": 0}], "SOVI": [{"concept": "SOVI STILLS", "achieved": 0, "target": 2.5, "result": 0}]}}, {"route": "3145", "code": "3139442", "name": "Cabrera Fernando", "score": 0.6377731250335534, "priority": "MEDIA", "pillars": {"DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 6.428571428571429, "target": 10, "result": 0.6428571428571429}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 10, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 5, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors SS", "achieved": 0, "target": 1, "result": 0}, {"concept": "CORE Stills #2", "achieved": 0, "target": 1, "result": 0}], "EDF": [{"concept": "EDF Exclusivo SS", "achieved": 0, "target": 3, "result": 0}], "SOVI": [{"concept": "SOVI STILLS", "achieved": 0, "target": 2.5, "result": 0}, {"concept": "SOVI SABORES", "achieved": 2.348741074783916, "target": 2.5, "result": 0.9394964299135664}]}}, {"route": "3143", "code": "3177454", "name": "Carmena Marcelo Ramon", "score": 0.64, "priority": "MEDIA", "pillars": {"DISPONIBILIDAD": [{"concept": "Combinada Portafolio Imperdonable", "achieved": 0, "target": 3, "result": 0}, {"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 12, "target": 15, "result": 0.8}], "ACTIVACION": [{"concept": "Zona de My Breaks - Zona de Impulso", "achieved": 0, "target": 20, "result": 0}], "PRECIO": [{"concept": "SSD CCO SS Frequency  ​", "achieved": 0, "target": 4, "result": 0}, {"concept": "SSD CCO SS Entry Pack​", "achieved": 0, "target": 3, "result": 0}, {"concept": "Stills (Any from priority portfolio)", "achieved": 0, "target": 3, "result": 0}]}}, {"route": "3142", "code": "3133873", "name": "Ns Fiambreria S. A. S.", "score": 0.6460708793590288, "priority": "MEDIA", "pillars": {"DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 7.857142857142857, "target": 10, "result": 0.7857142857142857}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 10, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 5, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO MS RET Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO MS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors SS", "achieved": 0, "target": 1, "result": 0}, {"concept": "CORE Stills #2", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCNS MS Freq", "achieved": 0, "target": 1, "result": 0}], "EDF": [{"concept": "SOCI SABORES", "achieved": 4.749945078760026, "target": 5, "result": 0.9499890157520052}, {"concept": "EDF Exclusivo SS", "achieved": 0, "target": 3, "result": 0}]}}, {"route": "3145", "code": "3194521", "name": "Rodriguez Lidia Elizabeth", "score": 0.6475000016666667, "priority": "MEDIA", "pillars": {"EDF": [{"concept": "Cobertura Puertas", "achieved": 2.6666666666666665, "target": 4, "result": 0.6666666666666666}, {"concept": "Primer bandeja Consumo Personal", "achieved": 0, "target": 3, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 3.75, "target": 10, "result": 0.375}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 7, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 8, "result": 0}], "ACTIVACION": [{"concept": "Plataforma Flexible (Replenish o Morning Time)", "achieved": 0, "target": 3, "result": 0}], "PRECIO": [{"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}]}}, {"route": "3143", "code": "3135232", "name": "Mahmoud Juan Carlos", "score": 0.648333334, "priority": "MEDIA", "pillars": {"DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 7.5, "target": 10, "result": 0.75}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 7, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 8, "result": 0}], "ACTIVACION": [{"concept": "Plataforma Flexible (Replenish o Morning Time)", "achieved": 0, "target": 3, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO MS RET Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}], "EDF": [{"concept": "Primer bandeja Consumo Personal", "achieved": 0, "target": 3, "result": 0}]}}, {"route": "3142", "code": "3198941", "name": "Matarrese Dino Paolo", "score": 0.6491666666666666, "priority": "MEDIA", "pillars": {"EDF": [{"concept": "Cobertura Puertas", "achieved": 2.6666666666666665, "target": 4, "result": 0.6666666666666666}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 6.25, "target": 10, "result": 0.625}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 7, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 8, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO MS RET Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}]}}, {"route": "3141", "code": "3137330", "name": "El Malik S. A. S", "score": 0.6557142857142857, "priority": "MEDIA", "pillars": {"DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 8.571428571428571, "target": 10, "result": 0.8571428571428571}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 10, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 5, "result": 0}], "ACTIVACION": [{"concept": "Plataforma My Breaks​ - Zona de Impulso", "achieved": 0, "target": 4, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO MS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors SS", "achieved": 0, "target": 1, "result": 0}], "EDF": [{"concept": "EDF Exclusivo SS", "achieved": 0, "target": 3, "result": 0}]}}, {"route": "3143", "code": "3140391", "name": "Machado Juan Jose", "score": 0.6643795604310625, "priority": "MEDIA", "pillars": {"EDF": [{"concept": "Cobertura Puertas", "achieved": 3, "target": 4, "result": 0.75}, {"concept": "SOCI COLAS", "achieved": 3.8665274716776867, "target": 4, "result": 0.9666318679194217}, {"concept": "EDF Exclusivo SS", "achieved": 0, "target": 3, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 8.571428571428571, "target": 10, "result": 0.8571428571428571}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 10, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 5, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors SS", "achieved": 0, "target": 1, "result": 0}, {"concept": "CORE Stills #2", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCNS MS Freq", "achieved": 0, "target": 1, "result": 0}]}}, {"route": "3145", "code": "3137560", "name": "Zelaya Polito Jesus Armando", "score": 0.669166667, "priority": "MEDIA", "pillars": {"ACTIVACION": [{"concept": "Plataforma Meals​ ", "achieved": 0, "target": 4, "result": 0}, {"concept": "Plataforma My Breaks​ - Zona de Impulso", "achieved": 0, "target": 4, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 8.75, "target": 10, "result": 0.875}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO MS RET Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}], "EDF": [{"concept": "SOCI SABORES", "achieved": 0, "target": 5, "result": 0}, {"concept": "Primer bandeja Consumo Personal", "achieved": 0, "target": 3, "result": 0}], "SOVI": [{"concept": "SOVI SABORES", "achieved": 0, "target": 2.5, "result": 0}]}}, {"route": "3140", "code": "3133673", "name": "Martorell Jorge David", "score": 0.6833333336666666, "priority": "MEDIA", "pillars": {"DISPONIBILIDAD": [{"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 10, "result": 0}, {"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 6.666666666666666, "target": 10, "result": 0.6666666666666666}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}], "PRECIO": [{"concept": "CCO MS RET Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}]}}, {"route": "3142", "code": "3117205", "name": "Mena Miguel Angel", "score": 0.6833333336666666, "priority": "MEDIA", "pillars": {"DISPONIBILIDAD": [{"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 10, "result": 0}, {"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 6.666666666666666, "target": 10, "result": 0.6666666666666666}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}]}}, {"route": "3145", "code": "3177079", "name": "Chen Zhangcong", "score": 0.6848161273659048, "priority": "MEDIA", "pillars": {"DISPONIBILIDAD": [{"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 10, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 5, "result": 0}], "PRECIO": [{"concept": "Flavors MS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO MS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors SS", "achieved": 0, "target": 1, "result": 0}], "EDF": [{"concept": "SOCI SABORES", "achieved": 4.6883302251440355, "target": 5, "result": 0.9376660450288071}, {"concept": "SOCI STILLS", "achieved": 4.9597666688874575, "target": 5, "result": 0.9919533337774915}, {"concept": "EDF Exclusivo SS", "achieved": 0, "target": 3, "result": 0}], "SOVI": [{"concept": "SOVI NARTD", "achieved": 4.833515842558985, "target": 5, "result": 0.9667031685117969}, {"concept": "SOVI STILLS", "achieved": 0, "target": 2.5, "result": 0}, {"concept": "SOVI SABORES", "achieved": 0, "target": 2.5, "result": 0}]}}, {"route": "3142", "code": "3174459", "name": "Guerra Esteban Ruben", "score": 0.6868705681339037, "priority": "MEDIA", "pillars": {"ACTIVACION": [{"concept": "Plataforma Meals​ ", "achieved": 0, "target": 4, "result": 0}], "PRECIO": [{"concept": "CCO MS RET Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 6.666666666666666, "target": 10, "result": 0.6666666666666666}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}], "EDF": [{"concept": "SOCI SABORES", "achieved": 0, "target": 5, "result": 0}, {"concept": "SOCI STILLS", "achieved": 4.668708448494808, "target": 5, "result": 0.9337416896989617}], "SOVI": [{"concept": "SOVI STILLS", "achieved": 2.3362739234449763, "target": 2.5, "result": 0.9345095693779906}, {"concept": "SOVI SABORES", "achieved": 2.348741074783916, "target": 2.5, "result": 0.9394964299135664}]}}, {"route": "3145", "code": "3101426", "name": "Guo Huang", "score": 0.6885714285714286, "priority": "MEDIA", "pillars": {"ACTIVACION": [{"concept": "Plataforma Meals​ ", "achieved": 0, "target": 4, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 7.857142857142857, "target": 10, "result": 0.7857142857142857}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 10, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 5, "result": 0}], "PRECIO": [{"concept": "CCO SS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO MS Entry", "achieved": 0, "target": 1, "result": 0}], "EDF": [{"concept": "EDF Exclusivo SS", "achieved": 0, "target": 3, "result": 0}]}}, {"route": "3143", "code": "3194531", "name": "Pacam Distrilog Argentina Srl", "score": 0.6891666670000001, "priority": "MEDIA", "pillars": {"DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 6.25, "target": 10, "result": 0.625}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 7, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}], "ACTIVACION": [{"concept": "Plataforma My Breaks​ - Zona de Impulso", "achieved": 0, "target": 4, "result": 0}], "PRECIO": [{"concept": "CCO MS RET Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}], "EDF": [{"concept": "Primer bandeja Consumo Personal", "achieved": 0, "target": 3, "result": 0}]}}, {"route": "3142", "code": "3137318", "name": "Monzon Villalva Amelia", "score": 0.6960880623112382, "priority": "MEDIA", "pillars": {"ACTIVACION": [{"concept": "Plataforma Meals​ ", "achieved": 0, "target": 4, "result": 0}], "PRECIO": [{"concept": "CCO MS RET Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}], "EDF": [{"concept": "SOCI COLAS", "achieved": 3.942139564457161, "target": 4, "result": 0.9855348911142903}, {"concept": "Libre de Contaminación​", "achieved": 0, "target": 3, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 6.666666666666666, "target": 10, "result": 0.6666666666666666}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}]}}, {"route": "3141", "code": "3193983", "name": "Rodriguez Juan Jose", "score": 0.7028571428571427, "priority": "BAJA", "pillars": {"EDF": [{"concept": "Cobertura Puertas", "achieved": 2, "target": 4, "result": 0.5}, {"concept": "EDF Exclusivo SS", "achieved": 0, "target": 3, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 9.285714285714286, "target": 10, "result": 0.9285714285714286}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 10, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 5, "result": 0}], "PRECIO": [{"concept": "CCO MS RET Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCNS MS Freq", "achieved": 0, "target": 1, "result": 0}]}}, {"route": "3142", "code": "3135937", "name": "Comestibles Alem S. R. L.", "score": 0.7077466794814515, "priority": "BAJA", "pillars": {"EDF": [{"concept": "SOCI COLAS", "achieved": 3.804550346448609, "target": 4, "result": 0.9511375866121522}, {"concept": "EDF Exclusivo SS", "achieved": 0, "target": 3, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 10, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 5, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO MS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors SS", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCNS MS Freq", "achieved": 0, "target": 1, "result": 0}], "SOVI": [{"concept": "SOVI STILLS", "achieved": 2.470117601696549, "target": 2.5, "result": 0.9880470406786197}]}}, {"route": "3142", "code": "3115991", "name": "Rellip Manuel Roque", "score": 0.711666668, "priority": "BAJA", "pillars": {"DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 7.5, "target": 10, "result": 0.75}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 7, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 8, "result": 0}], "ACTIVACION": [{"concept": "Plataforma Flexible (Replenish o Morning Time)", "achieved": 0, "target": 3, "result": 0}], "PRECIO": [{"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}]}}, {"route": "3143", "code": "3195553", "name": "Moyano Gabriel Alejandro", "score": 0.7161071853201207, "priority": "BAJA", "pillars": {"EDF": [{"concept": "SOCI COLAS", "achieved": 3.9440518320120757, "target": 4, "result": 0.9860129580030189}, {"concept": "SOCI SABORES", "achieved": 0, "target": 5, "result": 0}, {"concept": "SOCI STILLS", "achieved": 0, "target": 5, "result": 0}], "PRECIO": [{"concept": "CCO MS RET Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}], "SOVI": [{"concept": "SOVI NARTD", "achieved": 0, "target": 5, "result": 0}, {"concept": "SOVI STILLS", "achieved": 0, "target": 2.5, "result": 0}, {"concept": "SOVI SABORES", "achieved": 0, "target": 2.5, "result": 0}]}}, {"route": "3142", "code": "3136160", "name": "Gonzalez Mario Ruben", "score": 0.718333334, "priority": "BAJA", "pillars": {"ACTIVACION": [{"concept": "Plataforma Meals​ ", "achieved": 0, "target": 4, "result": 0}, {"concept": "Plataforma Flexible (Replenish o Morning Time)", "achieved": 0, "target": 3, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 7.5, "target": 10, "result": 0.75}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 7, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}]}}, {"route": "3142", "code": "3135377", "name": "Martin Castro Ignacio", "score": 0.7185306723462439, "priority": "BAJA", "pillars": {"EDF": [{"concept": "Cobertura Puertas", "achieved": 2, "target": 4, "result": 0.5}, {"concept": "SOCI SABORES", "achieved": 4.995924377481527, "target": 5, "result": 0.9991848754963055}, {"concept": "EDF Exclusivo SS", "achieved": 0, "target": 3, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 7.857142857142857, "target": 10, "result": 0.7857142857142857}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 10, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}], "ACTIVACION": [{"concept": "Plataforma Flexible (Replenish o Morning Time)", "achieved": 0, "target": 3, "result": 0}], "PRECIO": [{"concept": "CORE Stills #1", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors SS", "achieved": 0, "target": 1, "result": 0}, {"concept": "CORE Stills #2", "achieved": 0, "target": 1, "result": 0}]}}, {"route": "3144", "code": "3136029", "name": "Fernandez Braian Nahuel", "score": 0.7207142857142856, "priority": "BAJA", "pillars": {"DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 8.571428571428571, "target": 10, "result": 0.8571428571428571}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 10, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1, "result": 0}], "EDF": [{"concept": "SOCI SABORES", "achieved": 0, "target": 5, "result": 0}, {"concept": "EDF Exclusivo SS", "achieved": 0, "target": 3, "result": 0}], "SOVI": [{"concept": "SOVI SABORES", "achieved": 0, "target": 2.5, "result": 0}]}}, {"route": "3143", "code": "3186682", "name": "Carrazana Luis Cristian", "score": 0.7234874107478392, "priority": "BAJA", "pillars": {"PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO MS RET Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}], "EDF": [{"concept": "SOCI SABORES", "achieved": 0, "target": 5, "result": 0}, {"concept": "SOCI STILLS", "achieved": 0, "target": 5, "result": 0}], "SOVI": [{"concept": "SOVI NARTD", "achieved": 0, "target": 5, "result": 0}, {"concept": "SOVI STILLS", "achieved": 0, "target": 2.5, "result": 0}, {"concept": "SOVI SABORES", "achieved": 2.348741074783916, "target": 2.5, "result": 0.9394964299135664}]}}, {"route": "3142", "code": "3191849", "name": "Juarez Miguel Eudoro", "score": 0.7251540784145059, "priority": "BAJA", "pillars": {"ACTIVACION": [{"concept": "Plataforma Meals​ ", "achieved": 0, "target": 4, "result": 0}], "PRECIO": [{"concept": "CCO MS RET Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 6.666666666666666, "target": 10, "result": 0.6666666666666666}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}], "EDF": [{"concept": "SOCI SABORES", "achieved": 0, "target": 5, "result": 0}], "SOVI": [{"concept": "SOVI SABORES", "achieved": 2.348741074783916, "target": 2.5, "result": 0.9394964299135664}]}}, {"route": "3141", "code": "3177425", "name": "Carmena Marcelo Ramon", "score": 0.75, "priority": "BAJA", "pillars": {"DISPONIBILIDAD": [{"concept": "Combinada Portafolio Imperdonable", "achieved": 0, "target": 3, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 12, "result": 0}], "PRECIO": [{"concept": "SSD CCO SS Frequency  ​", "achieved": 0, "target": 4, "result": 0}, {"concept": "SSD CCO SS Entry Pack​", "achieved": 0, "target": 3, "result": 0}, {"concept": "Stills (Any from priority portfolio)", "achieved": 0, "target": 3, "result": 0}]}}, {"route": "3142", "code": "3139682", "name": "You Shop S. A. S.", "score": 0.75, "priority": "BAJA", "pillars": {"EDF": [{"concept": "SOCI COLAS", "achieved": 0, "target": 4, "result": 0}, {"concept": "SOCI SABORES", "achieved": 0, "target": 5, "result": 0}, {"concept": "EDF Exclusivo SS", "achieved": 0, "target": 3, "result": 0}], "PRECIO": [{"concept": "CCO SS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors SS", "achieved": 0, "target": 1, "result": 0}], "SOVI": [{"concept": "SOVI NARTD", "achieved": 0, "target": 5, "result": 0}, {"concept": "SOVI STILLS", "achieved": 0, "target": 2.5, "result": 0}, {"concept": "SOVI SABORES", "achieved": 0, "target": 2.5, "result": 0}]}}, {"route": "3144", "code": "3136762", "name": "Prado Natalia Mabel", "score": 0.7666666666666666, "priority": "BAJA", "pillars": {"PRECIO": [{"concept": "CCO MS RET Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 6.666666666666666, "target": 10, "result": 0.6666666666666666}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}]}}, {"route": "3144", "code": "3193570", "name": "Corti Gomez Nadia Soledad", "score": 0.7678571428571428, "priority": "BAJA", "pillars": {"DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 9.285714285714286, "target": 10, "result": 0.9285714285714286}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 5, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO MS RET Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO MS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors SS", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCNS MS Freq", "achieved": 0, "target": 1, "result": 0}], "EDF": [{"concept": "EDF Exclusivo SS", "achieved": 0, "target": 3, "result": 0}], "SOVI": [{"concept": "SOVI SABORES", "achieved": 0, "target": 2.5, "result": 0}]}}, {"route": "3143", "code": "3151476", "name": "Casillas Diego Sebastian", "score": 0.7692558671837579, "priority": "BAJA", "pillars": {"EDF": [{"concept": "SOCI COLAS", "achieved": 3.965000830506931, "target": 4, "result": 0.9912502076267328}, {"concept": "SOCI SABORES", "achieved": 0, "target": 5, "result": 0}, {"concept": "EDF Exclusivo SS", "achieved": 0, "target": 3, "result": 0}], "DISPONIBILIDAD": [{"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 5, "result": 0}], "PRECIO": [{"concept": "CCO SS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1, "result": 0}, {"concept": "CCO MS Entry", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors SS", "achieved": 0, "target": 1, "result": 0}], "SOVI": [{"concept": "SOVI SABORES", "achieved": 2.4605858878688642, "target": 2.5, "result": 0.9842343551475456}]}}, {"route": "3142", "code": "3196177", "name": "Martin Arnaldo Andres", "score": 0.78192422060215, "priority": "BAJA", "pillars": {"DISPONIBILIDAD": [{"concept": "Disponibilidad Imperdonables ESTRATÉGICOS", "achieved": 3.333333333333333, "target": 10, "result": 0.3333333333333333}, {"concept": "Disponibilidad Combinada Imperdonables STILLS", "achieved": 0, "target": 5, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonable (Core + Estrategicos)", "achieved": 0, "target": 5, "result": 0}], "PRECIO": [{"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}], "EDF": [{"concept": "SOCI SABORES", "achieved": 4.872186312404586, "target": 5, "result": 0.9744372624809172}], "SOVI": [{"concept": "SOVI SABORES", "achieved": 2.4869023144770876, "target": 2.5, "result": 0.9947609257908351}]}}, {"route": "3141", "code": "3194331", "name": "Olas Diego Roberto", "score": 0.7969892098851374, "priority": "BAJA", "pillars": {"PRECIO": [{"concept": "SSD CCO SS Frequency  ​", "achieved": 0, "target": 4, "result": 0}, {"concept": "SSD CCO SS Entry Pack​", "achieved": 0, "target": 3, "result": 0}, {"concept": "Stills (Any from priority portfolio)", "achieved": 0, "target": 3, "result": 0}], "EDF": [{"concept": "SOCI COLAS", "achieved": 4.698920988513749, "target": 5, "result": 0.9397841977027499}, {"concept": "SOCI SABORES", "achieved": 0, "target": 5, "result": 0}, {"concept": "SOCI STILLS", "achieved": 0, "target": 5, "result": 0}]}}, {"route": "3141", "code": "3136168", "name": "Carmena Marcelo Ramon", "score": 0.8, "priority": "BAJA", "pillars": {"ACTIVACION": [{"concept": "Replenish Time", "achieved": 0, "target": 10, "result": 0}], "PRECIO": [{"concept": "SSD CCO SS Frequency  ​", "achieved": 0, "target": 4, "result": 0}, {"concept": "SSD CCO SS Entry Pack​", "achieved": 0, "target": 3, "result": 0}, {"concept": "Stills (Any from priority portfolio)", "achieved": 0, "target": 3, "result": 0}]}}, {"route": "3143", "code": "3136151", "name": "Campo Alvaro Gonzalo", "score": 0.8008891143954403, "priority": "BAJA", "pillars": {"EDF": [{"concept": "Cobertura Puertas", "achieved": 3, "target": 4, "result": 0.75}, {"concept": "SOCI COLAS", "achieved": 3.740170364760115, "target": 4, "result": 0.9350425911900287}, {"concept": "SOCI SABORES", "achieved": 0, "target": 5, "result": 0}, {"concept": "SOCI STILLS", "achieved": 0, "target": 5, "result": 0}, {"concept": "EDF Exclusivo SS", "achieved": 0, "target": 3, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1, "result": 0}, {"concept": "Flavors SS", "achieved": 0, "target": 1, "result": 0}], "SOVI": [{"concept": "SOVI STILLS", "achieved": 0, "target": 2.5, "result": 0}, {"concept": "SOVI SABORES", "achieved": 2.348741074783916, "target": 2.5, "result": 0.9394964299135664}]}}, {"route": "3141", "code": "3196252", "name": "Panchuque S.R.L", "score": 0.8284874107478392, "priority": "BAJA", "pillars": {"EDF": [{"concept": "Cobertura Puertas", "achieved": 2, "target": 4, "result": 0.5}, {"concept": "SOCI COLAS", "achieved": 0, "target": 4, "result": 0}, {"concept": "SOCI SABORES", "achieved": 0, "target": 5, "result": 0}, {"concept": "EDF Exclusivo SS", "achieved": 0, "target": 3, "result": 0}], "ACTIVACION": [{"concept": "Plataforma Flexible (Replenish o Morning Time)", "achieved": 0, "target": 3, "result": 0}], "SOVI": [{"concept": "SOVI SABORES", "achieved": 2.348741074783916, "target": 2.5, "result": 0.9394964299135664}]}}, {"route": "3143", "code": "3199879", "name": "Valoy Andres", "score": 0.85, "priority": "OK", "pillars": {"DISPONIBILIDAD": [{"concept": "Combinada Portafolio Imperdonable", "achieved": 0, "target": 3, "result": 0}, {"concept": "Disponibilidad Combinada Imperdonables CORE", "achieved": 0, "target": 12, "result": 0}]}}, {"route": "3142", "code": "3137810", "name": "Lopez Margarita Del Valle", "score": 0.8866666670000001, "priority": "OK", "pillars": {"ACTIVACION": [{"concept": "Plataforma Flexible (Replenish o Morning Time)", "achieved": 0, "target": 3, "result": 0}], "PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}]}}, {"route": "3144", "code": "3193244", "name": "Carmena Marcelo Ramon", "score": 0.9, "priority": "OK", "pillars": {"PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO MS RET Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CCO SS Entry", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}]}}, {"route": "3143", "code": "3185889", "name": "Monetti Rodolfo Sergio", "score": 0.9357420946052918, "priority": "OK", "pillars": {"EDF": [{"concept": "SOCI COLAS", "achieved": 3.7919920023441405, "target": 4, "result": 0.9479980005860351}, {"concept": "SOCI SABORES", "achieved": 0, "target": 5, "result": 0}, {"concept": "SOCI STILLS", "achieved": 4.8554567864346, "target": 5, "result": 0.9710913572869201}], "PRECIO": [{"concept": "Flavors MS Freq", "achieved": 0, "target": 1, "result": 0}], "SOVI": [{"concept": "SOVI STILLS", "achieved": 2.471258639021797, "target": 2.5, "result": 0.9885034556087188}, {"concept": "SOVI SABORES", "achieved": 2.4555020327286394, "target": 2.5, "result": 0.9822008130914558}]}}, {"route": "3142", "code": "3135816", "name": "Peralta Mariana Del Valle", "score": 0.9366666676666666, "priority": "OK", "pillars": {"EDF": [{"concept": "Cobertura Puertas", "achieved": 2.6666666666666665, "target": 4, "result": 0.6666666666666666}], "PRECIO": [{"concept": "CCO SS Entry", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}]}}, {"route": "3142", "code": "3177553", "name": "Abraham Leila Yesica", "score": 0.9500000009999999, "priority": "OK", "pillars": {"PRECIO": [{"concept": "CCO MS OW Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "Flavors MS Freq", "achieved": 0, "target": 1.6666667, "result": 0}, {"concept": "CORE Stills #1", "achieved": 0, "target": 1.6666667, "result": 0}]}}];
+let ROUTE_TOTALS = {"3140": 0.571, "3141": 0.587, "3142": 0.6460702458428731, "3143": 0.618221089933092, "3144": 0.6577777777777778, "3145": 0.5834332460625464};
+const PILLARS=["DISPONIBILIDAD","EDF","ACTIVACION","PRECIO","SOVI"];
+const LABELS={DISPONIBILIDAD:"Disponibilidad",EDF:"EDF",ACTIVACION:"Activación",PRECIO:"Precio",SOVI:"SOVI"};
+let selected=DATA.length?DATA[0]:null;
+let routeFilter="";
+let quickFilter="";
+
+
+function scoreClass(v){
+  if(v < .40) return "s0";
+  if(v < .55) return "s1";
+  if(v < .70) return "s2";
+  if(v < .85) return "s3";
+  return "s4";
+}
+function scoreStatus(v){
+  if(v < .40) return "CRÍTICO";
+  if(v < .55) return "BAJO";
+  if(v < .70) return "EN DESARROLLO";
+  if(v < .85) return "BUEN AVANCE";
+  return "DESTACADO";
+}
+function routeOfficialScore(route){
+  if(ROUTE_TOTALS && ROUTE_TOTALS[route] != null) return Number(ROUTE_TOTALS[route]);
+  const a=DATA.filter(c=>c.route===route);
+  return a.length ? a.reduce((x,c)=>x+c.score,0)/a.length : 0;
+}
+
+function pct(v){return Math.round(v*100)+"%"}
+function devCount(c){return PILLARS.reduce((a,p)=>a+((c.pillars[p]||[]).length),0)}
+function initials(n){return n.split(" ").slice(0,2).map(x=>x[0]||"").join("").toUpperCase()}
+function setActive(name){document.querySelectorAll(".navbtn").forEach(b=>b.classList.remove("active"));document.getElementById("nav-"+name).classList.add("active")}
+function navTo(name){
+  setActive(name);
+  if(name==="ice") renderICE();
+  if(name==="ruta") renderRoutes();
+  if(name==="clientes") renderClientsPage();
+  if(name==="tareas") renderTasks();
+  if(name==="panel") renderPanel();
+}
+
+function visibleClients(){
+  return DATA.filter(c=>(!routeFilter||c.route===routeFilter) && (!quickFilter || (quickFilter==="ALTA"?c.priority==="ALTA":(c.pillars[quickFilter]||[]).length>0)));
+}
+
+function baseControls(){
+  const routes=[...new Set(DATA.map(c=>c.route))].sort();
+  return `<div class="updateBar">
+    <button class="updateBtn" onclick="openImport()">↻ Actualizar desde Excel</button>
+    <button class="updateBtn secondary" onclick="resetSample()">Restaurar muestra inicial</button>
+    <span class="updateInfo" id="updateStamp"></span>
+  </div>
+  <div class="searchCard" onclick="openSearch()"><div class="searchIcon">⌕</div><div class="searchText"><b>Buscar cliente o desvío</b><span>Nombre, código, ruta o pilar ICE</span></div></div>
+  <div class="chips">
+    <button class="chip ${quickFilter===""?"active":""}" onclick="setQuick('')">Todos</button>
+    <button class="chip ${quickFilter==="ALTA"?"active":""}" onclick="setQuick('ALTA')">Críticos</button>
+    ${PILLARS.map(p=>`<button class="chip ${quickFilter===p?"active":""}" onclick="setQuick('${p}')">${LABELS[p]}</button>`).join("")}
+  </div>
+  <select class="routeSelect" onchange="routeFilter=this.value;renderICE()">
+    <option value="">Todas las rutas</option>
+    ${routes.map(r=>`<option value="${r}" ${routeFilter===r?"selected":""}>Ruta ${r}</option>`).join("")}
+  </select>`;
+}
+
+function setQuick(f){quickFilter=f;renderICE()}
+
+function renderICE(){
+  document.getElementById("pageTitle").innerHTML='Gestión ICE <small style="font-size:11px">V8.3</small>';
+  const list=visibleClients().sort((a,b)=>a.score-b.score);
+  const avg=list.length?list.reduce((a,c)=>a+c.score,0)/list.length:0;
+  const official = routeFilter ? routeOfficialScore(routeFilter) : avg;
+  const crit=list.filter(c=>c.priority==="ALTA").length;
+  let h=baseControls();
+  h+=`<div class="stats">
+    <div class="stat"><b>${list.length}</b><span>Clientes</span></div>
+    <div class="stat routeResultCard ${scoreClass(official)}">
+      <div class="routeResultValue">${pct(official)}</div>
+      <div class="routeResultLabel">${routeFilter ? "Resultado Ruta" : "Promedio"}</div>
+    </div>
+    <div class="stat"><b>${crit}</b><span>Críticos</span></div>
+  </div>`;
+  h+=list.map((c,i)=>`<div class="client c${(i%5)+1}" onclick="selectClient('${c.code}')"><div><small>Ruta ${c.route} · Cliente ${c.code}</small><b>${c.name}</b><small>Prioridad <span class="badge">${c.priority}</span></small><small>Desvíos detectados: ${devCount(c)}</small></div><div class="score"><span class="scoreHero ${scoreClass(c.score)}">${pct(c.score)}</span></div></div>`).join("");
+  document.getElementById("mainContent").innerHTML=h;
+  if(selected) renderDetail(selected);
+}
+
+function renderRoutes(){
+  document.getElementById("pageTitle").textContent="Rutas";
+  const routes=[...new Set(DATA.map(c=>c.route))].sort();
+  const h=`<div class="pageNote"><b>Elegí una ruta.</b> El porcentaje corresponde al total oficial de la ruta cuando viene informado en el Excel.</div>
+  <div class="routeCards">${routes.map(r=>{
+    const a=DATA.filter(c=>c.route===r);
+    const sc=routeOfficialScore(r);
+    const crit=a.filter(c=>c.priority==="ALTA").length;
+    return `<div class="box routePill" onclick="openRoute('${r}')">
+      <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start">
+        <div><b style="font-size:19px">Ruta ${r}</b><span>${a.length} clientes · ${crit} críticos</span></div>
+        <div><span class="scoreHero ${scoreClass(sc)} routeScore">${pct(sc)}</span><div class="routeStatus">${scoreStatus(sc)}</div></div>
+      </div>
+      <div class="progressTrack"><div class="progressFill ${scoreClass(sc)}" style="width:${Math.max(0,Math.min(100,sc*100))}%"></div></div>
+    </div>`;
+  }).join("")}</div>`;
+  document.getElementById("mainContent").innerHTML=h;
+}
+
+function openRoute(r){routeFilter=r;quickFilter="";setActive("clientes");renderClientsPage()}
+
+function renderClientsPage(){
+  document.getElementById("pageTitle").textContent="Clientes";
+  const list=visibleClients().sort((a,b)=>a.score-b.score);
+  let h=`<div class="pageNote"><b>${routeFilter?"Ruta "+routeFilter:"Todos los clientes"}</b><br>Tocá un cliente para abrir su ficha.</div>`;
+  h+=list.map(c=>`<div class="task" onclick="selectClient('${c.code}')"><b>${c.code} · ${c.name}</b><span>Ruta ${c.route} · ICE ${pct(c.score)} · ${devCount(c)} desvíos</span></div>`).join("");
+  document.getElementById("mainContent").innerHTML=h;
+}
+
+function renderTasks(){
+  document.getElementById("pageTitle").textContent="Tareas";
+  const list=DATA.filter(c=>c.priority==="ALTA").sort((a,b)=>a.score-b.score);
+  let h=`<div class="pageNote"><b>Prioridad de trabajo.</b> Clientes críticos ordenados de menor a mayor ICE.</div>`;
+  h+=list.map(c=>{
+    const main=PILLARS.map(p=>({p,n:(c.pillars[p]||[]).length})).sort((a,b)=>b.n-a.n)[0];
+    return `<div class="task" onclick="selectClient('${c.code}')"><b>🔴 ${c.code} · ${c.name}</b><span>ICE ${pct(c.score)} · ${devCount(c)} desvíos · Foco: ${main&&main.n?LABELS[main.p]:"Revisar"}</span></div>`;
+  }).join("");
+  document.getElementById("mainContent").innerHTML=h;
+}
+
+function renderPanel(){
+  document.getElementById("pageTitle").textContent="Panel";
+  const avg=DATA.reduce((a,c)=>a+c.score,0)/DATA.length;
+  const crit=DATA.filter(c=>c.priority==="ALTA").length;
+  const total=DATA.reduce((a,c)=>a+devCount(c),0);
+  const counts={};PILLARS.forEach(p=>counts[p]=DATA.reduce((a,c)=>a+(c.pillars[p]||[]).length,0));
+  const worst=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
+  document.getElementById("mainContent").innerHTML=`<div class="panelGrid">
+    <div class="box"><b>${DATA.length}</b><span>Clientes analizados</span></div>
+    <div class="box"><b>${pct(avg)}</b><span>ICE promedio</span></div>
+    <div class="box"><b>${crit}</b><span>Clientes críticos</span></div>
+    <div class="box"><b>${total}</b><span>Desvíos detectados</span></div>
+    <div class="box" style="grid-column:1/-1"><b>${LABELS[worst[0]]}</b><span>Principal oportunidad · ${worst[1]} desvíos</span></div>
+  </div>`;
+}
+
+function selectClient(code){
+  selected=DATA.find(c=>c.code===code);
+  renderDetail(selected);
+}
+
+
+const ICE_GUIDE = {
+  // PRECIO
+  "cco ms ow freq":{
+    meaning:"Coca-Cola 2,25 L / 3 L NR / 2,5 L NR (Tucumán).",
+    action:"Revisar disponibilidad del producto, precio correcto y comunicación de precio dentro del PDV."
+  },
+  "cco ms ret freq":{
+    meaning:"Coca-Cola 1,5 L vidrio / 2 L retornable (Tucumán).",
+    action:"Revisar disponibilidad, respeto del precio y comunicación interior del precio."
+  },
+  "cco ss freq":{
+    meaning:"Coca-Cola 600 ml no retornable.",
+    action:"Verificar producto disponible, precio correcto y comunicación interior asociada al SKU."
+  },
+  "cco ss entry":{
+    meaning:"Coca-Cola 375 ml no retornable.",
+    action:"Verificar producto disponible, precio correcto y comunicación interior asociada al SKU."
+  },
+  "flavors ms freq":{
+    meaning:"Sabores 2,5 L retornable.",
+    action:"Revisar disponibilidad del producto, precio y comunicación dentro de la tienda."
+  },
+  "core stills #1":{
+    meaning:"Aquarius 2,25 L.",
+    action:"Revisar disponibilidad del SKU, precio correcto y comunicación interior."
+  },
+  "cco ms entry":{
+    meaning:"Coca-Cola 2,5 L retornable.",
+    action:"Revisar disponibilidad del SKU, precio correcto y comunicación interior."
+  },
+  "flavors ss":{
+    meaning:"Sabores 500 ml no retornable.",
+    action:"Revisar disponibilidad, precio y comunicación interior."
+  },
+  "core stills #2":{
+    meaning:"Cepita 1,5 L no retornable.",
+    action:"Revisar disponibilidad, precio y comunicación interior."
+  },
+  "ccns ms freq":{
+    meaning:"Coca-Cola Zero 1,5 L vidrio / 2 L retornable (Tucumán).",
+    action:"Revisar disponibilidad, precio y comunicación interior."
+  },
+
+  // EDF
+  "mejor posición":{
+    meaning:"Primera posición o, si no se cumple, posición de liderazgo del EDF Coca-Cola.",
+    action:"Revisar que el EDF KO sea el primer contacto relevante/visible y que no haya otro refrigerador NARTD antes."
+  },
+  "libre de contaminación":{
+    meaning:"Los equipos TCCC deben contener únicamente marcas permitidas de la compañía.",
+    action:"Retirar productos ajenos. Si hay más de un EDF, todos deben cumplir."
+  },
+  "llenado al 75%":{
+    meaning:"Cada equipo de la compañía debe estar lleno al menos al 75% con productos KO.",
+    action:"Completar el llenado del EDF. Las invasiones cuentan como espacios vacíos."
+  },
+  "cobertura puertas":{
+    meaning:"Cantidad mínima de puertas KO según tamaño del cliente.",
+    action:"Revisar cobertura de puertas: chico 1, mediano 3, grande 4 como referencia del material ICE."
+  },
+  "edf exclusivo ss":{
+    meaning:"EDF exclusivamente dedicado al consumo personal en clientes grandes.",
+    action:"Revisar que el equipo destinado a consumo personal cumpla el lineamiento y no tenga productos familiares que invaliden la métrica."
+  },
+  "primer bandeja consumo personal":{
+    meaning:"Se busca una bandeja de consumo personal en cada EDF.",
+    action:"Asegurar la bandeja de consumo personal en el equipo y mantenerla correctamente ejecutada."
+  },
+
+  // ACTIVACIÓN
+  "plataforma my breaks - zona de impulso":{
+    meaning:"Activación My Breaks / zona de impulso con foco en consumo personal.",
+    action:"Revisar primera bandeja o EDF KO de consumo personal. Portafolio indicado: Coca-Cola, Coca-Cola Zero, Sprite y Benedictino en formatos personales; cumplir frentes mínimos según segmento."
+  },
+  "zona de my breaks - zona de impulso":{
+    meaning:"Activación My Breaks / zona de impulso.",
+    action:"Revisar ejecución de consumo personal y condiciones visuales/portafolio definidas para el segmento."
+  },
+  "plataforma flexible (replenish o morning time)":{
+    meaning:"Plataforma flexible: Replenish o Morning Time.",
+    action:"Ejecutar correctamente una de las plataformas habilitadas para el cliente. Morning Time se trabaja en zona de desayuno/panadería con portafolio de nutrición."
+  },
+  "replenish time":{
+    meaning:"Plataforma Replenish Time.",
+    action:"Revisar que la ocasión esté correctamente ejecutada según el formato del cliente."
+  },
+  "ejecucion epicos":{
+    meaning:"Ejecución Épicos / Mundialización.",
+    action:"Revisar ejecución en entrada o pasillo central con Coca-Cola, Coca-Cola Zero o Powerade, en cualquier empaque."
+  },
+  "ejecución épicos":{
+    meaning:"Ejecución Épicos / Mundialización.",
+    action:"Revisar ejecución en entrada o pasillo central con Coca-Cola, Coca-Cola Zero o Powerade, en cualquier empaque."
+  },
+  "plataforma meals":{
+    meaning:"Plataforma Meals.",
+    action:"Revisar que la ocasión de consumo Meals esté ejecutada conforme al lineamiento del segmento."
+  },
+  "zona de ahorro":{
+    meaning:"Zona de Ahorro.",
+    action:"Revisar que la plataforma esté presente y correctamente ejecutada en el punto de venta."
+  },
+
+  // DISPONIBILIDAD
+  "disponibilidad imperdonables estratégicos":{
+    meaning:"Referencias estratégicas que impulsan la intención de crecimiento del canal.",
+    action:"Revisar presencia de los imperdonables estratégicos asignados al territorio y tipo de cliente."
+  },
+  "disponibilidad combinada imperdonables core":{
+    meaning:"Portafolio CORE que representa referencias de alta relevancia del negocio.",
+    action:"La combinada requiere presencia completa del grupo; identificar y recuperar cualquier referencia CORE faltante."
+  },
+  "disponibilidad combinada imperdonable (core + estrategicos)":{
+    meaning:"Combinación completa de CORE + Estratégicos.",
+    action:"Debe estar presente todo el portafolio del grupo. La ausencia de un rol invalida la métrica."
+  },
+  "disponibilidad combinada imperdonables stills":{
+    meaning:"Combinación de imperdonables STILLS según territorio y tipo de cliente.",
+    action:"Revisar presencia completa de las referencias STILLS asignadas; una ausencia puede invalidar la combinada."
+  },
+  "combinada portafolio imperdonable":{
+    meaning:"Cumplimiento combinado del portafolio imperdonable.",
+    action:"Revisar qué rol del portafolio obligatorio está ausente, porque la combinada exige presencia completa."
+  },
+
+  // SOVI / SOCI
+  "sovi nartd":{
+    meaning:"Share de visibilidad NARTD: frentes KO sobre frentes totales de la industria.",
+    action:"Aumentar frentes KO o corregir la ejecución para alcanzar al menos el mínimo/target definido."
+  },
+  "sovi stills":{
+    meaning:"Share de visibilidad de STILLS frente al total de la industria.",
+    action:"Revisar cantidad de frentes STILLS KO versus competencia y acercarse al target."
+  },
+  "sovi sabores":{
+    meaning:"Share de visibilidad de Sabores frente al total de la industria.",
+    action:"Revisar frentes de Sabores KO versus competencia y recuperar participación visual."
+  },
+  "soci colas":{
+    meaning:"Participación de Colas KO dentro de los frentes fríos de la categoría.",
+    action:"Mejorar frentes de Colas KO en frío hasta alcanzar el target; debajo del mínimo la métrica puede quedar en 0."
+  },
+  "soci sabores":{
+    meaning:"Participación de Sabores KO dentro de los frentes fríos de la categoría.",
+    action:"Mejorar frentes de Sabores KO en frío hasta alcanzar el target."
+  },
+  "soci stills":{
+    meaning:"Participación de STILLS KO dentro de los frentes fríos de la categoría.",
+    action:"Mejorar frentes de STILLS KO en frío hasta alcanzar el target."
+  }
+};
+
+function normalizeGuideKey(s){
+  return String(s||"")
+    .toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .replace(/\u00a0/g," ")
+    .replace(/\s+/g," ")
+    .trim();
+}
+
+function guideFor(concept, pillar){
+  const k = normalizeGuideKey(concept);
+  if(ICE_GUIDE[k]) return ICE_GUIDE[k];
+
+  // coincidencia parcial para textos que cambian mínimamente
+  for(const [key,val] of Object.entries(ICE_GUIDE)){
+    if(k.includes(key) || key.includes(k)) return val;
+  }
+
+  if(pillar==="PRECIO"){
+    return {
+      meaning:"Métrica de precio del SKU indicado.",
+      action:"Revisar tres condiciones: producto disponible, respeto del precio y comunicación clara del precio dentro del PDV."
+    };
+  }
+  if(pillar==="DISPONIBILIDAD"){
+    return {
+      meaning:"Métrica de presencia del portafolio imperdonable.",
+      action:"Revisar el portafolio requerido para el segmento. En métricas combinadas, una referencia/rol faltante puede invalidar el cumplimiento."
+    };
+  }
+  if(pillar==="EDF"){
+    return {
+      meaning:"Métrica de ejecución del equipo de frío.",
+      action:"Revisar posición, llenado, contaminación, cobertura y ejecución del EDF según corresponda."
+    };
+  }
+  if(pillar==="ACTIVACION"){
+    return {
+      meaning:"Métrica de activación de una ocasión o plataforma en el PDV.",
+      action:"Revisar que la plataforma esté presente y ejecutada según el lineamiento del segmento."
+    };
+  }
+  if(pillar==="SOVI"){
+    return {
+      meaning:"Métrica de participación visual de KO frente a la industria.",
+      action:"Revisar frentes KO versus competencia y trabajar para alcanzar el mínimo/target."
+    };
+  }
+  return {meaning:"Métrica ICE.",action:"Revisar la condición de ejecución asociada."};
+}
+
+function renderDetail(c){
+  if(!c)return;
+  const affected=PILLARS.filter(p=>(c.pillars[p]||[]).length).length;
+  let h=`<div class="person"><div class="avatar">${initials(c.name)}</div><div><b style="font-size:20px">${c.name}</b><div style="color:#8190a0;margin-top:5px">Ruta ${c.route} · Código ${c.code}</div></div></div>`;
+  h+=`<div class="kpis"><div class="kpi"><b>${pct(c.score)}</b><span>Puntaje ICE</span></div><div class="kpi"><b>${devCount(c)}</b><span>Desvíos</span></div><div class="kpi"><b><span class="badge">${c.priority}</span></b><span>Prioridad</span></div><div class="kpi"><b>${affected}</b><span>Pilares afectados</span></div></div>`;
+  PILLARS.forEach(p=>{
+    const arr=c.pillars[p]||[]; if(!arr.length)return;
+    h+=`<div class="pillar"><div class="pillarTitle"><span>${LABELS[p]}</span><span>${arr.length} desvíos</span></div>`;
+    arr.forEach(x=>{
+      const faltante = (typeof x.target==="number" && typeof x.achieved==="number") ? Math.max(0, x.target-x.achieved) : null;
+      const faltanteTxt = faltante!==null ? (Math.round(faltante*100)/100).toLocaleString("es-AR") : "-";
+      const g = guideFor(x.concept, p);
+      h+=`<div class="dev">
+        <div>
+          <b>${x.concept}<span class="infoTag">ICE</span></b>
+          <small>Cumplimiento: ${pct(x.result)} · Le faltan: ${faltanteTxt} puntos</small>
+          <div class="iceHelp">
+            <div class="meaning">${g.meaning}</div>
+            <div class="action"><b>Qué revisar:</b> ${g.action}</div>
+          </div>
+        </div>
+        <b>${pct(x.result)}</b>
+      </div>`;
+    });
+    h+="</div>";
+  });
+  document.getElementById("detail").innerHTML=h;
+}
+
+function openSearch(){document.getElementById("overlay").classList.add("show");document.getElementById("searchInput").focus();renderSearch()}
+function closeSearch(){document.getElementById("overlay").classList.remove("show")}
+function searchText(c){return [c.code,c.name,c.route,c.priority,...PILLARS.flatMap(p=>(c.pillars[p]||[]).map(x=>x.concept))].join(" ").toLowerCase()}
+function renderSearch(){
+  const q=document.getElementById("searchInput").value.toLowerCase().trim();
+  const res=DATA.filter(c=>!q||searchText(c).includes(q)).slice(0,40);
+  document.getElementById("results").innerHTML=res.map(c=>`<div class="result" onclick="pickSearch('${c.code}')"><div><b>${c.name}</b><small style="display:block;color:#8190a0">Ruta ${c.route} · ${c.code} · ${devCount(c)} desvíos</small></div><b>${pct(c.score)}</b></div>`).join("");
+}
+function pickSearch(code){closeSearch();selectClient(code);setActive("clientes");renderClientsPage()}
+document.getElementById("overlay").addEventListener("click",e=>{if(e.target.id==="overlay")closeSearch()});
+
+const INITIAL_DATA = JSON.parse(JSON.stringify(DATA));
+const INITIAL_ROUTE_TOTALS = JSON.parse(JSON.stringify(ROUTE_TOTALS));
+
+function openImport(){
+  document.getElementById("importModal").classList.add("show");
+}
+function closeImport(){
+  document.getElementById("importModal").classList.remove("show");
+}
+
+function sheetRows(workbook){
+  const ws = workbook.Sheets[workbook.SheetNames[0]];
+  return XLSX.utils.sheet_to_json(ws,{header:1,defval:null,raw:true});
+}
+async function readWorkbook(file){
+  const buf = await file.arrayBuffer();
+  return XLSX.read(buf,{type:"array"});
+}
+
+function cleanStr(v){return v==null?"":String(v).trim()}
+function numVal(v){
+  if(typeof v==="number") return v;
+  const s=cleanStr(v).replace("%","").replace(",",".");
+  const n=Number(s);
+  if(!Number.isFinite(n)) return null;
+  return cleanStr(v).includes("%") ? n/100 : n;
+}
+function splitClient(v){
+  const s=cleanStr(v);
+  if(s.includes(" - ")){const a=s.split(" - ");return {code:a.shift().trim(),name:a.join(" - ").trim()}}
+  return {code:"",name:s};
+}
+
+function parseScoreRows(rows){
+  const routeTotals={};
+  const clients={};
+
+  // A) Formato exportado conocido: ruta en col D, cliente en E, puntaje en F
+  for(let i=1;i<rows.length;i++){
+    const r=rows[i]||[];
+    const route=cleanStr(r[3]);
+    const outcl=cleanStr(r[4]);
+    let score=numVal(r[5]);
+    if(!route || score==null) continue;
+    if(score>1 && score<=100) score=score/100;
+
+    if(outcl.toLowerCase()==="total"){
+      routeTotals[route]=score;
+      continue;
+    }
+    if(!outcl) continue;
+    const c=splitClient(outcl);
+    if(!c.code) continue;
+    clients[c.code]={route,code:c.code,name:c.name,score};
+  }
+
+  // B) Formato jerárquico de Power BI: "Detalle" | "Puntaje"
+  // Ej:
+  // 3140            57,1%
+  // 3136960 - ...   38,1%
+  // ...
+  // Total           57,1%
+  let currentRoute="";
+  for(let i=0;i<rows.length;i++){
+    const r=rows[i]||[];
+    if(r.length<2) continue;
+
+    const label=cleanStr(r[0]);
+    let score=numVal(r[1]);
+    if(score==null) continue;
+    if(score>1 && score<=100) score/=100;
+
+    // Ruta pura de 4 dígitos
+    if(/^\d{4}$/.test(label)){
+      currentRoute=label;
+      routeTotals[currentRoute]=score; // ESTE es el resultado oficial de la ruta
+      continue;
+    }
+
+    // Cliente: código de 6/7 dígitos seguido de " - "
+    if(currentRoute && /^\d{6,8}\s*-\s*/.test(label)){
+      const c=splitClient(label);
+      if(c.code){
+        clients[c.code]={
+          route:currentRoute,
+          code:c.code,
+          name:c.name,
+          score:score
+        };
+      }
+      continue;
+    }
+
+    // Si aparece Total al final de la ruta, reafirmar el valor oficial
+    if(currentRoute && label.toLowerCase()==="total"){
+      routeTotals[currentRoute]=score;
+    }
+  }
+
+  // C) Fallback por encabezados si el formato cambia
+  if(Object.keys(clients).length===0){
+    const header=(rows[0]||[]).map(x=>cleanStr(x).toLowerCase());
+    const routeIdx=header.findIndex(x=>x.includes("ruta")||x==="cedi");
+    const clientIdx=header.findIndex(x=>x.includes("out-cl")||x.includes("cliente")||x==="detalle");
+    const scoreIdx=header.findIndex(x=>x.includes("puntaje")||x.includes("score"));
+
+    for(let i=1;i<rows.length;i++){
+      const r=rows[i]||[];
+      const route=routeIdx>=0?cleanStr(r[routeIdx]):"";
+      const outcl=clientIdx>=0?cleanStr(r[clientIdx]):"";
+      let score=scoreIdx>=0?numVal(r[scoreIdx]):null;
+      if(!route||!outcl||score==null) continue;
+      if(score>1&&score<=100) score/=100;
+
+      if(outcl.toLowerCase()==="total"){
+        routeTotals[route]=score;
+        continue;
+      }
+      const c=splitClient(outcl);
+      if(c.code) clients[c.code]={route,code:c.code,name:c.name,score};
+    }
+  }
+  return {clients,routeTotals};
+}
+
+function parseDetailRows(rows){
+  const byCode={};
+
+  // Formato exportado conocido: Segmento, Out-CL, Pilar, ID, Concepto, Logrado, Objetivo, Resultado
+  for(let i=1;i<rows.length;i++){
+    const r=rows[i]||[];
+    const outcl=cleanStr(r[1]);
+    const c=splitClient(outcl);
+    if(!c.code) continue;
+    const pillar=cleanStr(r[2]).toUpperCase();
+    const concept=cleanStr(r[4]);
+    const achieved=numVal(r[5]);
+    const target=numVal(r[6]);
+    let result=numVal(r[7]);
+    if(result!=null && result>1 && result<=100) result/=100;
+    if(!pillar||!concept||result==null) continue;
+    if(!byCode[c.code]) byCode[c.code]=[];
+    byCode[c.code].push({pillar,concept,achieved,target,result});
+  }
+  return byCode;
+}
+
+function buildData(scoreParsed,detailParsed){
+  const arr=[];
+  for(const c of Object.values(scoreParsed.clients)){
+    const pillars={};
+    const rules=detailParsed[c.code]||[];
+    for(const x of rules){
+      if(x.result>=.999999) continue;
+      if(!pillars[x.pillar]) pillars[x.pillar]=[];
+      pillars[x.pillar].push({
+        concept:x.concept,
+        achieved:x.achieved,
+        target:x.target,
+        result:x.result
+      });
+    }
+    const priority=c.score<.50?"ALTA":c.score<.70?"MEDIA":c.score<.85?"BAJA":"OK";
+    arr.push({...c,priority,pillars});
+  }
+  arr.sort((a,b)=>a.score-b.score);
+  return arr;
+}
+
+function saveSample(){
+  try{
+    localStorage.setItem("gestionIceData",JSON.stringify(DATA));
+    localStorage.setItem("gestionIceRouteTotals",JSON.stringify(ROUTE_TOTALS));
+    localStorage.setItem("gestionIceUpdatedAt",new Date().toLocaleString("es-AR"));
+  }catch(e){}
+}
+function loadSavedSample(){
+  try{
+    const d=localStorage.getItem("gestionIceData");
+    const rt=localStorage.getItem("gestionIceRouteTotals");
+    if(d) DATA=JSON.parse(d);
+    if(rt) ROUTE_TOTALS=JSON.parse(rt);
+  }catch(e){}
+}
+function showUpdateStamp(){
+  const el=document.getElementById("updateStamp");
+  if(!el)return;
+  const stamp=localStorage.getItem("gestionIceUpdatedAt");
+  el.textContent=stamp?`Última carga: ${stamp}`:"Muestra incluida en el archivo";
+}
+function resetSample(){
+  DATA=JSON.parse(JSON.stringify(INITIAL_DATA));
+  ROUTE_TOTALS=JSON.parse(JSON.stringify(INITIAL_ROUTE_TOTALS));
+  try{
+    localStorage.removeItem("gestionIceData");
+    localStorage.removeItem("gestionIceRouteTotals");
+    localStorage.removeItem("gestionIceUpdatedAt");
+  }catch(e){}
+  selected=DATA.length?DATA[0]:null;
+  routeFilter="";quickFilter="";
+  renderICE();showUpdateStamp();
+}
+
+async function importExcels(){
+  const sf=document.getElementById("scoreFile").files[0];
+  const df=document.getElementById("detailFile").files[0];
+  const ok=document.getElementById("importOk");
+  if(!sf||!df){
+    ok.style.display="block";ok.style.background="#fff0f0";ok.style.borderColor="#efb8b8";ok.style.color="#8b2e2e";
+    ok.textContent="Seleccioná los dos archivos Excel.";
+    return;
+  }
+  try{
+    if(typeof XLSX==="undefined") throw new Error("No se pudo cargar el lector de Excel. Verificá que tengas conexión a Internet al abrir la app.");
+    const [sw,dw]=await Promise.all([readWorkbook(sf),readWorkbook(df)]);
+    const sp=parseScoreRows(sheetRows(sw));
+    const dp=parseDetailRows(sheetRows(dw));
+    const newData=buildData(sp,dp);
+    if(!newData.length) throw new Error("No pude reconocer clientes en el Excel de puntajes.");
+
+    DATA=newData;
+    ROUTE_TOTALS=sp.routeTotals;
+    selected=DATA[0]||null;
+    routeFilter="";quickFilter="";
+    saveSample();
+    renderICE();showUpdateStamp();
+    ok.style.display="block";ok.style.background="#eaf8ef";ok.style.borderColor="#b8e0c4";ok.style.color="#1f6a37";
+    ok.textContent=`Actualizado: ${DATA.length} clientes y ${Object.keys(ROUTE_TOTALS).length} resultados oficiales de ruta.`;
+    setTimeout(closeImport,1000);
+  }catch(err){
+    ok.style.display="block";ok.style.background="#fff0f0";ok.style.borderColor="#efb8b8";ok.style.color="#8b2e2e";
+    ok.textContent="Error: "+err.message;
+  }
+}
+
+loadSavedSample();
+
+renderICE();
+setTimeout(showUpdateStamp,0);
+</script>
+
+<div class="importModal" id="importModal">
+  <div class="importBox">
+    <div class="importHead">
+      <b>Actualizar muestra desde Excel</b>
+      <button onclick="closeImport()" style="border:0;background:#ffffff22;color:#fff;border-radius:9px;padding:6px 10px;cursor:pointer">✕</button>
+    </div>
+    <div class="importBody">
+      <div class="fileDrop">
+        <b>1. Excel de Resultado por Cliente</b>
+        <small>Acepta el export jerárquico de Power BI (Detalle + Puntaje). La app reconoce la fila de la ruta —por ejemplo 3140 = 57,1%— como resultado oficial, y luego asigna los clientes a esa ruta.</small>
+        <input id="scoreFile" class="fileInput" type="file" accept=".xlsx,.xls,.csv">
+      </div>
+      <div class="fileDrop">
+        <b>2. Excel de Detalle ICE</b>
+        <small>Debe contener Out-CL, Pilar, Concepto, Logrado/Objetivo/Resultado o columnas equivalentes del export que venimos usando.</small>
+        <input id="detailFile" class="fileInput" type="file" accept=".xlsx,.xls,.csv">
+      </div>
+      <div class="importNote">
+        La actualización se hace dentro de tu navegador. La app guarda la última muestra en este equipo para que no tengas que cargarla cada vez.
+      </div>
+      <div class="importOk" id="importOk"></div>
+      <div class="importActions">
+        <button class="updateBtn secondary" onclick="closeImport()">Cancelar</button>
+        <button class="updateBtn" onclick="importExcels()">Actualizar datos</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
