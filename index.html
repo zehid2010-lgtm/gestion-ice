@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Gestión ICE V8.4 Mobile</title>
+<title>Gestión ICE V8.5 Mobile</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Segoe UI,sans-serif;background:#e8e8e8;color:#1f2937}
@@ -174,6 +174,137 @@ select,input{font:inherit}
   opacity:.95;
 }
 
+
+/* Motivos como pantalla independiente */
+.dev{
+  cursor:pointer;
+  position:relative;
+  padding-right:42px;
+}
+.dev::after{
+  content:"›";
+  position:absolute;
+  right:14px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:30px;
+  font-weight:700;
+  color:#8a9aa4;
+}
+.dev:hover{background:#f8fbfb}
+.dev .iceHelp{display:none}
+
+.motiveScreen{max-width:760px;margin:0 auto}
+.motiveHero{
+  border-radius:18px;
+  padding:18px;
+  color:#fff;
+  margin-bottom:14px;
+}
+.motiveHero .motivePillar{
+  font-size:12px;
+  font-weight:800;
+  opacity:.9;
+  text-transform:uppercase;
+}
+.motiveHero h2{
+  margin:8px 0 12px;
+  font-size:23px;
+  line-height:1.18;
+}
+.motiveHero .motivePercent{
+  font-size:40px;
+  font-weight:900;
+}
+.motiveMetrics{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  margin-bottom:14px;
+}
+.motiveMetric{
+  background:#fff;
+  border:1px solid #dfe5e7;
+  border-radius:15px;
+  padding:14px;
+}
+.motiveMetric b{display:block;font-size:22px;margin-bottom:4px}
+.motiveMetric span{color:#71808b;font-size:12px}
+.motiveInfo{
+  background:#fff;
+  border:1px solid #dfe5e7;
+  border-radius:16px;
+  padding:16px;
+  margin-bottom:12px;
+}
+.motiveInfo h3{margin:0 0 8px;font-size:15px}
+.motiveInfo p{margin:0;line-height:1.45;color:#45545d}
+.motiveAction{background:#e9fafa;border:1px solid #bfe9eb}
+.motiveClient{font-size:12px;color:#71808b;margin-bottom:10px}
+
+@media(max-width:700px){
+  html,body{width:100%;max-width:100%;overflow-x:hidden}
+  body{padding-bottom:68px}
+  .app{width:100%;min-width:0}
+  .sidebar{
+    height:66px;
+    padding:5px 4px;
+    grid-template-columns:repeat(5,minmax(0,1fr));
+  }
+  .navbtn{
+    min-width:0;
+    min-height:52px;
+    height:52px;
+    padding:4px 2px;
+    font-size:10px;
+  }
+  .left,.right{width:100%;min-width:0}
+  .head,.detailHead{height:56px;padding:0 10px}
+  .content,.detail{
+    width:100%;
+    min-width:0;
+    padding:10px;
+    min-height:calc(100vh - 122px);
+  }
+  .stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .stat{min-width:0;padding:9px 4px}
+  .stat b{font-size:18px}
+  .stat span{font-size:10px}
+  .routeResultValue{font-size:28px}
+  .client{width:100%;min-width:0;padding:12px}
+  .client > div:first-child{min-width:0}
+  .client b{font-size:14px}
+  .client small{font-size:10px}
+  .scoreHero{font-size:18px}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+  .kpi{padding:10px 6px}
+  .kpi b{font-size:19px}
+  .person{align-items:flex-start;padding:12px}
+  .avatar{width:46px;height:46px;min-width:46px;font-size:17px}
+  .pillarTitle{padding:11px 10px;font-size:13px}
+  .dev{display:block;padding:14px 42px 14px 12px}
+  .dev > b:last-child{display:inline-block;margin-top:7px;font-size:18px}
+  .motiveScreen{width:100%}
+  .motiveHero{border-radius:16px;padding:16px}
+  .motiveHero h2{font-size:20px}
+  .motiveHero .motivePercent{font-size:36px}
+  .motiveMetrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .motiveMetric{padding:12px 10px}
+  .motiveMetric b{font-size:19px}
+  .motiveInfo{padding:14px}
+  .backBtn{width:40px;height:40px;min-width:40px;margin-right:6px}
+}
+
+@media(max-width:390px){
+  .navbtn{font-size:9px}
+  .stats{gap:4px}
+  .stat{padding:8px 2px}
+  .stat b{font-size:17px}
+  .routeResultValue{font-size:25px}
+  .client{grid-template-columns:minmax(0,1fr) auto}
+  .scoreHero{min-width:52px;padding:6px 7px}
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
@@ -189,12 +320,12 @@ select,input{font:inherit}
 </aside>
 
 <section class="left" id="leftPane">
-  <div class="head"><h2 id="pageTitle">Gestión ICE <small style="font-size:11px">V8.4</small></h2><span>☰ ⌕</span></div>
+  <div class="head"><h2 id="pageTitle">Gestión ICE <small style="font-size:11px">V8.5</small></h2><span>☰ ⌕</span></div>
   <div class="content" id="mainContent"></div>
 </section>
 
 <section class="right" id="detailPane">
-  <div class="detailHead" id="detailHead"><button class="backBtn" onclick="closeDetail()">‹</button><span>Detalle del cliente</span></div>
+  <div class="detailHead" id="detailHead"><button class="backBtn" onclick="handleDetailBack()">‹</button><span>Detalle del cliente</span></div>
   <div class="detail" id="detail"><div class="pageNote">Seleccioná un cliente para ver sus desvíos ICE.</div></div>
 </section>
 </div>
@@ -215,6 +346,7 @@ const LABELS={DISPONIBILIDAD:"Disponibilidad",EDF:"EDF",ACTIVACION:"Activación"
 let selected=DATA.length?DATA[0]:null;
 let routeFilter="";
 let quickFilter="";
+let currentDetailMode="client";
 
 
 function scoreClass(v){
@@ -354,6 +486,7 @@ function renderPanel(){
 
 function selectClient(code){
   selected=DATA.find(c=>c.code===code);
+  currentDetailMode="client";
   renderDetail(selected);
   if(window.matchMedia('(max-width:700px)').matches){
     document.querySelector('.app').classList.add('detail-open');
@@ -364,11 +497,22 @@ function selectClient(code){
 function closeDetail(clearSelected=true){
   const app=document.querySelector('.app');
   if(app) app.classList.remove('detail-open');
+  currentDetailMode="client";
   if(clearSelected) selected=null;
   if(window.matchMedia('(max-width:700px)').matches) window.scrollTo({top:0,behavior:'smooth'});
 }
 
-window.addEventListener('popstate',()=>closeDetail());
+function handleDetailBack(){
+  if(currentDetailMode==="motive" && selected){
+    currentDetailMode="client";
+    renderDetail(selected);
+    window.scrollTo({top:0,behavior:'smooth'});
+    return;
+  }
+  closeDetail();
+}
+
+window.addEventListener('popstate',()=>handleDetailBack());
 
 
 const ICE_GUIDE = {
@@ -578,31 +722,91 @@ function renderDetail(c){
   const dh=document.getElementById("detailHead");
   if(dh) dh.querySelector("span").textContent = c ? "Cliente · "+c.code : "Detalle del cliente";
   if(!c)return;
+  currentDetailMode="client";
+
   const affected=PILLARS.filter(p=>(c.pillars[p]||[]).length).length;
   let h=`<div class="person"><div class="avatar">${initials(c.name)}</div><div><b style="font-size:20px">${c.name}</b><div style="color:#8190a0;margin-top:5px">Ruta ${c.route} · Código ${c.code}</div></div></div>`;
   h+=`<div class="kpis"><div class="kpi"><b>${pct(c.score)}</b><span>Puntaje ICE</span></div><div class="kpi"><b>${devCount(c)}</b><span>Desvíos</span></div><div class="kpi"><b><span class="badge">${c.priority}</span></b><span>Prioridad</span></div><div class="kpi"><b>${affected}</b><span>Pilares afectados</span></div></div>`;
+
   PILLARS.forEach(p=>{
-    const arr=c.pillars[p]||[]; if(!arr.length)return;
-    h+=`<div class="pillar"><div class="pillarTitle"><span>${LABELS[p]}</span><span>${arr.length} desvíos</span></div>`;
-    arr.forEach(x=>{
+    const arr=c.pillars[p]||[];
+    if(!arr.length)return;
+    h+=`<div class="pillar"><div class="pillarTitle"><span>${LABELS[p]}</span><span>${arr.length} motivos</span></div>`;
+
+    arr.forEach((x,idx)=>{
       const faltante = (typeof x.target==="number" && typeof x.achieved==="number") ? Math.max(0, x.target-x.achieved) : null;
       const faltanteTxt = faltante!==null ? (Math.round(faltante*100)/100).toLocaleString("es-AR") : "-";
-      const g = guideFor(x.concept, p);
-      h+=`<div class="dev">
+
+      h+=`<div class="dev" onclick="openMotive('${p}',${idx})">
         <div>
-          <b>${x.concept}<span class="infoTag">ICE</span></b>
+          <b>${x.concept}<span class="infoTag">Ver motivo</span></b>
           <small>Cumplimiento: ${pct(x.result)} · Le faltan: ${faltanteTxt} puntos</small>
-          <div class="iceHelp">
-            <div class="meaning">${g.meaning}</div>
-            <div class="action"><b>Qué revisar:</b> ${g.action}</div>
-          </div>
         </div>
         <b>${pct(x.result)}</b>
       </div>`;
     });
+
     h+="</div>";
   });
+
   document.getElementById("detail").innerHTML=h;
+}
+
+function openMotive(pillar,index){
+  if(!selected)return;
+
+  const arr=selected.pillars[pillar]||[];
+  const x=arr[index];
+  if(!x)return;
+
+  currentDetailMode="motive";
+
+  const dh=document.getElementById("detailHead");
+  if(dh) dh.querySelector("span").textContent="Motivo · "+LABELS[pillar];
+
+  const faltante=(typeof x.target==="number" && typeof x.achieved==="number")
+    ? Math.max(0,x.target-x.achieved)
+    : null;
+
+  const fmt=v=>(typeof v==="number" ? (Math.round(v*100)/100).toLocaleString("es-AR") : "-");
+  const g=guideFor(x.concept,pillar);
+  const cls=scoreClass(typeof x.result==="number"?x.result:0);
+
+  const h=`<div class="motiveScreen">
+    <div class="motiveClient">${selected.name} · Ruta ${selected.route} · Cliente ${selected.code}</div>
+
+    <div class="motiveHero ${cls}">
+      <div class="motivePillar">${LABELS[pillar]}</div>
+      <h2>${x.concept}</h2>
+      <div class="motivePercent">${pct(x.result)}</div>
+      <div style="font-size:12px;margin-top:4px">Cumplimiento de la métrica</div>
+    </div>
+
+    <div class="motiveMetrics">
+      <div class="motiveMetric"><b>${fmt(x.achieved)}</b><span>Logrado</span></div>
+      <div class="motiveMetric"><b>${fmt(x.target)}</b><span>Objetivo</span></div>
+      <div class="motiveMetric"><b>${faltante!==null?fmt(faltante):"-"}</b><span>Puntos faltantes</span></div>
+      <div class="motiveMetric"><b>${pct(selected.score)}</b><span>ICE cliente</span></div>
+    </div>
+
+    <div class="motiveInfo">
+      <h3>¿Qué significa?</h3>
+      <p>${g.meaning}</p>
+    </div>
+
+    <div class="motiveInfo motiveAction">
+      <h3>Qué revisar en el PDV</h3>
+      <p>${g.action}</p>
+    </div>
+  </div>`;
+
+  document.getElementById("detail").innerHTML=h;
+
+  if(window.matchMedia('(max-width:700px)').matches){
+    document.querySelector('.app').classList.add('detail-open');
+  }
+
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
 function openSearch(){document.getElementById("overlay").classList.add("show");document.getElementById("searchInput").focus();renderSearch()}
