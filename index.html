@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Gestión ICE V8.7 Mobile</title>
+<title>Gestión ICE V8.8 Mobile</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Segoe UI,sans-serif;background:#e8e8e8;color:#1f2937}
@@ -374,6 +374,38 @@ select,input{font:inherit}
   font-weight:800;
 }
 
+
+/* V8.8 - bloque informativo de composición de la métrica */
+.motiveComposition{
+  background:#f7fbfb;
+  border:1px solid #cfe8e9;
+  border-left:5px solid #4fc1c6;
+}
+.motiveComposition h3{
+  color:#0f172a;
+  font-weight:900;
+}
+.motiveComposition ul{
+  margin:8px 0 0 0;
+  padding-left:20px;
+  color:#111827;
+}
+.motiveComposition li{
+  margin:7px 0;
+  line-height:1.4;
+  font-weight:600;
+}
+.motiveComposition .compNote{
+  margin-top:10px;
+  padding:9px 10px;
+  background:#e8f8f9;
+  border-radius:10px;
+  color:#111827;
+  font-size:12px;
+  font-weight:700;
+  line-height:1.4;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
@@ -389,7 +421,7 @@ select,input{font:inherit}
 </aside>
 
 <section class="left" id="leftPane">
-  <div class="head"><h2 id="pageTitle">Gestión ICE <small style="font-size:11px">V8.7</small></h2><span>☰ ⌕</span></div>
+  <div class="head"><h2 id="pageTitle">Gestión ICE <small style="font-size:11px">V8.8</small></h2><span>☰ ⌕</span></div>
   <div class="content" id="mainContent"></div>
 </section>
 
@@ -736,6 +768,271 @@ const ICE_GUIDE = {
   }
 };
 
+
+const ICE_COMPOSITION = {
+  // DISPONIBILIDAD
+  "disponibilidad imperdonables estrategicos":[
+    "Imperdonables ESTRATÉGICOS definidos para el territorio y tipo de cliente.",
+    "Son roles que impulsan la intención estratégica y las oportunidades de crecimiento.",
+    "En Tucumán la distribución de puntos de Estratégicos varía según segmento."
+  ],
+  "disponibilidad combinada imperdonables core":[
+    "Portafolio CORE completo correspondiente al cliente.",
+    "CORE reúne referencias de alta relevancia comercial y SKUs de mayor peso en venta.",
+    "La combinada exige presencia completa del grupo CORE."
+  ],
+  "disponibilidad combinada imperdonable (core + estrategicos)":[
+    "Portafolio CORE completo.",
+    "Imperdonables ESTRATÉGICOS completos.",
+    "La falta de un solo rol del grupo invalida la métrica combinada."
+  ],
+  "disponibilidad combinada imperdonables stills":[
+    "Imperdonables STILLS definidos para el territorio y tipo de cliente.",
+    "La métrica exige la presencia completa del grupo STILLS asignado.",
+    "Una referencia/rol faltante puede invalidar la combinada."
+  ],
+  "combinada portafolio imperdonable":[
+    "Portafolio imperdonable completo requerido para el segmento.",
+    "Incluye los roles definidos como CORE, Estratégicos y/o STILLS según la métrica.",
+    "Las combinadas requieren presencia total del grupo evaluado."
+  ],
+
+  // EDF
+  "soci colas":[
+    "Frentes fríos de Colas KO.",
+    "Frentes fríos totales de la categoría Cola de la industria.",
+    "Se compara el SOCI obtenido contra Target y Mínimo."
+  ],
+  "soci sabores":[
+    "Frentes fríos de Sabores KO.",
+    "Frentes fríos totales de Sabores de la industria.",
+    "Se compara el SOCI obtenido contra Target y Mínimo."
+  ],
+  "soci stills":[
+    "Frentes fríos de STILLS KO.",
+    "Frentes fríos totales de STILLS de la industria.",
+    "Se compara el SOCI obtenido contra Target y Mínimo."
+  ],
+  "mejor posicion":[
+    "Primera Posición: el EDF KO debe ser el primer punto de contacto físico en el tráfico natural.",
+    "Si no cumple Primera Posición, se evalúa Posición de Liderazgo.",
+    "En Posición de Liderazgo el EDF KO debe ser visible al menos 50% desde la entrada.",
+    "No debe haber otro refrigerador NARTD antes del EDF KO.",
+    "El EDF KO debe tener igual o mayor número de puertas que cualquier otro refrigerador."
+  ],
+  "libre de contaminacion":[
+    "El cooler TCCC debe contener únicamente marcas TCCC permitidas.",
+    "Monster no se considera contaminación por el acuerdo comercial indicado en la presentación.",
+    "Otros productos ajenos a KO sí invalidan la métrica.",
+    "Si hay más de un EDF TCCC, todos deben cumplir."
+  ],
+  "llenado al 75%":[
+    "Cada EDF TCCC debe estar lleno al menos al 75% de su capacidad con productos KO.",
+    "Las invasiones se contabilizan como espacios vacíos.",
+    "Con más de una bandeja vacía se pierden los puntos de la métrica.",
+    "Si existen varios coolers, se evalúa el cumplimiento de cada uno."
+  ],
+  "cobertura puertas":[
+    "Objetivo de puertas KO según tamaño de cliente.",
+    "Chico: mínimo 1 puerta.",
+    "Mediano: mínimo 3 puertas.",
+    "Grande: mínimo 4 puertas.",
+    "Si no se alcanza el mínimo, la asignación de puntos puede ser proporcional."
+  ],
+  "edf exclusivo ss":[
+    "EDF dedicado exclusivamente al consumo personal en clientes grandes.",
+    "No debe contener SKU de consumo familiar.",
+    "Si el EDF SS contiene un SKU familiar, se pierde el puntaje."
+  ],
+  "primer bandeja consumo personal":[
+    "Cada EDF debe tener una bandeja destinada al consumo personal.",
+    "Si un equipo no cumple con la bandeja de consumo personal, se pierde el puntaje de la condición."
+  ],
+
+  // ACTIVACIÓN
+  "plataforma meals":[
+    "Ubicación posible: EDF KO, rack, puntera de góndola o isla.",
+    "Zonas: sector frío, sector alimentos o pasillo principal.",
+    "Portafolio obligatorio: Coca-Cola RET, Coca-Cola Zero RET, Fanta RET, Sprite RET y Aquarius RET.",
+    "Mínimo de 10 frentes totales repartidos entre el portafolio obligatorio."
+  ],
+  "plataforma my breaks - zona de impulso":[
+    "EDF KO primera bandeja o EDF KO de consumo personal.",
+    "Portafolio obligatorio: Coca-Cola 375/500 ml, Coca-Cola Zero 375/500 ml, Sprite 375/500 ml y Benedictino 600 ml.",
+    "La presencia de Still SS, Fanta SS y, según la variante, Powerade SS no invalida la métrica.",
+    "Debe cumplirse el mínimo de frentes definido por el segmento."
+  ],
+  "zona de my breaks - zona de impulso":[
+    "EDF KO primera bandeja o EDF KO de consumo personal.",
+    "Portafolio de consumo personal definido para My Breaks.",
+    "Debe cumplirse el mínimo de frentes definido para el segmento."
+  ],
+  "plataforma flexible (replenish o morning time)":[
+    "Se cumple ejecutando correctamente Replenish Time o Morning Time.",
+    "Replenish: rack, puntera, isla o EDF KO Hidratación; Benedictino + Powerade; Aquarius no invalida.",
+    "Morning Time: rack, puntera, isla o EDF KO Nutrición; portafolio obligatorio Cepita + Ades.",
+    "Cada plataforma requiere el mínimo de frentes definido."
+  ],
+  "replenish time":[
+    "Ubicación: rack, puntera de góndola, isla o EDF KO Hidratación.",
+    "Portafolio obligatorio: Benedictino + Powerade.",
+    "Aquarius no invalida la métrica.",
+    "Mínimo de frentes según segmento, repartidos entre el portafolio obligatorio."
+  ],
+  "morning time":[
+    "Ubicación: rack, puntera de góndola, isla o EDF KO Nutrición.",
+    "Portafolio obligatorio: Cepita + Ades.",
+    "Sector de consumo familiar: panadería y desayuno.",
+    "Mínimo de 10 frentes totales repartidos entre el portafolio obligatorio."
+  ],
+  "ejecucion epicos":[
+    "Portafolio obligatorio: Coca-Cola / Coca-Cola Zero o Powerade.",
+    "Puede utilizarse cualquier empaque.",
+    "Ubicación: entrada o pasillo central."
+  ],
+  "ejecucion epicos / mundializacion":[
+    "Portafolio obligatorio: Coca-Cola / Coca-Cola Zero o Powerade.",
+    "Puede utilizarse cualquier empaque.",
+    "Ubicación: entrada o pasillo central."
+  ],
+  "zona de ahorro":[
+    "Disponibilidad del portafolio definido para la ocasión.",
+    "Cumplimiento del mínimo de frentes y categorías definido.",
+    "Presencia de comunicación aprobada por KO.",
+    "Comunicación de precio asociada a la ejecución."
+  ],
+
+  // PRECIO
+  "cco ms ow freq":[
+    "SKU evaluado: Coca-Cola 2,25 L / 3 L NR / 2,5 L NR (Tucumán).",
+    "Respeto del precio sugerido.",
+    "Comunicación clara de precio dentro del PDV.",
+    "Disponibilidad del producto."
+  ],
+  "cco ms ret freq":[
+    "SKU evaluado: Coca-Cola 1,5 L vidrio / 2 L retornable (Tucumán).",
+    "Respeto del precio sugerido.",
+    "Comunicación interior de precio con marca y presentación.",
+    "Disponibilidad del producto."
+  ],
+  "cco ss freq":[
+    "SKU evaluado: Coca-Cola 600 ml NR.",
+    "Respeto del precio sugerido.",
+    "Comunicación interior de precio.",
+    "Disponibilidad del producto."
+  ],
+  "cco ss entry":[
+    "SKU evaluado: Coca-Cola 375 ml NR.",
+    "Respeto del precio sugerido.",
+    "Comunicación interior de precio.",
+    "Disponibilidad del producto."
+  ],
+  "flavors ms freq":[
+    "SKU evaluado: Sabores 2,5 L RET.",
+    "Respeto del precio sugerido.",
+    "Comunicación interior de precio.",
+    "Disponibilidad del producto."
+  ],
+  "core stills #1":[
+    "SKU evaluado: Aquarius 2,25 L.",
+    "Respeto del precio sugerido.",
+    "Comunicación interior de precio.",
+    "Disponibilidad del producto."
+  ],
+  "cco ms entry":[
+    "SKU evaluado: Coca-Cola 2,5 L RET.",
+    "Respeto del precio sugerido.",
+    "Comunicación interior de precio.",
+    "Disponibilidad del producto."
+  ],
+  "flavors ss":[
+    "SKU evaluado: Sabores 500 ml NR.",
+    "Respeto del precio sugerido.",
+    "Comunicación interior de precio.",
+    "Disponibilidad del producto."
+  ],
+  "core stills #2":[
+    "SKU evaluado: Cepita 1,5 L NR.",
+    "Respeto del precio sugerido.",
+    "Comunicación interior de precio.",
+    "Disponibilidad del producto."
+  ],
+  "ccns ms freq":[
+    "SKU evaluado: Coca-Cola Zero 1,5 L vidrio / 2 L RET (Tucumán).",
+    "Respeto del precio sugerido.",
+    "Comunicación interior de precio.",
+    "Disponibilidad del producto."
+  ],
+
+  // SOVI
+  "sovi nartd":[
+    "Número de frentes KO NARTD.",
+    "Número total de frentes de la industria: KO + competencia.",
+    "Fórmula base: frentes KO / frentes totales de industria.",
+    "Se compara el resultado contra Target y Mínimo."
+  ],
+  "sovi stills":[
+    "Número de frentes STILLS KO.",
+    "Número total de frentes STILLS de la industria.",
+    "Fórmula base: frentes KO / frentes totales de industria.",
+    "Se compara el resultado contra Target y Mínimo."
+  ],
+  "sovi sabores":[
+    "Número de frentes de Sabores KO.",
+    "Número total de frentes de Sabores de la industria.",
+    "Fórmula base: frentes KO / frentes totales de industria.",
+    "Se compara el resultado contra Target y Mínimo."
+  ]
+};
+
+function compositionFor(concept,pillar){
+  const k=normalizeGuideKey(concept);
+
+  if(ICE_COMPOSITION[k]) return ICE_COMPOSITION[k];
+
+  for(const [key,val] of Object.entries(ICE_COMPOSITION)){
+    if(k.includes(key) || key.includes(k)) return val;
+  }
+
+  if(pillar==="PRECIO"){
+    return [
+      "Producto/SKU indicado en la métrica.",
+      "Respeto del precio sugerido.",
+      "Comunicación clara del precio dentro del PDV.",
+      "Disponibilidad del producto."
+    ];
+  }
+  if(pillar==="DISPONIBILIDAD"){
+    return [
+      "Portafolio imperdonable definido para territorio y tipo de cliente.",
+      "Presencia de todos los roles requeridos por la métrica.",
+      "En combinadas, la ausencia de un rol puede invalidar el resultado."
+    ];
+  }
+  if(pillar==="EDF"){
+    return [
+      "Condición específica del equipo de frío indicada por la métrica.",
+      "La evaluación se realiza sobre la ejecución real del/los EDF TCCC del PDV."
+    ];
+  }
+  if(pillar==="ACTIVACION"){
+    return [
+      "Portafolio definido para la ocasión de consumo.",
+      "Ubicación o plataforma requerida.",
+      "Mínimo de frentes/categorías cuando corresponda.",
+      "Comunicación aprobada por KO y precio cuando aplique."
+    ];
+  }
+  if(pillar==="SOVI"){
+    return [
+      "Frentes KO de la categoría.",
+      "Frentes totales de la industria (KO + competencia).",
+      "Comparación contra Target y Mínimo."
+    ];
+  }
+  return [];
+}
+
 function normalizeGuideKey(s){
   return String(s||"")
     .toLowerCase()
@@ -839,6 +1136,7 @@ function openMotive(pillar,index){
 
   const fmt=v=>(typeof v==="number" ? (Math.round(v*100)/100).toLocaleString("es-AR") : "-");
   const g=guideFor(x.concept,pillar);
+  const composition=compositionFor(x.concept,pillar);
   const cls=scoreClass(typeof x.result==="number"?x.result:0);
 
   const h=`<div class="motiveScreen">
@@ -862,6 +1160,12 @@ function openMotive(pillar,index){
       <h3>¿Qué significa?</h3>
       <p>${g.meaning}</p>
     </div>
+
+    ${composition.length ? `<div class="motiveInfo motiveComposition">
+      <h3>Qué compone esta métrica</h3>
+      <ul>${composition.map(item=>`<li>${item}</li>`).join("")}</ul>
+      <div class="compNote">Información tomada de la presentación ICE 2026 · Canal tradicional.</div>
+    </div>` : ""}
 
     <div class="motiveInfo motiveAction">
       <h3>Qué revisar en el PDV</h3>
