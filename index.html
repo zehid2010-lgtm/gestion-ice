@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Gestión ICE V8.5 Mobile</title>
+<title>Gestión ICE V8.6 Mobile</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Segoe UI,sans-serif;background:#e8e8e8;color:#1f2937}
@@ -305,6 +305,56 @@ select,input{font:inherit}
   .scoreHero{min-width:52px;padding:6px 7px}
 }
 
+
+/* Mayor presencia visual por pilar */
+.pillar{
+  border:1px solid #d7dfe2;
+  border-radius:16px;
+  overflow:hidden;
+  margin:14px 0;
+  background:#fff;
+}
+.pillarTitle{
+  padding:13px 14px;
+  font-weight:900;
+  font-size:14px;
+  color:#fff;
+  letter-spacing:.1px;
+}
+.pillarTitle[data-pillar="DISPONIBILIDAD"]{background:#1976d2}
+.pillarTitle[data-pillar="EDF"]{background:#00897b}
+.pillarTitle[data-pillar="ACTIVACION"]{background:#8e5bb7}
+.pillarTitle[data-pillar="PRECIO"]{background:#ef6c00}
+.pillarTitle[data-pillar="SOVI"]{background:#546e7a}
+
+.dev{
+  background:#fff;
+  border-top:1px solid #e7ecef;
+}
+.dev b{
+  color:#111827;
+}
+.dev small{
+  color:#263238 !important;
+  font-weight:600;
+  line-height:1.35;
+}
+.dev .infoTag{
+  font-weight:900;
+}
+.motiveInfo p{
+  color:#111827 !important;
+  font-weight:600;
+}
+.motiveInfo h3{
+  color:#111827;
+  font-weight:900;
+}
+.motiveClient{
+  color:#263238;
+  font-weight:700;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
@@ -320,7 +370,7 @@ select,input{font:inherit}
 </aside>
 
 <section class="left" id="leftPane">
-  <div class="head"><h2 id="pageTitle">Gestión ICE <small style="font-size:11px">V8.5</small></h2><span>☰ ⌕</span></div>
+  <div class="head"><h2 id="pageTitle">Gestión ICE <small style="font-size:11px">V8.6</small></h2><span>☰ ⌕</span></div>
   <div class="content" id="mainContent"></div>
 </section>
 
@@ -731,7 +781,7 @@ function renderDetail(c){
   PILLARS.forEach(p=>{
     const arr=c.pillars[p]||[];
     if(!arr.length)return;
-    h+=`<div class="pillar"><div class="pillarTitle"><span>${LABELS[p]}</span><span>${arr.length} motivos</span></div>`;
+    h+=`<div class="pillar"><div class="pillarTitle" data-pillar="${p}"><span>${LABELS[p]}</span><span>${arr.length} motivos</span></div>`;
 
     arr.forEach((x,idx)=>{
       const faltante = (typeof x.target==="number" && typeof x.achieved==="number") ? Math.max(0, x.target-x.achieved) : null;
