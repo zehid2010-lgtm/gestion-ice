@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Gestión ICE V9.3 · Google Sheets Online</title>
+<title>Gestión ICE V9.4 · Google Sheets Online</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Segoe UI,sans-serif;background:#e8e8e8;color:#1f2937}
@@ -432,13 +432,96 @@ select,input{font:inherit}
 .refModalCaption{margin-top:12px;font-size:14px;line-height:1.5;color:#111827;font-weight:700}
 
 
-/* V9.3 - base Excel online */
+/* V9.4 - base Excel online */
 .onlineBar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;background:#fff;border:1px solid #d7e5e7;border-radius:14px;padding:10px 12px}
 .onlineDot{width:10px;height:10px;border-radius:50%;background:#94a3b8;flex:0 0 auto}
 .onlineDot.ok{background:#16a34a}.onlineDot.loading{background:#f59e0b}.onlineDot.error{background:#dc2626}
 .onlineText{font-size:12px;color:#0f172a;font-weight:800;flex:1;min-width:150px}
 .onlineSub{display:block;font-size:10px;color:#64748b;font-weight:600;margin-top:2px}
 .refreshOnline{border:0;background:#4fc1c6;color:#fff;border-radius:10px;padding:8px 10px;font-size:11px;font-weight:900;cursor:pointer}
+
+
+/* V9.4 - filtro de ruta más visible */
+.routeFilterBox{
+  margin:2px 0 14px 0;
+  padding:11px 12px 12px 12px;
+  border:2px solid #4fc1c6;
+  border-radius:16px;
+  background:#eefbfb;
+  box-shadow:0 4px 12px rgba(79,193,198,.14);
+}
+.routeFilterHead{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  margin-bottom:8px;
+}
+.routeFilterIcon{
+  width:30px;
+  height:30px;
+  border-radius:9px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#4fc1c6;
+  color:#fff;
+  font-size:16px;
+  flex:0 0 30px;
+}
+.routeFilterText{
+  display:flex;
+  flex-direction:column;
+  line-height:1.15;
+}
+.routeFilterText b{
+  font-size:13px;
+  color:#0f172a;
+  font-weight:900;
+}
+.routeFilterText span{
+  margin-top:3px;
+  font-size:11px;
+  color:#53717a;
+  font-weight:600;
+}
+.routeSelect{
+  width:100%;
+  padding:12px 40px 12px 13px;
+  border:2px solid #a9dde0;
+  border-radius:12px;
+  background:#fff;
+  margin-bottom:0;
+  font-weight:800;
+  color:#0f172a;
+  cursor:pointer;
+  outline:none;
+  box-shadow:0 1px 2px rgba(15,23,42,.04);
+}
+.routeSelect:hover{
+  border-color:#4fc1c6;
+}
+.routeSelect:focus{
+  border-color:#2aaeb4;
+  box-shadow:0 0 0 3px rgba(79,193,198,.18);
+}
+.routeFilterBox.hasRoute{
+  background:#dff7f8;
+  border-color:#2aaeb4;
+}
+.routeFilterBox.hasRoute .routeFilterText b{
+  color:#087a80;
+}
+@media(max-width:700px){
+  .routeFilterBox{
+    padding:10px 11px 11px 11px;
+    border-radius:14px;
+  }
+  .routeFilterIcon{
+    width:28px;
+    height:28px;
+    flex-basis:28px;
+  }
+}
 
 </style>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -537,16 +620,25 @@ function baseControls(){
     <button class="chip ${quickFilter==="ALTA"?"active":""}" onclick="setQuick('ALTA')">Críticos</button>
     ${PILLARS.map(p=>`<button class="chip ${quickFilter===p?"active":""}" onclick="setQuick('${p}')">${LABELS[p]}</button>`).join("")}
   </div>
-  <select class="routeSelect" onchange="routeFilter=this.value;renderICE()">
-    <option value="">Todas las rutas</option>
-    ${routes.map(r=>`<option value="${r}" ${routeFilter===r?"selected":""}>Ruta ${r}</option>`).join("")}
-  </select>`;
+  <div class="routeFilterBox ${routeFilter?"hasRoute":""}">
+    <div class="routeFilterHead">
+      <div class="routeFilterIcon">⌖</div>
+      <div class="routeFilterText">
+        <b>Filtrar por ruta</b>
+        <span>${routeFilter ? `Mostrando solamente Ruta ${routeFilter}` : "Seleccioná una ruta para ver sus clientes"}</span>
+      </div>
+    </div>
+    <select class="routeSelect" onchange="routeFilter=this.value;renderICE()">
+      <option value="">Todas las rutas</option>
+      ${routes.map(r=>`<option value="${r}" ${routeFilter===r?"selected":""}>Ruta ${r}</option>`).join("")}
+    </select>
+  </div>`;
 }
 
 function setQuick(f){quickFilter=f;renderICE()}
 
 function renderICE(){
-  document.getElementById("pageTitle").innerHTML='Gestión ICE <small style="font-size:11px">V9.3</small>';
+  document.getElementById("pageTitle").innerHTML='Gestión ICE <small style="font-size:11px">V9.4</small>';
   const list=visibleClients().sort((a,b)=>a.score-b.score);
   const avg=list.length?list.reduce((a,c)=>a+c.score,0)/list.length:0;
   const official = routeFilter ? routeOfficialScore(routeFilter) : avg;
