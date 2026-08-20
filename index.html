@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Gestión ICE V9.2 · Google Sheets Online</title>
+<title>Gestión ICE V9.3 · Google Sheets Online</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Segoe UI,sans-serif;background:#e8e8e8;color:#1f2937}
@@ -432,7 +432,7 @@ select,input{font:inherit}
 .refModalCaption{margin-top:12px;font-size:14px;line-height:1.5;color:#111827;font-weight:700}
 
 
-/* V9.2 - base Excel online */
+/* V9.3 - base Excel online */
 .onlineBar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;background:#fff;border:1px solid #d7e5e7;border-radius:14px;padding:10px 12px}
 .onlineDot{width:10px;height:10px;border-radius:50%;background:#94a3b8;flex:0 0 auto}
 .onlineDot.ok{background:#16a34a}.onlineDot.loading{background:#f59e0b}.onlineDot.error{background:#dc2626}
@@ -546,7 +546,7 @@ function baseControls(){
 function setQuick(f){quickFilter=f;renderICE()}
 
 function renderICE(){
-  document.getElementById("pageTitle").innerHTML='Gestión ICE <small style="font-size:11px">V9.2</small>';
+  document.getElementById("pageTitle").innerHTML='Gestión ICE <small style="font-size:11px">V9.3</small>';
   const list=visibleClients().sort((a,b)=>a.score-b.score);
   const avg=list.length?list.reduce((a,c)=>a+c.score,0)/list.length:0;
   const official = routeFilter ? routeOfficialScore(routeFilter) : avg;
@@ -1300,32 +1300,52 @@ function parseScoreRows(rows){
   const routeTotals={};
   const clients={};
 
-  // A) Formato exportado conocido: ruta en col D, cliente en E, puntaje en F
+  // A) Formato jerárquico de la hoja "Resultado por cliente"
+  // La ruta aparece una sola vez en col D y los clientes siguientes dejan esa celda vacía.
+  // Por eso mantenemos la última ruta válida hasta encontrar la siguiente.
+  let currentRoute="";
+
   for(let i=1;i<rows.length;i++){
     const r=rows[i]||[];
-    const route=cleanStr(r[3]);
+
+    const routeCell=cleanStr(r[3]);
     const outcl=cleanStr(r[4]);
     let score=numVal(r[5]);
-    if(!route || score==null) continue;
+
+    // Si aparece una nueva ruta (ej. 3140), la recordamos.
+    if(/^\d{4}$/.test(routeCell)){
+      currentRoute=routeCell;
+    }
+
+    if(score==null) continue;
     if(score>1 && score<=100) score=score/100;
 
-    if(outcl.toLowerCase()==="total"){
-      routeTotals[route]=score;
+    // La fila "3140 | Total | 57,1%" contiene el resultado oficial de la ruta.
+    if(currentRoute && outcl.toLowerCase()==="total"){
+      routeTotals[currentRoute]=score;
       continue;
     }
-    if(!outcl) continue;
-    const c=splitClient(outcl);
-    if(!c.code) continue;
-    clients[c.code]={route,code:c.code,name:c.name,score};
+
+    // Filas de clientes: la ruta puede venir vacía, usamos currentRoute.
+    if(currentRoute && outcl){
+      const c=splitClient(outcl);
+      if(c.code){
+        clients[c.code]={
+          route:currentRoute,
+          code:c.code,
+          name:c.name,
+          score
+        };
+      }
+    }
   }
 
-  // B) Formato jerárquico de Power BI: "Detalle" | "Puntaje"
+  // B) Compatibilidad con formato compacto "Detalle | Puntaje"
   // Ej:
   // 3140            57,1%
   // 3136960 - ...   38,1%
-  // ...
   // Total           57,1%
-  let currentRoute="";
+  currentRoute="";
   for(let i=0;i<rows.length;i++){
     const r=rows[i]||[];
     if(r.length<2) continue;
@@ -1335,14 +1355,12 @@ function parseScoreRows(rows){
     if(score==null) continue;
     if(score>1 && score<=100) score/=100;
 
-    // Ruta pura de 4 dígitos
     if(/^\d{4}$/.test(label)){
       currentRoute=label;
-      routeTotals[currentRoute]=score; // ESTE es el resultado oficial de la ruta
+      routeTotals[currentRoute]=score;
       continue;
     }
 
-    // Cliente: código de 6/7 dígitos seguido de " - "
     if(currentRoute && /^\d{6,8}\s*-\s*/.test(label)){
       const c=splitClient(label);
       if(c.code){
@@ -1350,41 +1368,52 @@ function parseScoreRows(rows){
           route:currentRoute,
           code:c.code,
           name:c.name,
-          score:score
+          score
         };
       }
       continue;
     }
 
-    // Si aparece Total al final de la ruta, reafirmar el valor oficial
     if(currentRoute && label.toLowerCase()==="total"){
       routeTotals[currentRoute]=score;
     }
   }
 
-  // C) Fallback por encabezados si el formato cambia
+  // C) Fallback por encabezados, conservando también la última ruta detectada.
   if(Object.keys(clients).length===0){
     const header=(rows[0]||[]).map(x=>cleanStr(x).toLowerCase());
     const routeIdx=header.findIndex(x=>x.includes("ruta")||x==="cedi");
     const clientIdx=header.findIndex(x=>x.includes("out-cl")||x.includes("cliente")||x==="detalle");
     const scoreIdx=header.findIndex(x=>x.includes("puntaje")||x.includes("score"));
 
+    currentRoute="";
     for(let i=1;i<rows.length;i++){
       const r=rows[i]||[];
-      const route=routeIdx>=0?cleanStr(r[routeIdx]):"";
+      const routeCell=routeIdx>=0?cleanStr(r[routeIdx]):"";
       const outcl=clientIdx>=0?cleanStr(r[clientIdx]):"";
       let score=scoreIdx>=0?numVal(r[scoreIdx]):null;
-      if(!route||!outcl||score==null) continue;
+
+      if(/^\d{4}$/.test(routeCell)) currentRoute=routeCell;
+      if(!currentRoute||!outcl||score==null) continue;
       if(score>1&&score<=100) score/=100;
 
       if(outcl.toLowerCase()==="total"){
-        routeTotals[route]=score;
+        routeTotals[currentRoute]=score;
         continue;
       }
+
       const c=splitClient(outcl);
-      if(c.code) clients[c.code]={route,code:c.code,name:c.name,score};
+      if(c.code){
+        clients[c.code]={
+          route:currentRoute,
+          code:c.code,
+          name:c.name,
+          score
+        };
+      }
     }
   }
+
   return {clients,routeTotals};
 }
 
