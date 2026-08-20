@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Gestión ICE V8.9 Lite Mobile</title>
+<title>Gestión ICE V9.2 · Google Sheets Online</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Segoe UI,sans-serif;background:#e8e8e8;color:#1f2937}
@@ -431,6 +431,15 @@ select,input{font:inherit}
 .refModalBody img{width:100%;height:auto;border-radius:14px;border:1px solid #dbe3e6;display:block}
 .refModalCaption{margin-top:12px;font-size:14px;line-height:1.5;color:#111827;font-weight:700}
 
+
+/* V9.2 - base Excel online */
+.onlineBar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;background:#fff;border:1px solid #d7e5e7;border-radius:14px;padding:10px 12px}
+.onlineDot{width:10px;height:10px;border-radius:50%;background:#94a3b8;flex:0 0 auto}
+.onlineDot.ok{background:#16a34a}.onlineDot.loading{background:#f59e0b}.onlineDot.error{background:#dc2626}
+.onlineText{font-size:12px;color:#0f172a;font-weight:800;flex:1;min-width:150px}
+.onlineSub{display:block;font-size:10px;color:#64748b;font-weight:600;margin-top:2px}
+.refreshOnline{border:0;background:#4fc1c6;color:#fff;border-radius:10px;padding:8px 10px;font-size:11px;font-weight:900;cursor:pointer}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
@@ -515,10 +524,12 @@ function visibleClients(){
 
 function baseControls(){
   const routes=[...new Set(DATA.map(c=>c.route))].sort();
-  return `<div class="updateBar">
-    <button class="updateBtn" onclick="openImport()">↻ Actualizar desde Excel</button>
-    <button class="updateBtn secondary" onclick="resetSample()">Restaurar muestra inicial</button>
-    <span class="updateInfo" id="updateStamp"></span>
+  return `<div class="onlineBar">
+    <span class="onlineDot" id="onlineDot"></span>
+    <div class="onlineText" id="onlineStatus">Base Google Sheets
+      <span class="onlineSub" id="updateStamp">Comprobando Google Sheets...</span>
+    </div>
+    <button class="refreshOnline" onclick="loadOnlineExcels(true)">↻ Actualizar ahora</button>
   </div>
   <div class="searchCard" onclick="openSearch()"><div class="searchIcon">⌕</div><div class="searchText"><b>Buscar cliente o desvío</b><span>Nombre, código, ruta o pilar ICE</span></div></div>
   <div class="chips">
@@ -535,7 +546,7 @@ function baseControls(){
 function setQuick(f){quickFilter=f;renderICE()}
 
 function renderICE(){
-  document.getElementById("pageTitle").innerHTML='Gestión ICE <small style="font-size:11px">V8.3</small>';
+  document.getElementById("pageTitle").innerHTML='Gestión ICE <small style="font-size:11px">V9.2</small>';
   const list=visibleClients().sort((a,b)=>a.score-b.score);
   const avg=list.length?list.reduce((a,c)=>a+c.score,0)/list.length:0;
   const official = routeFilter ? routeOfficialScore(routeFilter) : avg;
@@ -1436,12 +1447,19 @@ function loadSavedSample(){
     if(rt) ROUTE_TOTALS=JSON.parse(rt);
   }catch(e){}
 }
-function showUpdateStamp(){
-  const el=document.getElementById("updateStamp");
-  if(!el)return;
-  const stamp=localStorage.getItem("gestionIceUpdatedAt");
-  el.textContent=stamp?`Última carga: ${stamp}`:"Muestra incluida en el archivo";
+function setOnlineStatus(state,message,sub){
+  const dot=document.getElementById("onlineDot");
+  const txt=document.getElementById("onlineStatus");
+  const stamp=document.getElementById("updateStamp");
+  if(dot){dot.className="onlineDot "+(state||"");}
+  if(txt){txt.childNodes[0].nodeValue=(message||"Base Google Sheets")+" ";}
+  if(stamp){stamp.textContent=sub||"";}
 }
+function showUpdateStamp(){
+  const stamp=localStorage.getItem("gestionIceOnlineUpdatedAt") || localStorage.getItem("gestionIceUpdatedAt");
+  if(stamp) setOnlineStatus("ok","Base Google Sheets",`Última lectura: ${stamp}`);
+}
+
 function resetSample(){
   DATA=JSON.parse(JSON.stringify(INITIAL_DATA));
   ROUTE_TOTALS=JSON.parse(JSON.stringify(INITIAL_ROUTE_TOTALS));
@@ -1453,6 +1471,71 @@ function resetSample(){
   selected=DATA.length?DATA[0]:null;
   routeFilter="";quickFilter="";
   renderICE();showUpdateStamp();
+}
+
+
+const SCORE_CSV_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vQvVvjupGFZsU2qshBfTaltKgn65T5CmAlszrV63YJcS3tnWVLK7bm_R9zYYHan_A/pub?gid=803686939&single=true&output=csv';
+const DETAIL_CSV_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vQvVvjupGFZsU2qshBfTaltKgn65T5CmAlszrV63YJcS3tnWVLK7bm_R9zYYHan_A/pub?gid=498728868&single=true&output=csv';
+
+async function fetchCsvRows(url){
+  const sep=url.includes("?")?"&":"?";
+  const res=await fetch(url+sep+"v="+Date.now(),{cache:"no-store"});
+  if(!res.ok) throw new Error(`Google Sheets: HTTP ${res.status}`);
+  const text=await res.text();
+  if(!text || text.trim().length<5) throw new Error("La hoja publicada llegó vacía.");
+  const wb=XLSX.read(text,{type:"string",raw:true});
+  const ws=wb.Sheets[wb.SheetNames[0]];
+  return XLSX.utils.sheet_to_json(ws,{header:1,defval:null,raw:true});
+}
+
+async function loadOnlineExcels(manual=false){
+  try{
+    if(typeof XLSX==="undefined") throw new Error("No se pudo cargar el lector de datos.");
+    setOnlineStatus("loading","Actualizando base...","Leyendo Google Sheets");
+
+    const [scoreRows,detailRows]=await Promise.all([
+      fetchCsvRows(SCORE_CSV_URL),
+      fetchCsvRows(DETAIL_CSV_URL)
+    ]);
+
+    if(!scoreRows.length) throw new Error("No se pudo leer 'Resultado por cliente'.");
+    if(!detailRows.length) throw new Error("No se pudo leer 'Detalle Ice'.");
+
+    const sp=parseScoreRows(scoreRows);
+    const dp=parseDetailRows(detailRows);
+    const newData=buildData(sp,dp);
+
+    if(!newData.length) throw new Error("Google Sheets no contiene clientes reconocibles.");
+
+    DATA=newData;
+    ROUTE_TOTALS=sp.routeTotals;
+    selected=DATA[0]||null;
+    routeFilter="";
+    quickFilter="";
+
+    const stamp=new Date().toLocaleString("es-AR");
+    try{
+      localStorage.setItem("gestionIceOnlineUpdatedAt",stamp);
+      localStorage.setItem("gestionIceData",JSON.stringify(DATA));
+      localStorage.setItem("gestionIceRouteTotals",JSON.stringify(ROUTE_TOTALS));
+    }catch(e){}
+
+    renderICE();
+    setOnlineStatus(
+      "ok",
+      "Google Sheets actualizado",
+      `${DATA.length} clientes · ${Object.keys(ROUTE_TOTALS).length} rutas · ${stamp}`
+    );
+    return true;
+  }catch(err){
+    if(manual) console.error(err);
+    setOnlineStatus(
+      "error",
+      "No pude leer Google Sheets",
+      "Mostrando la última base disponible. "+err.message
+    );
+    return false;
+  }
 }
 
 async function importExcels(){
@@ -1488,9 +1571,8 @@ async function importExcels(){
 }
 
 loadSavedSample();
-
 renderICE();
-setTimeout(showUpdateStamp,0);
+setTimeout(()=>loadOnlineExcels(false),0);
 </script>
 
 <div class="importModal" id="importModal">
@@ -1511,7 +1593,7 @@ setTimeout(showUpdateStamp,0);
         <input id="detailFile" class="fileInput" type="file" accept=".xlsx,.xls,.csv">
       </div>
       <div class="importNote">
-        La actualización se hace dentro de tu navegador. La app guarda la última muestra en este equipo para que no tengas que cargarla cada vez.
+        Carga local de respaldo. La base compartida por todos se actualiza reemplazando data/ice.xlsx y data/ice.xlsx en GitHub.
       </div>
       <div class="importOk" id="importOk"></div>
       <div class="importActions">
