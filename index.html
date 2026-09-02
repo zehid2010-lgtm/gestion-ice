@@ -523,6 +523,21 @@ select,input{font:inherit}
   }
 }
 
+
+/* V9.7 - pantalla Secos */
+.secoHero{border:1px solid #d9e3e5;border-radius:18px;padding:16px;background:#fff;margin-bottom:12px}
+.secoHeroTop{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.secoHero h3{margin:0 0 5px;font-size:18px;color:#0f172a}.secoHero p{margin:0;color:#64748b;font-size:12px;line-height:1.45}
+.secoTarget{background:#eaf8ef;border:1px solid #b8e0c4;border-radius:14px;padding:10px 13px;text-align:center;min-width:110px}.secoTarget b{display:block;font-size:24px;color:#166534}.secoTarget span{font-size:10px;font-weight:800;color:#39724a}
+.secoKpis{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:12px 0}
+.secoKpi{border:1px solid #dfe5e7;border-radius:14px;padding:12px;background:#fff}.secoKpi b{display:block;font-size:22px;color:#0f172a}.secoKpi span{font-size:11px;color:#64748b}
+.secoGuide{background:#eefbfb;border:1px solid #bfe6e8;border-left:5px solid #4fc1c6;border-radius:14px;padding:12px 13px;margin-bottom:13px}.secoGuide b{display:block;color:#0f172a;margin-bottom:4px}.secoGuide span{font-size:12px;color:#334155;line-height:1.45}
+.secoList{display:grid;gap:10px}.secoCard{border:1px solid #dde4e6;border-radius:16px;background:#fff;overflow:hidden}.secoCardHead{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:13px;align-items:start}.secoRole{font-weight:900;color:#111827;font-size:14px}.secoNumbers{font-size:11px;color:#64748b;margin-top:4px;line-height:1.45}.secoImpact{min-width:72px;text-align:center;border-radius:12px;padding:8px 9px;font-weight:900;font-size:18px}.secoImpact small{display:block;font-size:9px;font-weight:800;margin-top:2px}.secoImpact.high{background:#fee2e2;color:#991b1b}.secoImpact.mid{background:#fef3c7;color:#92400e}.secoImpact.low{background:#dcfce7;color:#166534}
+.secoAction{border-top:1px solid #edf0f2;padding:11px 13px;background:#fafcfc}.secoAction b{font-size:11px;color:#0f766e}.secoAction span{display:block;margin-top:4px;font-size:12px;line-height:1.45;color:#1f2937;font-weight:600}
+.secoPriority{display:inline-block;border-radius:999px;padding:3px 7px;font-size:9px;font-weight:900;margin-left:5px}.secoPriority.p1{background:#fee2e2;color:#991b1b}.secoPriority.p2{background:#fef3c7;color:#92400e}.secoPriority.p3{background:#e2e8f0;color:#475569}
+.secoFormula{font-size:11px;color:#475569;margin-top:8px;font-weight:700}.secoEmpty{padding:18px;border:1px dashed #cbd5e1;border-radius:14px;text-align:center;color:#64748b}
+@media(max-width:700px){.sidebar{grid-template-columns:repeat(6,minmax(0,1fr))}.secoKpis{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.secoKpi{padding:10px 6px}.secoKpi b{font-size:18px}.secoKpi span{font-size:9px}.secoCardHead{padding:12px 10px}.secoAction{padding:10px}.secoRole{font-size:13px}}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
@@ -534,11 +549,12 @@ select,input{font:inherit}
   <button class="navbtn" id="nav-ruta" onclick="navTo('ruta')">Ruta</button>
   <button class="navbtn" id="nav-clientes" onclick="navTo('clientes')">Clientes</button>
   <button class="navbtn" id="nav-tareas" onclick="navTo('tareas')">Tareas</button>
+  <button class="navbtn" id="nav-secos" onclick="navTo('secos')">Secos</button>
   <button class="navbtn" id="nav-panel" onclick="navTo('panel')">Panel</button>
 </aside>
 
 <section class="left" id="leftPane">
-  <div class="head"><h2 id="pageTitle">Gestión ICE <small style="font-size:11px">V8.9 Lite</small></h2><span>☰ ⌕</span></div>
+  <div class="head"><h2 id="pageTitle">Gestión ICE <small style="font-size:11px">V9.7</small></h2><span>☰ ⌕</span></div>
   <div class="content" id="mainContent"></div>
 </section>
 
@@ -565,6 +581,50 @@ let selected=DATA.length?DATA[0]:null;
 let routeFilter="";
 let quickFilter="";
 let currentDetailMode="client";
+
+
+// Base inicial de Secos tomada del detalle compartido. Puede reemplazarse luego por Google Sheets/Excel.
+const SECO_TARGET=3.0;
+const SECO_DATA=[
+  {role:"Coca Cola 2.5 Lts Pet",dry:10,audited:32,dryPct:31.3,mix:9.7,impact:3.0},
+  {role:"Coca Cola 1.5 Lts Pet",dry:3,audited:48,dryPct:6.3,mix:35.2,impact:2.2},
+  {role:"Coca Cola Zero 1.5 o 2 Lts Pet",dry:7,audited:36,dryPct:19.4,mix:10.3,impact:2.0},
+  {role:"Sprite o Fanta 1.5 Lts Pet",dry:6,audited:46,dryPct:13.0,mix:9.2,impact:1.2},
+  {role:"Coca Cola 1.5 o 2 o 2.5 Lts Ret",dry:3,audited:102,dryPct:2.9,mix:22.4,impact:0.7},
+  {role:"Coca Cola Zero 2 Lts Ret",dry:9,audited:95,dryPct:9.5,mix:4.2,impact:0.4},
+  {role:"Coca Cola Lata 220 o 375 ml Pet",dry:4,audited:36,dryPct:11.1,mix:2.3,impact:0.3},
+  {role:"Benedictino 2 Lts Sifon",dry:11,audited:34,dryPct:32.4,mix:0.7,impact:0.2},
+  {role:"Benedictino 2 o 3 Lts",dry:22,audited:40,dryPct:55.0,mix:0.3,impact:0.2},
+  {role:"Ades 200 ml",dry:18,audited:76,dryPct:23.7,mix:0.6,impact:0.2},
+  {role:"Coca Cola 600 o 375 ml Pet",dry:8,audited:62,dryPct:12.9,mix:0.6,impact:0.1},
+  {role:"Sprite o Fanta 1.5 o 2 Lts Ret",dry:5,audited:88,dryPct:5.7,mix:1.4,impact:0.1},
+  {role:"Coca Cola 1.5 o 2 Lts Pet",dry:5,audited:45,dryPct:11.1,mix:0.6,impact:0.1},
+  {role:"Coca Cola Zero 600 o 375 ml Pet",dry:14,audited:88,dryPct:15.9,mix:0.4,impact:0.1},
+  {role:"Aquarius 1.5 o 2.25 Lts Pet",dry:6,audited:34,dryPct:17.6,mix:0.3,impact:0.1},
+  {role:"Coca Cola 600 ml Pet",dry:6,audited:33,dryPct:18.2,mix:0.2,impact:0.0},
+  {role:"Monster",dry:18,audited:94,dryPct:19.1,mix:0.2,impact:0.0},
+  {role:"Cepita 1.5 Lts Pet o Ades 1 Lt",dry:3,audited:40,dryPct:7.5,mix:0.4,impact:0.0},
+  {role:"Benedictino 600 ml Pet",dry:5,audited:14,dryPct:35.7,mix:0.1,impact:0.0},
+  {role:"Sprite o Fanta 500 ml Pet",dry:9,audited:68,dryPct:13.2,mix:0.1,impact:0.0},
+  {role:"Benedictino 600 ml o Powerade 500 ml",dry:8,audited:53,dryPct:15.1,mix:0.1,impact:0.0},
+  {role:"Benedictino 600 ml o 2 Lts",dry:3,audited:30,dryPct:10.0,mix:0.1,impact:0.0},
+  {role:"Powerade 500 o 995 ml",dry:4,audited:51,dryPct:7.8,mix:0.1,impact:0.0},
+  {role:"Ades o Cepita 200 ml",dry:3,audited:18,dryPct:16.7,mix:0.0,impact:0.0},
+  {role:"Fanta 500 ml o Lata 220 ml",dry:1,audited:18,dryPct:5.6,mix:0.1,impact:0.0},
+  {role:"Sprite o Fanta Lata 220 ml",dry:6,audited:26,dryPct:23.1,mix:0.0,impact:0.0}
+];
+
+function secoPriority(x){return x.impact>=1?1:(x.impact>=.3?2:3)}
+function secoActionFor(x){
+  const p=secoPriority(x);
+  if(p===1){
+    if(/Zero/i.test(x.role)) return "Prioridad alta: identificar los clientes secos de este rol y recuperar compra en la próxima visita. Revisar disponibilidad, propuesta de precio/promoción y asegurar al menos una unidad/caja para cortar el seco.";
+    if(/Sprite|Fanta/i.test(x.role)) return "Prioridad alta: trabajar sabores en los clientes secos. Confirmar faltante, ofrecer la alternativa habilitada del rol y cerrar compra antes de avanzar sobre roles de menor impacto.";
+    return "Prioridad alta: recuperar primero los clientes secos de este rol. Confirmar stock real, ofrecer el formato, cerrar compra y volver a controlar en la siguiente visita para evitar reincidencia.";
+  }
+  if(p===2) return "Segunda prioridad: trabajar después de los roles rojos. Recuperar los clientes secos y sostener presencia para que no vuelvan a caer.";
+  return "Mantenimiento: controlar presencia y corregir cuando coincida con la visita, sin quitar foco a los roles que explican la mayor parte del indicador.";
+}
 
 
 function scoreClass(v){
@@ -598,6 +658,7 @@ function navTo(name){
   if(name==="ruta") renderRoutes();
   if(name==="clientes") renderClientsPage();
   if(name==="tareas") renderTasks();
+  if(name==="secos") renderSecos();
   if(name==="panel") renderPanel();
 }
 
@@ -638,7 +699,7 @@ function baseControls(){
 function setQuick(f){quickFilter=f;renderICE()}
 
 function renderICE(){
-  document.getElementById("pageTitle").innerHTML='Gestión ICE <small style="font-size:11px">V9.6</small>';
+  document.getElementById("pageTitle").innerHTML='Gestión ICE <small style="font-size:11px">V9.7</small>';
   const list=visibleClients().sort((a,b)=>a.score-b.score);
   const avg=list.length?list.reduce((a,c)=>a+c.score,0)/list.length:0;
   const official = routeFilter ? routeOfficialScore(routeFilter) : avg;
@@ -694,6 +755,40 @@ function renderTasks(){
     const main=PILLARS.map(p=>({p,n:(c.pillars[p]||[]).length})).sort((a,b)=>b.n-a.n)[0];
     return `<div class="task" onclick="selectClient('${c.code}')"><b>🔴 ${c.code} · ${c.name}</b><span>ICE ${pct(c.score)} · ${devCount(c)} desvíos · Foco: ${main&&main.n?LABELS[main.p]:"Revisar"}</span></div>`;
   }).join("");
+  document.getElementById("mainContent").innerHTML=h;
+}
+
+
+function renderSecos(){
+  document.getElementById("pageTitle").textContent="Secos · Plan de corrección";
+  const rows=[...SECO_DATA].sort((a,b)=>b.impact-a.impact);
+  const totalImpact=rows.reduce((s,x)=>s+x.impact,0);
+  const high=rows.filter(x=>secoPriority(x)===1);
+  const highImpact=high.reduce((s,x)=>s+x.impact,0);
+  const highClients=high.reduce((s,x)=>s+x.dry,0);
+  let h=`<div class="secoHero">
+    <div class="secoHeroTop">
+      <div><h3>¿Dónde tiene que actuar el vendedor?</h3><p>El orden de trabajo se define por <b>impacto en Secos</b>, no solamente por el porcentaje de clientes secos. Primero se corrigen los roles que más puntos explican.</p></div>
+      <div class="secoTarget"><b>${SECO_TARGET.toFixed(1)}%</b><span>Meta Secos</span></div>
+    </div>
+    <div class="secoFormula">Fórmula de lectura: % Secos = Clientes Secos ÷ Auditados · Impacto = % Secos × Mix.</div>
+  </div>`;
+  h+=`<div class="secoKpis">
+    <div class="secoKpi"><b>${high.length}</b><span>Roles prioridad 1</span></div>
+    <div class="secoKpi"><b>${highClients}</b><span>Clientes secos P1</span></div>
+    <div class="secoKpi"><b>${highImpact.toFixed(1)} pts</b><span>Impacto concentrado P1</span></div>
+  </div>`;
+  h+=`<div class="secoGuide"><b>Regla para el vendedor</b><span>🔴 Primero recuperar los roles con impacto ≥ 1 punto. 🟡 Después los de 0,3 a 0,9. ⚪ El resto queda en mantenimiento. El objetivo diario debe expresarse como <b>clientes secos recuperados</b>, no como “bajar un porcentaje”.</span></div>`;
+  h+=`<div class="secoList">${rows.map(x=>{
+    const p=secoPriority(x); const cls=p===1?'high':(p===2?'mid':'low'); const pc=p===1?'p1':(p===2?'p2':'p3');
+    return `<div class="secoCard">
+      <div class="secoCardHead">
+        <div><div class="secoRole">${x.role}<span class="secoPriority ${pc}">P${p}</span></div><div class="secoNumbers">${x.dry} secos / ${x.audited} auditados · ${x.dryPct.toFixed(1)}% secos · Mix ${x.mix.toFixed(1)}%</div></div>
+        <div class="secoImpact ${cls}">${x.impact.toFixed(1)}<small>pts impacto</small></div>
+      </div>
+      <div class="secoAction"><b>MEDIDA CORRECTIVA</b><span>${secoActionFor(x)}</span></div>
+    </div>`;
+  }).join('')}</div>`;
   document.getElementById("mainContent").innerHTML=h;
 }
 
