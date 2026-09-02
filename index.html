@@ -609,7 +609,7 @@ select,input{font:inherit}
 </aside>
 
 <section class="left" id="leftPane">
-  <div class="head"><h2 id="pageTitle">Gestión ICE <small style="font-size:11px">V10.2</small></h2><span>☰ ⌕</span></div>
+  <div class="head"><h2 id="pageTitle">Gestión ICE <small style="font-size:11px">V10.3</small></h2><span>☰ ⌕</span></div>
   <div class="content" id="mainContent"></div>
 </section>
 
@@ -677,34 +677,23 @@ function secoRoleReference(role){
 function secoClientImpact(c){
   return (c.roles||[]).reduce((s,r)=>s+(Number(r.impact)||0),0);
 }
-function secoClientScore(c){
-  const maxImpact=Math.max(0,...SECO_CLIENTS.map(x=>secoClientImpact(x)));
-  if(!maxImpact) return 0;
-  return Math.max(0,Math.min(100,Math.round((secoClientImpact(c)/maxImpact)*100)));
-}
-function secoScoreMeta(c){
-  const score=secoClientScore(c);
-  if(score>=70) return {label:"Crítico",cls:"critical"};
-  if(score>=40) return {label:"Alto",cls:"high"};
-  if(score>=20) return {label:"Medio",cls:"medium"};
-  return {label:"Tranquilo",cls:"low"};
-}
 function secoClientRank(c){
   return secoClientImpact(c)*100000 + (c.roles||[]).length;
 }
+function secoClientOrder(c){
+  const ordered=secoFilteredClients().slice().sort((a,b)=>secoClientRank(b)-secoClientRank(a));
+  const idx=ordered.findIndex(x=>String(x.code)===String(c.code));
+  return idx>=0?idx+1:null;
+}
 function secoClientPriority(c){
-  const meta=secoScoreMeta(c);
-  if(meta.cls==="critical") return {label:"Atacar hoy",cls:"p1"};
-  if(meta.cls==="high") return {label:"Prioridad 2",cls:"p2"};
-  return {label:"Controlar",cls:"p3"};
+  const order=secoClientOrder(c);
+  return {label:order?`Prioridad #${order}`:"Prioridad",cls:order===1?"p1":(order&&order<=5?"p2":"p3")};
 }
 function secoFilteredClients(){
   return SECO_CLIENTS.filter(c=>!secoRouteFilter || c.route===secoRouteFilter);
 }
 function renderSecoClientCard(c,index){
   const pr=secoClientPriority(c);
-  const scoreMeta=secoScoreMeta(c);
-  const score=secoClientScore(c);
   const roles=[...(c.roles||[])].sort((a,b)=>(b.impact||0)-(a.impact||0));
   const impact=secoClientImpact(c);
   return `<div class="secoClientCard ${String(secoSelectedClientCode)===String(c.code)?'secoSelected':''}" onclick="openSecoClientDetail('${String(c.code).replace(/'/g,"\'")}')">
@@ -712,12 +701,9 @@ function renderSecoClientCard(c,index){
       <div>
         <div class="secoClientName">${c.name||"Cliente sin nombre"}</div>
         <div class="secoClientMeta">Ruta ${c.route||"-"} · Cliente ${c.code||"-"} · ${roles.length} rol${roles.length===1?"":"es"} en Seco</div>
-        <div class="secoScoreLine"><span class="secoScoreTag ${scoreMeta.cls}">${scoreMeta.label}</span><span class="secoMiniBadge">Orden #${index+1}</span><span class="secoSourceTag">SOLO SECOS</span></div>
+        <div class="secoScoreLine"><span class="secoPriority ${pr.cls}">${pr.label}</span><span class="secoSourceTag">SOLO SECOS</span></div>
       </div>
-      <div class="secoRankWrap">
-        <div class="secoRankBadge ${scoreMeta.cls}"><b>${score}</b><span>Puntaje Seco</span></div>
-        <div class="secoClientImpact">${impact.toFixed(2)} pts<small>impacto real estimado</small></div>
-      </div>
+      <div class="secoClientImpact">${impact.toFixed(2)} pts<small>Aporte al Seco</small></div>
     </div>
     <div class="secoClientDevList">
       ${roles.slice(0,3).map(r=>`<div class="secoClientDev"><b>${r.role} · ${Number(r.impact||0).toFixed(2)} pts</b><span>${secoActionFor(r)}</span></div>`).join("")}
@@ -769,24 +755,25 @@ function renderSecoClientDetail(c){
   secoDetailMode="client";
   const roles=[...(c.roles||[])].sort((a,b)=>(b.impact||0)-(a.impact||0));
   const impact=secoClientImpact(c);
-  const score=secoClientScore(c);
-  const scoreMeta=secoScoreMeta(c);
+  const order=secoClientOrder(c);
+  const mainRole=roles[0]||null;
   const dh=document.getElementById("detailHead");
   if(dh) dh.querySelector("span").textContent="Secos · Cliente "+c.code;
   document.getElementById("detail").innerHTML=`
     <div class="person"><div class="avatar">${initials(c.name||"SC")}</div><div><b style="font-size:20px">${c.name||"Cliente sin nombre"}</b><div style="color:#8190a0;margin-top:5px">Ruta ${c.route||"-"} · Código ${c.code||"-"}</div></div></div>
     <div class="secoRightMetrics" style="margin-top:12px">
-      <div class="secoRightMetric"><b>${score}</b><span>Puntaje Seco</span></div>
-      <div class="secoRightMetric"><b>${scoreMeta.label}</b><span>Nivel del cliente</span></div>
+      <div class="secoRightMetric"><b>${impact.toFixed(2)} pts</b><span>Aporte total al Seco</span></div>
+      <div class="secoRightMetric"><b>${order?"#"+order:"-"}</b><span>Orden de prioridad</span></div>
       <div class="secoRightMetric"><b>${roles.length}</b><span>Roles en Seco</span></div>
-      <div class="secoRightMetric"><b>${impact.toFixed(2)} pts</b><span>Impacto real estimado</span></div>
+      <div class="secoRightMetric"><b>${mainRole?Number(mainRole.impact||0).toFixed(2)+" pts":"-"}</b><span>Mayor aporte de un rol</span></div>
     </div>
-    <div class="secoRightBlock secoRightAlert"><h3>DESVÍO SECO DEL CLIENTE</h3><p>Cliente ordenado por criticidad Seco. Corregir los roles en este orden, de mayor a menor impacto. No interviene ningún dato ICE.</p>
+    <div class="secoRightBlock secoRightAlert"><h3>DESVÍO SECO DEL CLIENTE</h3><p>El cliente está ordenado por su <b>aporte total al indicador Seco</b>. Corregir los roles de mayor a menor aporte. No interviene ningún dato ICE.</p>
       ${roles.map(r=>`<div class="secoRightClientRole"><b><span>${r.role}</span><span>${Number(r.impact||0).toFixed(2)} pts</span></b><span><strong>Acción:</strong> ${secoActionFor(r)}</span></div>`).join("")}
     </div>
-    <div class="secoRightBlock secoRightAction"><h3>ACCIÓN CORRECTIVA DEL VENDEDOR</h3><p>Recuperar la compra de los roles marcados en Seco en este cliente, empezando por los de mayor impacto, y verificar en la próxima visita que no vuelva a caer.</p></div>
-    <div class="secoRightBlock"><h3>OBJETIVO DE GESTIÓN</h3><p>Priorizar este cliente según su <b>Puntaje Seco</b>, calculado de 0 a 100 en relación con el cliente de mayor impacto actual. Nivel: <b>${scoreMeta.label}</b>.</p></div>`;
+    <div class="secoRightBlock secoRightAction"><h3>ACCIÓN CORRECTIVA DEL VENDEDOR</h3><p>${mainRole?`Empezar por <b>${mainRole.role}</b>, porque es el rol que más aporta al Seco de este cliente. Luego continuar con los demás roles de mayor a menor aporte y verificar en la próxima visita que no vuelva a caer.`:"Recuperar los roles marcados en Seco y verificar en la próxima visita que no vuelvan a caer."}</p></div>
+    <div class="secoRightBlock"><h3>CÓMO SE CALCULA EL APORTE</h3><p>Para cada rol: <b>Impacto del rol ÷ cantidad de clientes secos del rol</b>. El aporte total del cliente es la suma de sus roles secos. Así se prioriza con una medida derivada del indicador, sin crear un puntaje adicional.</p></div>`;
 }
+
 function openSecoRoleDetail(role){
   renderSecoRoleDetail(role);
   if(window.matchMedia('(max-width:700px)').matches){document.querySelector('.app').classList.add('detail-open');window.scrollTo({top:0,behavior:'smooth'});}
@@ -993,7 +980,7 @@ function baseControls(){
 function setQuick(f){quickFilter=f;renderICE()}
 
 function renderICE(){
-  document.getElementById("pageTitle").innerHTML='Gestión ICE <small style="font-size:11px">V10.2</small>';
+  document.getElementById("pageTitle").innerHTML='Gestión ICE <small style="font-size:11px">V10.3</small>';
   const list=visibleClients().sort((a,b)=>a.score-b.score);
   const avg=list.length?list.reduce((a,c)=>a+c.score,0)/list.length:0;
   const official = routeFilter ? routeOfficialScore(routeFilter) : avg;
@@ -1078,14 +1065,14 @@ function renderSecos(){
     <div class="secoKpi"><b>${highImpact.toFixed(1)} pts</b><span>Impacto P1</span></div>
   </div>`;
 
-  h+=`<div class="secoGuide"><b>Regla de corrección</b><span>🔴 Ordenar los clientes por <b>Puntaje Seco</b>, trabajar primero los más críticos y, dentro de cada cliente, recuperar primero los roles de mayor impacto. La gestión se mide por <b>clientes secos recuperados</b>.</span></div>`;
+  h+=`<div class="secoGuide"><b>Regla de corrección</b><span>🔴 Ordenar los clientes por <b>Aporte al Seco</b>, trabajar primero los que más puntos aportan y, dentro de cada cliente, recuperar primero los roles de mayor impacto. La gestión se mide por <b>clientes secos recuperados</b>.</span></div>`;
 
   h+=`<div class="secoSectionTitle">Clientes Secos priorizados</div>`;
   if(!SECO_CLIENTS.length){
     h+=`<div class="secoEmpty"><b>No hay una base de clientes Secos cargada.</b><br><br>Para mostrar clientes reales sin mezclar ICE, cargá el archivo exclusivo de Secos con columnas como <b>Ruta, Cliente, Nombre, Rol y Seco</b>.</div>`;
   }else{
     h+=`<div class="secoFilterBox routeFilterBox ${secoRouteFilter?"hasRoute":""}"><div class="routeFilterHead"><div class="routeFilterIcon">⌖</div><div class="routeFilterText"><b>Filtrar clientes Secos por ruta</b><span>${secoRouteFilter?`Ruta ${secoRouteFilter}`:"Todas las rutas de la base Secos"}</span></div></div><select class="routeSelect" onchange="secoRouteFilter=this.value;renderSecos()"><option value="">Todas las rutas</option>${routes.map(r=>`<option value="${r}" ${secoRouteFilter===r?"selected":""}>Ruta ${r}</option>`).join("")}</select></div>`;
-    h+=`<div class="secoSubNote">Orden real: mayor a menor <b>impacto en puntos Seco</b>. El <b>Puntaje Seco 0–100</b> es relativo al cliente más crítico de la base actual.</div>`;
+    h+=`<div class="secoSubNote">Orden real: mayor a menor <b>Aporte al Seco en puntos</b>. No se utiliza ningún puntaje adicional ni clasificación inventada.</div>`;
     h+=clients.length?`<div class="secoClientList">${clients.map((c,i)=>renderSecoClientCard(c,i)).join("")}</div>`:`<div class="secoEmpty">No hay clientes Secos para la ruta seleccionada.</div>`;
   }
   document.getElementById("mainContent").innerHTML=h;
