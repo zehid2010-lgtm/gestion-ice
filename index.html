@@ -575,7 +575,85 @@ select,input{font:inherit}
 .secoRightBack{border:0;background:#eefbfb;color:#087a80;border-radius:10px;padding:8px 10px;font-size:11px;font-weight:900;cursor:pointer;margin-bottom:10px}
 @media(max-width:700px){.secoRightMetrics{grid-template-columns:repeat(2,minmax(0,1fr))}.secoRightHero h2{font-size:19px}.secoRightImpact{font-size:32px}}
 
+body.secos-theme{background:linear-gradient(180deg,#fff7ed 0%,#fff1f2 100%)}
+body.secos-theme .app{background:#fff7f2;box-shadow:0 8px 28px rgba(234,88,12,.14)}
+body.secos-theme .sidebar{background:linear-gradient(180deg,#fb923c 0%,#ef4444 100%)}
+body.secos-theme .head,body.secos-theme .detailHead,body.secos-theme .searchTop{background:linear-gradient(90deg,#f97316 0%,#ef4444 100%)}
+body.secos-theme .left{background:#fff7f2}
+body.secos-theme .right{background:#fff4ef}
+body.secos-theme .content,body.secos-theme .detail{background:#fff7f2}
+body.secos-theme .navbtn{background:#ffffff18}
+body.secos-theme .navbtn:hover,body.secos-theme .navbtn.active{background:#ffffff33;outline:2px solid #ffffff40}
+body.secos-theme .searchCard,body.secos-theme .result,body.secos-theme .searchPanel{border-color:#fed7aa;background:#fffdfb}
+body.secos-theme .searchIcon,body.secos-theme .avatar,body.secos-theme .chip.active{background:#f97316;border-color:#f97316}
+body.secos-theme .chip{border-color:#fed7aa;background:#fff}
+body.secos-theme .routeSelect,body.secos-theme input{border-color:#fdba74;background:#fff}
+body.secos-theme .pageNote{background:#fff7ed;border-color:#fed7aa}
+body.secos-theme .secoHero{border-color:#fed7aa;background:#fff7ed}
+body.secos-theme .secoTarget{background:#fff1e6;border-color:#fdba74}
+body.secos-theme .secoTarget b{color:#c2410c}
+body.secos-theme .secoTarget span{color:#9a3412}
+body.secos-theme .secoKpi,body.secos-theme .secoCard,body.secos-theme .secoClientCard,body.secos-theme .secoRightMetric,body.secos-theme .secoRightBlock,body.secos-theme .person{border-color:#fed7aa;background:#fffdfb}
+body.secos-theme .secoGuide{background:#fff1f2;border-color:#fecdd3;border-left-color:#ef4444}
+body.secos-theme .secoImportRow{background:#fff7ed;border-color:#fed7aa}
+body.secos-theme .secoImportBtn{background:#ea580c}
+body.secos-theme .secoFilterBox{background:#fff7ed;border-color:#fed7aa}
+body.secos-theme .secoCard:hover,body.secos-theme .secoCard.secoSelected,body.secos-theme .secoClientCard:hover,body.secos-theme .secoClientCard.secoSelected{border-color:#f97316;box-shadow:0 6px 16px rgba(249,115,22,.14)}
+body.secos-theme .secoAction{background:#fffaf6}
+body.secos-theme .secoAction b,body.secos-theme .secoClientHint{color:#c2410c}
+body.secos-theme .secoClientDev,body.secos-theme .secoRightClientRole{background:#fffaf6;border-color:#fed7aa}
+body.secos-theme .secoRightIntro{background:#fff7ed;border-color:#fed7aa}
+body.secos-theme .secoRightHero{background:linear-gradient(135deg,#f97316,#ef4444)}
+body.secos-theme .secoRightHero.p2{background:linear-gradient(135deg,#fb923c,#f59e0b)}
+body.secos-theme .secoRightHero.p3{background:linear-gradient(135deg,#fca5a5,#fb7185)}
+body.secos-theme .secoRightAction{background:#fff7ed;border-color:#fdba74;border-left-color:#f97316}
+body.secos-theme .secoRightAction h3{color:#c2410c}
+body.secos-theme .secoRightAlert{background:#fff1f2;border-color:#fecdd3;border-left-color:#ef4444}
+body.secos-theme .secoSourceTag{background:#ffedd5;color:#c2410c}
+
 .secoSourceTag{display:inline-block;background:#dcfce7;color:#166534;border-radius:999px;padding:4px 8px;font-size:9px;font-weight:900;margin-left:6px}
+
+
+/* V10.6 - identidad visual por módulo */
+body.theme-ice{--mod-a:#4fc1c6;--mod-b:#2ca9ae;--mod-dark:#087a80;--mod-soft:#eefbfb;--mod-border:#bfe6e8;--mod-page:#eaf7f8}
+body.theme-ruta{--mod-a:#3b82f6;--mod-b:#2563eb;--mod-dark:#1d4ed8;--mod-soft:#eff6ff;--mod-border:#bfdbfe;--mod-page:#eef5ff}
+body.theme-clientes{--mod-a:#8b5cf6;--mod-b:#7c3aed;--mod-dark:#6d28d9;--mod-soft:#f5f3ff;--mod-border:#ddd6fe;--mod-page:#f6f2ff}
+body.theme-tareas{--mod-a:#f59e0b;--mod-b:#d97706;--mod-dark:#92400e;--mod-soft:#fffbeb;--mod-border:#fde68a;--mod-page:#fff9e8}
+body.theme-panel{--mod-a:#6366f1;--mod-b:#4f46e5;--mod-dark:#4338ca;--mod-soft:#eef2ff;--mod-border:#c7d2fe;--mod-page:#f0f2ff}
+body.theme-secos{--mod-a:#f97316;--mod-b:#ef4444;--mod-dark:#c2410c;--mod-soft:#fff7ed;--mod-border:#fed7aa;--mod-page:#fff4ef}
+body.module-theme:not(.secos-theme){background:var(--mod-page)}
+body.module-theme:not(.secos-theme) .app{box-shadow:0 8px 28px rgba(15,23,42,.12)}
+body.module-theme:not(.secos-theme) .sidebar{background:linear-gradient(180deg,var(--mod-a),var(--mod-b))}
+body.module-theme:not(.secos-theme) .head,
+body.module-theme:not(.secos-theme) .detailHead,
+body.module-theme:not(.secos-theme) .searchTop{background:linear-gradient(90deg,var(--mod-a),var(--mod-b))}
+body.module-theme:not(.secos-theme) .left,
+body.module-theme:not(.secos-theme) .content{background:var(--mod-page)}
+body.module-theme:not(.secos-theme) .right,
+body.module-theme:not(.secos-theme) .detail{background:#fff}
+body.module-theme:not(.secos-theme) .searchIcon,
+body.module-theme:not(.secos-theme) .avatar,
+body.module-theme:not(.secos-theme) .chip.active,
+body.module-theme:not(.secos-theme) .routeFilterIcon{background:var(--mod-a);border-color:var(--mod-a)}
+body.module-theme:not(.secos-theme) .chip{border-color:var(--mod-border)}
+body.module-theme:not(.secos-theme) .routeFilterBox{background:var(--mod-soft);border-color:var(--mod-a);box-shadow:0 4px 12px color-mix(in srgb,var(--mod-a) 18%,transparent)}
+body.module-theme:not(.secos-theme) .routeFilterBox.hasRoute{background:var(--mod-soft);border-color:var(--mod-b)}
+body.module-theme:not(.secos-theme) .routeFilterBox.hasRoute .routeFilterText b{color:var(--mod-dark)}
+body.module-theme:not(.secos-theme) .routeSelect{border-color:var(--mod-border)}
+body.module-theme:not(.secos-theme) .routeSelect:hover,
+body.module-theme:not(.secos-theme) .routeSelect:focus{border-color:var(--mod-a)}
+body.module-theme:not(.secos-theme) .pageNote{background:var(--mod-soft);border-color:var(--mod-border)}
+body.module-theme:not(.secos-theme) .pillarTitle{background:var(--mod-a)!important;border-bottom-color:var(--mod-b)!important}
+body.module-theme:not(.secos-theme) .onlineBar,
+body.module-theme:not(.secos-theme) .searchCard,
+body.module-theme:not(.secos-theme) .stat,
+body.module-theme:not(.secos-theme) .box,
+body.module-theme:not(.secos-theme) .task,
+body.module-theme:not(.secos-theme) .person,
+body.module-theme:not(.secos-theme) .kpi{border-color:var(--mod-border)}
+@media(max-width:700px){
+  body.module-theme:not(.secos-theme) .sidebar{background:linear-gradient(90deg,var(--mod-a),var(--mod-b))}
+}
 .secoClientImpact{font-size:18px;font-weight:900;color:#991b1b}.secoClientImpact small{display:block;font-size:9px;color:#64748b;text-align:right;margin-top:2px}
 .secoClientCard.secoSelected{border-color:#4fc1c6;box-shadow:0 6px 16px rgba(15,23,42,.08)}
 .secoRankWrap{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -609,7 +687,7 @@ select,input{font:inherit}
 </aside>
 
 <section class="left" id="leftPane">
-  <div class="head"><h2 id="pageTitle">Gestión ICE <small style="font-size:11px">V10.3</small></h2><span>☰ ⌕</span></div>
+  <div class="head"><h2 id="pageTitle">Gestión ICE <small style="font-size:11px">V10.6</small></h2><span>☰ ⌕</span></div>
   <div class="content" id="mainContent"></div>
 </section>
 
@@ -930,9 +1008,16 @@ function pct(v){return Math.round(v*100)+"%"}
 function devCount(c){return PILLARS.reduce((a,p)=>a+((c.pillars[p]||[]).length),0)}
 function initials(n){return n.split(" ").slice(0,2).map(x=>x[0]||"").join("").toUpperCase()}
 function setActive(name){document.querySelectorAll(".navbtn").forEach(b=>b.classList.remove("active"));document.getElementById("nav-"+name).classList.add("active")}
+function applySectionTheme(name){
+  const themes=["theme-ice","theme-ruta","theme-clientes","theme-tareas","theme-secos","theme-panel"];
+  document.body.classList.remove(...themes,"module-theme","secos-theme");
+  document.body.classList.add("module-theme","theme-"+name);
+  if(name==="secos") document.body.classList.add("secos-theme");
+}
 function navTo(name){
   closeDetail(false);
   currentSection=name;
+  applySectionTheme(name);
   setActive(name);
   if(name==="ice") renderICE();
   if(name==="ruta") renderRoutes();
@@ -980,7 +1065,7 @@ function baseControls(){
 function setQuick(f){quickFilter=f;renderICE()}
 
 function renderICE(){
-  document.getElementById("pageTitle").innerHTML='Gestión ICE <small style="font-size:11px">V10.3</small>';
+  document.getElementById("pageTitle").innerHTML='Gestión ICE <small style="font-size:11px">V10.6</small>';
   const list=visibleClients().sort((a,b)=>a.score-b.score);
   const avg=list.length?list.reduce((a,c)=>a+c.score,0)/list.length:0;
   const official = routeFilter ? routeOfficialScore(routeFilter) : avg;
