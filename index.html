@@ -609,7 +609,7 @@ select,input{font:inherit}
 </aside>
 
 <section class="left" id="leftPane">
-  <div class="head"><h2 id="pageTitle">Gestión ICE <small style="font-size:11px">V10.1</small></h2><span>☰ ⌕</span></div>
+  <div class="head"><h2 id="pageTitle">Gestión ICE <small style="font-size:11px">V10.2</small></h2><span>☰ ⌕</span></div>
   <div class="content" id="mainContent"></div>
 </section>
 
@@ -638,36 +638,9 @@ let quickFilter="";
 let currentDetailMode="client";
 
 
-// Base inicial de Secos tomada del detalle compartido. Puede reemplazarse luego por Google Sheets/Excel.
+// Base Secos embebida desde el Excel real: hojas "Puntaje Seco" y "Descripcion Seco".
 const SECO_TARGET=3.0;
-const SECO_DATA=[
-  {role:"Coca Cola 2.5 Lts Pet",dry:10,audited:32,dryPct:31.3,mix:9.7,impact:3.0},
-  {role:"Coca Cola 1.5 Lts Pet",dry:3,audited:48,dryPct:6.3,mix:35.2,impact:2.2},
-  {role:"Coca Cola Zero 1.5 o 2 Lts Pet",dry:7,audited:36,dryPct:19.4,mix:10.3,impact:2.0},
-  {role:"Sprite o Fanta 1.5 Lts Pet",dry:6,audited:46,dryPct:13.0,mix:9.2,impact:1.2},
-  {role:"Coca Cola 1.5 o 2 o 2.5 Lts Ret",dry:3,audited:102,dryPct:2.9,mix:22.4,impact:0.7},
-  {role:"Coca Cola Zero 2 Lts Ret",dry:9,audited:95,dryPct:9.5,mix:4.2,impact:0.4},
-  {role:"Coca Cola Lata 220 o 375 ml Pet",dry:4,audited:36,dryPct:11.1,mix:2.3,impact:0.3},
-  {role:"Benedictino 2 Lts Sifon",dry:11,audited:34,dryPct:32.4,mix:0.7,impact:0.2},
-  {role:"Benedictino 2 o 3 Lts",dry:22,audited:40,dryPct:55.0,mix:0.3,impact:0.2},
-  {role:"Ades 200 ml",dry:18,audited:76,dryPct:23.7,mix:0.6,impact:0.2},
-  {role:"Coca Cola 600 o 375 ml Pet",dry:8,audited:62,dryPct:12.9,mix:0.6,impact:0.1},
-  {role:"Sprite o Fanta 1.5 o 2 Lts Ret",dry:5,audited:88,dryPct:5.7,mix:1.4,impact:0.1},
-  {role:"Coca Cola 1.5 o 2 Lts Pet",dry:5,audited:45,dryPct:11.1,mix:0.6,impact:0.1},
-  {role:"Coca Cola Zero 600 o 375 ml Pet",dry:14,audited:88,dryPct:15.9,mix:0.4,impact:0.1},
-  {role:"Aquarius 1.5 o 2.25 Lts Pet",dry:6,audited:34,dryPct:17.6,mix:0.3,impact:0.1},
-  {role:"Coca Cola 600 ml Pet",dry:6,audited:33,dryPct:18.2,mix:0.2,impact:0.0},
-  {role:"Monster",dry:18,audited:94,dryPct:19.1,mix:0.2,impact:0.0},
-  {role:"Cepita 1.5 Lts Pet o Ades 1 Lt",dry:3,audited:40,dryPct:7.5,mix:0.4,impact:0.0},
-  {role:"Benedictino 600 ml Pet",dry:5,audited:14,dryPct:35.7,mix:0.1,impact:0.0},
-  {role:"Sprite o Fanta 500 ml Pet",dry:9,audited:68,dryPct:13.2,mix:0.1,impact:0.0},
-  {role:"Benedictino 600 ml o Powerade 500 ml",dry:8,audited:53,dryPct:15.1,mix:0.1,impact:0.0},
-  {role:"Benedictino 600 ml o 2 Lts",dry:3,audited:30,dryPct:10.0,mix:0.1,impact:0.0},
-  {role:"Powerade 500 o 995 ml",dry:4,audited:51,dryPct:7.8,mix:0.1,impact:0.0},
-  {role:"Ades o Cepita 200 ml",dry:3,audited:18,dryPct:16.7,mix:0.0,impact:0.0},
-  {role:"Fanta 500 ml o Lata 220 ml",dry:1,audited:18,dryPct:5.6,mix:0.1,impact:0.0},
-  {role:"Sprite o Fanta Lata 220 ml",dry:6,audited:26,dryPct:23.1,mix:0.0,impact:0.0}
-];
+let SECO_DATA=[{"role":"Coca Cola 2.5 Lts Pet","dry":10,"audited":32,"dryPct":31.3,"volume":9611.0,"mix":9.7,"impact":3.0},{"role":"Coca Cola 1.5 Lts Pet","dry":3,"audited":48,"dryPct":6.3,"volume":34905.0,"mix":35.2,"impact":2.2},{"role":"Coca Cola Zero 1.5 o 2 Lts Pet","dry":7,"audited":36,"dryPct":19.4,"volume":10204.0,"mix":10.3,"impact":2.0},{"role":"Sprite o Fanta 1.5 Lts Pet","dry":6,"audited":46,"dryPct":13.0,"volume":9109.0,"mix":9.2,"impact":1.2},{"role":"Coca Cola 1.5 o 2 o 2.5  Lts Ret","dry":3,"audited":102,"dryPct":2.9,"volume":22222.0,"mix":22.4,"impact":0.7},{"role":"Coca Cola Zero 2 Lts Ret","dry":9,"audited":95,"dryPct":9.5,"volume":4128.0,"mix":4.2,"impact":0.4},{"role":"Coca Cola Lata 220 o 375 ml Pet","dry":4,"audited":36,"dryPct":11.1,"volume":2281.0,"mix":2.3,"impact":0.3},{"role":"Benedictino 2 Lts Sifon","dry":11,"audited":34,"dryPct":32.4,"volume":704.0,"mix":0.7,"impact":0.2},{"role":"Benedictino 2 o 3 Lts","dry":22,"audited":40,"dryPct":55.0,"volume":347.0,"mix":0.3,"impact":0.2},{"role":"Ades 200 ml","dry":18,"audited":76,"dryPct":23.7,"volume":639.0,"mix":0.6,"impact":0.2},{"role":"Coca Cola 600 o 375 ml Pet","dry":8,"audited":62,"dryPct":12.9,"volume":611.0,"mix":0.6,"impact":0.1},{"role":"Sprite o Fanta 1.5 o 2 Lts Ret","dry":5,"audited":88,"dryPct":5.7,"volume":1387.0,"mix":1.4,"impact":0.1},{"role":"Coca Cola 1.5 o 2 Lts Pet","dry":5,"audited":45,"dryPct":11.1,"volume":641.0,"mix":0.6,"impact":0.1},{"role":"Coca Cola Zero 600 o 375 ml Pet","dry":14,"audited":88,"dryPct":15.9,"volume":392.0,"mix":0.4,"impact":0.1},{"role":"Aquarius 1.5 o 2.25 Lts Pet","dry":6,"audited":34,"dryPct":17.6,"volume":308.0,"mix":0.3,"impact":0.1},{"role":"Coca Cola 600 ml Pet","dry":6,"audited":33,"dryPct":18.2,"volume":218.0,"mix":0.2,"impact":0.0},{"role":"Monster","dry":18,"audited":94,"dryPct":19.1,"volume":172.0,"mix":0.2,"impact":0.0},{"role":"Cepita 1.5 Lts Pet o Ades 1 Lt","dry":3,"audited":40,"dryPct":7.5,"volume":415.0,"mix":0.4,"impact":0.0},{"role":"Benedictino 600 ml Pet","dry":5,"audited":14,"dryPct":35.7,"volume":85.0,"mix":0.1,"impact":0.0},{"role":"Sprite o Fanta 500 ml Pet","dry":9,"audited":68,"dryPct":13.2,"volume":134.0,"mix":0.1,"impact":0.0},{"role":"Benedictino 600 ml o Powerade 500 ml","dry":8,"audited":53,"dryPct":15.1,"volume":112.0,"mix":0.1,"impact":0.0},{"role":"Benedictino 600 ml o 2 Lts","dry":3,"audited":30,"dryPct":10.0,"volume":134.0,"mix":0.1,"impact":0.0},{"role":"Powerade 500 o 995 ml","dry":4,"audited":51,"dryPct":7.8,"volume":118.0,"mix":0.1,"impact":0.0},{"role":"Ades o Cepita 200 ml","dry":3,"audited":18,"dryPct":16.7,"volume":36.0,"mix":0.0,"impact":0.0},{"role":"Fanta 500 ml o Lata 220 ml","dry":1,"audited":18,"dryPct":5.6,"volume":53.0,"mix":0.1,"impact":0.0},{"role":"Sprite o Fanta Lata 220 ml","dry":6,"audited":26,"dryPct":23.1,"volume":12.0,"mix":0.0,"impact":0.0},{"role":"Aquarius 500 ml Pet","dry":0,"audited":16,"dryPct":0.0,"volume":85.0,"mix":0.1,"impact":0.0},{"role":"Sprite 500 ml o Lata 220 ml","dry":0,"audited":16,"dryPct":0.0,"volume":47.0,"mix":0.0,"impact":0.0}];
 
 function secoPriority(x){return x.impact>=1?1:(x.impact>=.3?2:3)}
 function secoActionFor(x){
@@ -682,7 +655,7 @@ function secoActionFor(x){
 }
 
 // SECOS es un módulo independiente. No utiliza DATA, PILLARS, ICE, score ni desvíos ICE.
-let SECO_CLIENTS=[];
+let SECO_CLIENTS=[{"code":"3137157","name":"Cajchaya Valdivia Julio Cesar","route":"3142","roles":[{"role":"Coca Cola 2.5 Lts Pet","volume":3.0,"impact":0.3,"roleImpact":3.0,"roleDry":10,"audited":32,"dryPct":31.3,"mix":9.7},{"role":"Benedictino 2 Lts Sifon","volume":2.0,"impact":0.018181818181818184,"roleImpact":0.2,"roleDry":11,"audited":34,"dryPct":32.4,"mix":0.7},{"role":"Coca Cola 1.5 Lts Pet","volume":2.0,"impact":0.7333333333333334,"roleImpact":2.2,"roleDry":3,"audited":48,"dryPct":6.3,"mix":35.2},{"role":"Coca Cola Zero 1.5 o 2 Lts Pet","volume":2.0,"impact":0.2857142857142857,"roleImpact":2.0,"roleDry":7,"audited":36,"dryPct":19.4,"mix":10.3},{"role":"Sprite o Fanta 1.5 Lts Pet","volume":2.0,"impact":0.19999999999999998,"roleImpact":1.2,"roleDry":6,"audited":46,"dryPct":13.0,"mix":9.2},{"role":"Aquarius 1.5 o 2.25 Lts Pet","volume":2.0,"impact":0.016666666666666666,"roleImpact":0.1,"roleDry":6,"audited":34,"dryPct":17.6,"mix":0.3},{"role":"Coca Cola 600 ml Pet","volume":1.0,"impact":0.0,"roleImpact":0.0,"roleDry":6,"audited":33,"dryPct":18.2,"mix":0.2}],"impact":1.5538961038961039,"roleCount":7,"score":100},{"code":"3134815","name":"Corrales Delgado Luis Alberto","route":"3145","roles":[{"role":"Coca Cola 1.5 Lts Pet","volume":13633.0,"impact":0.7333333333333334,"roleImpact":2.2,"roleDry":3,"audited":48,"dryPct":6.3,"mix":35.2},{"role":"Coca Cola Lata 220 o 375 ml Pet","volume":371.0,"impact":0.075,"roleImpact":0.3,"roleDry":4,"audited":36,"dryPct":11.1,"mix":2.3},{"role":"Coca Cola Zero 1.5 o 2 Lts Pet","volume":319.0,"impact":0.2857142857142857,"roleImpact":2.0,"roleDry":7,"audited":36,"dryPct":19.4,"mix":10.3},{"role":"Powerade 500 o 995 ml","volume":2.0,"impact":0.0,"roleImpact":0.0,"roleDry":4,"audited":51,"dryPct":7.8,"mix":0.1},{"role":"Coca Cola 600 ml Pet","volume":1.0,"impact":0.0,"roleImpact":0.0,"roleDry":6,"audited":33,"dryPct":18.2,"mix":0.2},{"role":"Ades 200 ml","volume":0.0,"impact":0.011111111111111112,"roleImpact":0.2,"roleDry":18,"audited":76,"dryPct":23.7,"mix":0.6}],"impact":1.1051587301587302,"roleCount":6,"score":71},{"code":"3177426","name":"Carmena Marcelo Ramon","route":"3141","roles":[{"role":"Coca Cola 1.5 Lts Pet","volume":8.0,"impact":0.7333333333333334,"roleImpact":2.2,"roleDry":3,"audited":48,"dryPct":6.3,"mix":35.2},{"role":"Benedictino 600 ml Pet","volume":3.0,"impact":0.0,"roleImpact":0.0,"roleDry":5,"audited":14,"dryPct":35.7,"mix":0.1}],"impact":0.7333333333333334,"roleCount":2,"score":47},{"code":"3136325","name":"Ale Gregorio Moises","route":"3143","roles":[{"role":"Coca Cola 2.5 Lts Pet","volume":11.0,"impact":0.3,"roleImpact":3.0,"roleDry":10,"audited":32,"dryPct":31.3,"mix":9.7},{"role":"Sprite o Fanta 1.5 Lts Pet","volume":10.0,"impact":0.19999999999999998,"roleImpact":1.2,"roleDry":6,"audited":46,"dryPct":13.0,"mix":9.2},{"role":"Coca Cola Zero 600 o 375 ml Pet","volume":7.0,"impact":0.0071428571428571435,"roleImpact":0.1,"roleDry":14,"audited":88,"dryPct":15.9,"mix":0.4},{"role":"Benedictino 2 Lts Sifon","volume":2.0,"impact":0.018181818181818184,"roleImpact":0.2,"roleDry":11,"audited":34,"dryPct":32.4,"mix":0.7},{"role":"Coca Cola Lata 220 o 375 ml Pet","volume":1.0,"impact":0.075,"roleImpact":0.3,"roleDry":4,"audited":36,"dryPct":11.1,"mix":2.3}],"impact":0.6003246753246753,"roleCount":5,"score":39},{"code":"3135190","name":"Salguero Martin Adan","route":"3142","roles":[{"role":"Coca Cola 2.5 Lts Pet","volume":50.0,"impact":0.3,"roleImpact":3.0,"roleDry":10,"audited":32,"dryPct":31.3,"mix":9.7},{"role":"Sprite o Fanta 1.5 Lts Pet","volume":2.0,"impact":0.19999999999999998,"roleImpact":1.2,"roleDry":6,"audited":46,"dryPct":13.0,"mix":9.2},{"role":"Coca Cola 600 ml Pet","volume":1.0,"impact":0.0,"roleImpact":0.0,"roleDry":6,"audited":33,"dryPct":18.2,"mix":0.2},{"role":"Sprite o Fanta 500 ml Pet","volume":1.0,"impact":0.0,"roleImpact":0.0,"roleDry":9,"audited":68,"dryPct":13.2,"mix":0.1},{"role":"Coca Cola Lata 220 o 375 ml Pet","volume":0.0,"impact":0.075,"roleImpact":0.3,"roleDry":4,"audited":36,"dryPct":11.1,"mix":2.3},{"role":"Sprite o Fanta Lata 220 ml","volume":0.0,"impact":0.0,"roleImpact":0.0,"roleDry":6,"audited":26,"dryPct":23.1,"mix":0.0}],"impact":0.575,"roleCount":6,"score":37},{"code":"3133873","name":"Ns Fiambreria S. A. S.","route":"3142","roles":[{"role":"Coca Cola 1.5 o 2 o 2.5  Lts Ret","volume":23.0,"impact":0.2333333333333333,"roleImpact":0.7,"roleDry":3,"audited":102,"dryPct":2.9,"mix":22.4},{"role":"Coca Cola 2.5 Lts Pet","volume":21.0,"impact":0.3,"roleImpact":3.0,"roleDry":10,"audited":32,"dryPct":31.3,"mix":9.7},{"role":"Sprite o Fanta 1.5 o 2 Lts Ret","volume":3.0,"impact":0.02,"roleImpact":0.1,"roleDry":5,"audited":88,"dryPct":5.7,"mix":1.4}],"impact":0.5533333333333333,"roleCount":3,"score":36},{"code":"3101426","name":"Guo Huang","route":"3145","roles":[{"role":"Coca Cola 2.5 Lts Pet","volume":71.0,"impact":0.3,"roleImpact":3.0,"roleDry":10,"audited":32,"dryPct":31.3,"mix":9.7},{"role":"Coca Cola Zero 600 o 375 ml Pet","volume":4.0,"impact":0.0071428571428571435,"roleImpact":0.1,"roleDry":14,"audited":88,"dryPct":15.9,"mix":0.4},{"role":"Monster","volume":3.0,"impact":0.0,"roleImpact":0.0,"roleDry":18,"audited":94,"dryPct":19.1,"mix":0.2},{"role":"Sprite o Fanta 1.5 Lts Pet","volume":2.0,"impact":0.19999999999999998,"roleImpact":1.2,"roleDry":6,"audited":46,"dryPct":13.0,"mix":9.2}],"impact":0.5071428571428571,"roleCount":4,"score":33},{"code":"3139416","name":"Morales Blanca Graciela","route":"3144","roles":[{"role":"Sprite o Fanta 1.5 o 2 Lts Ret","volume":296.0,"impact":0.02,"roleImpact":0.1,"roleDry":5,"audited":88,"dryPct":5.7,"mix":1.4},{"role":"Coca Cola 2.5 Lts Pet","volume":61.0,"impact":0.3,"roleImpact":3.0,"roleDry":10,"audited":32,"dryPct":31.3,"mix":9.7},{"role":"Aquarius 1.5 o 2.25 Lts Pet","volume":2.0,"impact":0.016666666666666666,"roleImpact":0.1,"roleDry":6,"audited":34,"dryPct":17.6,"mix":0.3},{"role":"Benedictino 2 Lts Sifon","volume":2.0,"impact":0.018181818181818184,"roleImpact":0.2,"roleDry":11,"audited":34,"dryPct":32.4,"mix":0.7},{"role":"Benedictino 600 ml o 2 Lts","volume":1.0,"impact":0.0,"roleImpact":0.0,"roleDry":3,"audited":30,"dryPct":10.0,"mix":0.1},{"role":"Powerade 500 o 995 ml","volume":1.0,"impact":0.0,"roleImpact":0.0,"roleDry":4,"audited":51,"dryPct":7.8,"mix":0.1},{"role":"Sprite o Fanta 500 ml Pet","volume":1.0,"impact":0.0,"roleImpact":0.0,"roleDry":9,"audited":68,"dryPct":13.2,"mix":0.1},{"role":"Coca Cola Zero 600 o 375 ml Pet","volume":0.0,"impact":0.0071428571428571435,"roleImpact":0.1,"roleDry":14,"audited":88,"dryPct":15.9,"mix":0.4}],"impact":0.361991341991342,"roleCount":8,"score":23},{"code":"3170688","name":"Acuña Pinto Marcelo Fabian","route":"3145","roles":[{"role":"Coca Cola 2.5 Lts Pet","volume":79.0,"impact":0.3,"roleImpact":3.0,"roleDry":10,"audited":32,"dryPct":31.3,"mix":9.7},{"role":"Aquarius 1.5 o 2.25 Lts Pet","volume":6.0,"impact":0.016666666666666666,"roleImpact":0.1,"roleDry":6,"audited":34,"dryPct":17.6,"mix":0.3},{"role":"Benedictino 2 Lts Sifon","volume":2.0,"impact":0.018181818181818184,"roleImpact":0.2,"roleDry":11,"audited":34,"dryPct":32.4,"mix":0.7},{"role":"Benedictino 600 ml o 2 Lts","volume":2.0,"impact":0.0,"roleImpact":0.0,"roleDry":3,"audited":30,"dryPct":10.0,"mix":0.1},{"role":"Powerade 500 o 995 ml","volume":2.0,"impact":0.0,"roleImpact":0.0,"roleDry":4,"audited":51,"dryPct":7.8,"mix":0.1},{"role":"Sprite o Fanta 500 ml Pet","volume":1.0,"impact":0.0,"roleImpact":0.0,"roleDry":9,"audited":68,"dryPct":13.2,"mix":0.1},{"role":"Sprite o Fanta Lata 220 ml","volume":0.0,"impact":0.0,"roleImpact":0.0,"roleDry":6,"audited":26,"dryPct":23.1,"mix":0.0}],"impact":0.33484848484848484,"roleCount":7,"score":22},{"code":"3193983","name":"Rodriguez Juan Jose","route":"3141","roles":[{"role":"Coca Cola 2.5 Lts Pet","volume":16.0,"impact":0.3,"roleImpact":3.0,"roleDry":10,"audited":32,"dryPct":31.3,"mix":9.7},{"role":"Coca Cola Zero 600 o 375 ml Pet","volume":5.0,"impact":0.0071428571428571435,"roleImpact":0.1,"roleDry":14,"audited":88,"dryPct":15.9,"mix":0.4},{"role":"Ades 200 ml","volume":0.0,"impact":0.011111111111111112,"roleImpact":0.2,"roleDry":18,"audited":76,"dryPct":23.7,"mix":0.6}],"impact":0.31825396825396823,"roleCount":3,"score":20},{"code":"3135460","name":"Grau Martin","route":"3145","roles":[{"role":"Coca Cola 2.5 Lts Pet","volume":34.0,"impact":0.3,"roleImpact":3.0,"roleDry":10,"audited":32,"dryPct":31.3,"mix":9.7},{"role":"Benedictino 2 Lts Sifon","volume":2.0,"impact":0.018181818181818184,"roleImpact":0.2,"roleDry":11,"audited":34,"dryPct":32.4,"mix":0.7}],"impact":0.3181818181818182,"roleCount":2,"score":20},{"code":"3134961","name":"Feres Carlos Alejandro","route":"3142","roles":[{"role":"Coca Cola 1.5 o 2 o 2.5  Lts Ret","volume":169.0,"impact":0.2333333333333333,"roleImpact":0.7,"roleDry":3,"audited":102,"dryPct":2.9,"mix":22.4},{"role":"Coca Cola Zero 2 Lts Ret","volume":17.0,"impact":0.044444444444444446,"roleImpact":0.4,"roleDry":9,"audited":95,"dryPct":9.5,"mix":4.2},{"role":"Coca Cola 1.5 o 2 Lts Pet","volume":16.0,"impact":0.02,"roleImpact":0.1,"roleDry":5,"audited":45,"dryPct":11.1,"mix":0.6},{"role":"Sprite o Fanta 1.5 o 2 Lts Ret","volume":3.0,"impact":0.02,"roleImpact":0.1,"roleDry":5,"audited":88,"dryPct":5.7,"mix":1.4}],"impact":0.31777777777777777,"roleCount":4,"score":20},{"code":"3199017","name":"Sp- Hermanos S.R.L","route":"3143","roles":[{"role":"Coca Cola 2.5 Lts Pet","volume":29.0,"impact":0.3,"roleImpact":3.0,"roleDry":10,"audited":32,"dryPct":31.3,"mix":9.7},{"role":"Aquarius 1.5 o 2.25 Lts Pet","volume":6.0,"impact":0.016666666666666666,"roleImpact":0.1,"roleDry":6,"audited":34,"dryPct":17.6,"mix":0.3}],"impact":0.31666666666666665,"roleCount":2,"score":20},{"code":"3134065","name":"Sale Ruth Noemi","route":"3142","roles":[{"role":"Coca Cola Zero 1.5 o 2 Lts Pet","volume":4.0,"impact":0.2857142857142857,"roleImpact":2.0,"roleDry":7,"audited":36,"dryPct":19.4,"mix":10.3},{"role":"Benedictino 2 Lts Sifon","volume":2.0,"impact":0.018181818181818184,"roleImpact":0.2,"roleDry":11,"audited":34,"dryPct":32.4,"mix":0.7},{"role":"Sprite o Fanta Lata 220 ml","volume":0.0,"impact":0.0,"roleImpact":0.0,"roleDry":6,"audited":26,"dryPct":23.1,"mix":0.0}],"impact":0.3038961038961039,"roleCount":3,"score":20},{"code":"3136029","name":"Fernandez Braian Nahuel","route":"3144","roles":[{"role":"Coca Cola Zero 1.5 o 2 Lts Pet","volume":20.0,"impact":0.2857142857142857,"roleImpact":2.0,"roleDry":7,"audited":36,"dryPct":19.4,"mix":10.3},{"role":"Benedictino 2 Lts Sifon","volume":6.0,"impact":0.018181818181818184,"roleImpact":0.2,"roleDry":11,"audited":34,"dryPct":32.4,"mix":0.7}],"impact":0.3038961038961039,"roleCount":2,"score":20},{"code":"3135377","name":"Martin Castro Ignacio","route":"3142","roles":[{"role":"Coca Cola Zero 1.5 o 2 Lts Pet","volume":12.0,"impact":0.2857142857142857,"roleImpact":2.0,"roleDry":7,"audited":36,"dryPct":19.4,"mix":10.3},{"role":"Aquarius 1.5 o 2.25 Lts Pet","volume":2.0,"impact":0.016666666666666666,"roleImpact":0.1,"roleDry":6,"audited":34,"dryPct":17.6,"mix":0.3},{"role":"Sprite o Fanta Lata 220 ml","volume":0.0,"impact":0.0,"roleImpact":0.0,"roleDry":6,"audited":26,"dryPct":23.1,"mix":0.0}],"impact":0.30238095238095236,"roleCount":3,"score":19},{"code":"3196443","name":"Bauza Gaya Bartolome Gustavo","route":"3140","roles":[{"role":"Coca Cola Zero 1.5 o 2 Lts Pet","volume":2.0,"impact":0.2857142857142857,"roleImpact":2.0,"roleDry":7,"audited":36,"dryPct":19.4,"mix":10.3},{"role":"Monster","volume":0.0,"impact":0.0,"roleImpact":0.0,"roleDry":18,"audited":94,"dryPct":19.1,"mix":0.2}],"impact":0.2857142857142857,"roleCount":2,"score":18},{"code":"3137159","name":"Cabral Albaro Patricio","route":"3143","roles":[{"role":"Coca Cola Zero 1.5 o 2 Lts Pet","volume":30.0,"impact":0.2857142857142857,"roleImpact":2.0,"roleDry":7,"audited":36,"dryPct":19.4,"mix":10.3},{"role":"Sprite o Fanta Lata 220 ml","volume":0.0,"impact":0.0,"roleImpact":0.0,"roleDry":6,"audited":26,"dryPct":23.1,"mix":0.0}],"impact":0.2857142857142857,"roleCount":2,"score":18},{"code":"3138432","name":"Suelza Juana Matilde","route":"3144","roles":[{"role":"Coca Cola 1.5 o 2 o 2.5  Lts Ret","volume":82.0,"impact":0.2333333333333333,"roleImpact":0.7,"roleDry":3,"audited":102,"dryPct":2.9,"mix":22.4},{"role":"Coca Cola 600 o 375 ml Pet","volume":6.0,"impact":0.0125,"roleImpact":0.1,"roleDry":8,"audited":62,"dryPct":12.9,"mix":0.6},{"role":"Monster","volume":1.0,"impact":0.0,"roleImpact":0.0,"roleDry":18,"audited":94,"dryPct":19.1,"mix":0.2}],"impact":0.24583333333333332,"roleCount":3,"score":16},{"code":"3139681","name":"El Malik S. A. S.","route":"3143","roles":[{"role":"Benedictino 2 Lts Sifon","volume":2.0,"impact":0.018181818181818184,"roleImpact":0.2,"roleDry":11,"audited":34,"dryPct":32.4,"mix":0.7},{"role":"Sprite o Fanta 1.5 Lts Pet","volume":2.0,"impact":0.19999999999999998,"roleImpact":1.2,"roleDry":6,"audited":46,"dryPct":13.0,"mix":9.2},{"role":"Benedictino 600 ml o 2 Lts","volume":1.0,"impact":0.0,"roleImpact":0.0,"roleDry":3,"audited":30,"dryPct":10.0,"mix":0.1},{"role":"Sprite o Fanta 500 ml Pet","volume":1.0,"impact":0.0,"roleImpact":0.0,"roleDry":9,"audited":68,"dryPct":13.2,"mix":0.1}],"impact":0.21818181818181817,"roleCount":4,"score":14},{"code":"3100959","name":"Quiroga Osvaldo Milton","route":"3140","roles":[{"role":"Coca Cola 600 ml Pet","volume":3.0,"impact":0.0,"roleImpact":0.0,"roleDry":6,"audited":33,"dryPct":18.2,"mix":0.2},{"role":"Benedictino 2 Lts Sifon","volume":2.0,"impact":0.018181818181818184,"roleImpact":0.2,"roleDry":11,"audited":34,"dryPct":32.4,"mix":0.7},{"role":"Monster","volume":2.0,"impact":0.0,"roleImpact":0.0,"roleDry":18,"audited":94,"dryPct":19.1,"mix":0.2},{"role":"Sprite o Fanta 1.5 Lts Pet","volume":2.0,"impact":0.19999999999999998,"roleImpact":1.2,"roleDry":6,"audited":46,"dryPct":13.0,"mix":9.2}],"impact":0.21818181818181817,"roleCount":4,"score":14},{"code":"3137612","name":"Ortiz Ricardo Sebastian","route":"3144","roles":[{"role":"Coca Cola 600 o 375 ml Pet","volume":13.0,"impact":0.0125,"roleImpact":0.1,"roleDry":8,"audited":62,"dryPct":12.9,"mix":0.6},{"role":"Coca Cola Zero 2 Lts Ret","volume":8.0,"impact":0.044444444444444446,"roleImpact":0.4,"roleDry":9,"audited":95,"dryPct":9.5,"mix":4.2},{"role":"Sprite o Fanta 500 ml Pet","volume":6.0,"impact":0.0,"roleImpact":0.0,"roleDry":9,"audited":68,"dryPct":13.2,"mix":0.1},{"role":"Benedictino 2 o 3 Lts","volume":2.0,"impact":0.009090909090909092,"roleImpact":0.2,"roleDry":22,"audited":40,"dryPct":55.0,"mix":0.3},{"role":"Ades 200 ml","volume":0.0,"impact":0.011111111111111112,"roleImpact":0.2,"roleDry":18,"audited":76,"dryPct":23.7,"mix":0.6}],"impact":0.07714646464646466,"roleCount":5,"score":5},{"code":"3134214","name":"Ginard Claudia Ines","route":"3144","roles":[{"role":"Coca Cola Lata 220 o 375 ml Pet","volume":1.0,"impact":0.075,"roleImpact":0.3,"roleDry":4,"audited":36,"dryPct":11.1,"mix":2.3}],"impact":0.075,"roleCount":1,"score":5},{"code":"3136960","name":"Garcia Silvia Del Valle","route":"3140","roles":[{"role":"Coca Cola Zero 2 Lts Ret","volume":6.0,"impact":0.044444444444444446,"roleImpact":0.4,"roleDry":9,"audited":95,"dryPct":9.5,"mix":4.2},{"role":"Benedictino 2 o 3 Lts","volume":4.0,"impact":0.009090909090909092,"roleImpact":0.2,"roleDry":22,"audited":40,"dryPct":55.0,"mix":0.3},{"role":"Sprite o Fanta 500 ml Pet","volume":1.0,"impact":0.0,"roleImpact":0.0,"roleDry":9,"audited":68,"dryPct":13.2,"mix":0.1},{"role":"Ades 200 ml","volume":0.0,"impact":0.011111111111111112,"roleImpact":0.2,"roleDry":18,"audited":76,"dryPct":23.7,"mix":0.6}],"impact":0.06464646464646465,"roleCount":4,"score":4},{"code":"3136765","name":"Bottini Pedro","route":"3145","roles":[{"role":"Sprite o Fanta 1.5 o 2 Lts Ret","volume":3.0,"impact":0.02,"roleImpact":0.1,"roleDry":5,"audited":88,"dryPct":5.7,"mix":1.4},{"role":"Aquarius 1.5 o 2.25 Lts Pet","volume":2.0,"impact":0.016666666666666666,"roleImpact":0.1,"roleDry":6,"audited":34,"dryPct":17.6,"mix":0.3},{"role":"Benedictino 2 Lts Sifon","volume":2.0,"impact":0.018181818181818184,"roleImpact":0.2,"roleDry":11,"audited":34,"dryPct":32.4,"mix":0.7},{"role":"Coca Cola Zero 600 o 375 ml Pet","volume":0.0,"impact":0.0071428571428571435,"roleImpact":0.1,"roleDry":14,"audited":88,"dryPct":15.9,"mix":0.4}],"impact":0.06199134199134199,"roleCount":4,"score":4},{"code":"3174712","name":"Juarez Raul Armando","route":"3140","roles":[{"role":"Coca Cola Zero 2 Lts Ret","volume":6.0,"impact":0.044444444444444446,"roleImpact":0.4,"roleDry":9,"audited":95,"dryPct":9.5,"mix":4.2},{"role":"Ades 200 ml","volume":0.0,"impact":0.011111111111111112,"roleImpact":0.2,"roleDry":18,"audited":76,"dryPct":23.7,"mix":0.6}],"impact":0.05555555555555556,"roleCount":2,"score":4},{"code":"3185808","name":"Caceres Sandra Beatriz","route":"3145","roles":[{"role":"Benedictino 2 o 3 Lts","volume":6.0,"impact":0.009090909090909092,"roleImpact":0.2,"roleDry":22,"audited":40,"dryPct":55.0,"mix":0.3},{"role":"Coca Cola Zero 2 Lts Ret","volume":3.0,"impact":0.044444444444444446,"roleImpact":0.4,"roleDry":9,"audited":95,"dryPct":9.5,"mix":4.2}],"impact":0.05353535353535354,"roleCount":2,"score":3},{"code":"3195816","name":"Alderete Nuñez Humberto Martin","route":"3145","roles":[{"role":"Coca Cola Zero 2 Lts Ret","volume":6.0,"impact":0.044444444444444446,"roleImpact":0.4,"roleDry":9,"audited":95,"dryPct":9.5,"mix":4.2}],"impact":0.044444444444444446,"roleCount":1,"score":3},{"code":"3134837","name":"Cabrera Esteban Leopoldo","route":"3141","roles":[{"role":"Coca Cola Zero 2 Lts Ret","volume":8.0,"impact":0.044444444444444446,"roleImpact":0.4,"roleDry":9,"audited":95,"dryPct":9.5,"mix":4.2}],"impact":0.044444444444444446,"roleCount":1,"score":3},{"code":"3136356","name":"Navarro Claudia Natalia","route":"3144","roles":[{"role":"Coca Cola Zero 2 Lts Ret","volume":6.0,"impact":0.044444444444444446,"roleImpact":0.4,"roleDry":9,"audited":95,"dryPct":9.5,"mix":4.2}],"impact":0.044444444444444446,"roleCount":1,"score":3},{"code":"3198791","name":"Puig Juan Ruben","route":"3144","roles":[{"role":"Coca Cola Zero 2 Lts Ret","volume":8.0,"impact":0.044444444444444446,"roleImpact":0.4,"roleDry":9,"audited":95,"dryPct":9.5,"mix":4.2}],"impact":0.044444444444444446,"roleCount":1,"score":3},{"code":"3195008","name":"Garcia Ricardo Hector","route":"3144","roles":[{"role":"Coca Cola 1.5 o 2 Lts Pet","volume":5.0,"impact":0.02,"roleImpact":0.1,"roleDry":5,"audited":45,"dryPct":11.1,"mix":0.6},{"role":"Benedictino 2 o 3 Lts","volume":4.0,"impact":0.009090909090909092,"roleImpact":0.2,"roleDry":22,"audited":40,"dryPct":55.0,"mix":0.3},{"role":"Benedictino 600 ml o Powerade 500 ml","volume":2.0,"impact":0.0,"roleImpact":0.0,"roleDry":8,"audited":53,"dryPct":15.1,"mix":0.1},{"role":"Coca Cola 600 o 375 ml Pet","volume":1.0,"impact":0.0125,"roleImpact":0.1,"roleDry":8,"audited":62,"dryPct":12.9,"mix":0.6},{"role":"Sprite o Fanta 500 ml Pet","volume":1.0,"impact":0.0,"roleImpact":0.0,"roleDry":9,"audited":68,"dryPct":13.2,"mix":0.1},{"role":"Monster","volume":1.0,"impact":0.0,"roleImpact":0.0,"roleDry":18,"audited":94,"dryPct":19.1,"mix":0.2}],"impact":0.041590909090909095,"roleCount":6,"score":3},{"code":"3194521","name":"Rodriguez Lidia Elizabeth","route":"3145","roles":[{"role":"Cepita 1.5 Lts Pet o Ades 1 Lt","volume":13.0,"impact":0.0,"roleImpact":0.0,"roleDry":3,"audited":40,"dryPct":7.5,"mix":0.4},{"role":"Benedictino 2 o 3 Lts","volume":11.0,"impact":0.009090909090909092,"roleImpact":0.2,"roleDry":22,"audited":40,"dryPct":55.0,"mix":0.3},{"role":"Sprite o Fanta 1.5 o 2 Lts Ret","volume":8.0,"impact":0.02,"roleImpact":0.1,"roleDry":5,"audited":88,"dryPct":5.7,"mix":1.4},{"role":"Monster","volume":2.0,"impact":0.0,"roleImpact":0.0,"roleDry":18,"audited":94,"dryPct":19.1,"mix":0.2},{"role":"Ades 200 ml","volume":0.0,"impact":0.011111111111111112,"roleImpact":0.2,"roleDry":18,"audited":76,"dryPct":23.7,"mix":0.6}],"impact":0.040202020202020204,"roleCount":5,"score":3},{"code":"3195754","name":"Alvarez Amalia Ahurora","route":"3140","roles":[{"role":"Benedictino 2 o 3 Lts","volume":2.0,"impact":0.009090909090909092,"roleImpact":0.2,"roleDry":22,"audited":40,"dryPct":55.0,"mix":0.3},{"role":"Cepita 1.5 Lts Pet o Ades 1 Lt","volume":2.0,"impact":0.0,"roleImpact":0.0,"roleDry":3,"audited":40,"dryPct":7.5,"mix":0.4},{"role":"Coca Cola 600 o 375 ml Pet","volume":1.0,"impact":0.0125,"roleImpact":0.1,"roleDry":8,"audited":62,"dryPct":12.9,"mix":0.6},{"role":"Ades 200 ml","volume":0.0,"impact":0.011111111111111112,"roleImpact":0.2,"roleDry":18,"audited":76,"dryPct":23.7,"mix":0.6}],"impact":0.032702020202020204,"roleCount":4,"score":2},{"code":"3173817","name":"Angel Emiliano Gabriel","route":"3144","roles":[{"role":"Coca Cola 1.5 o 2 Lts Pet","volume":3.0,"impact":0.02,"roleImpact":0.1,"roleDry":5,"audited":45,"dryPct":11.1,"mix":0.6},{"role":"Ades 200 ml","volume":0.0,"impact":0.011111111111111112,"roleImpact":0.2,"roleDry":18,"audited":76,"dryPct":23.7,"mix":0.6}],"impact":0.03111111111111111,"roleCount":2,"score":2},{"code":"3139767","name":"Corvalan Gustavo Javier","route":"3141","roles":[{"role":"Coca Cola 1.5 o 2 Lts Pet","volume":3.0,"impact":0.02,"roleImpact":0.1,"roleDry":5,"audited":45,"dryPct":11.1,"mix":0.6},{"role":"Ades 200 ml","volume":2.0,"impact":0.011111111111111112,"roleImpact":0.2,"roleDry":18,"audited":76,"dryPct":23.7,"mix":0.6}],"impact":0.03111111111111111,"roleCount":2,"score":2},{"code":"3135478","name":"Gutierrez Carlos Eduardo","route":"3145","roles":[{"role":"Coca Cola 1.5 o 2 Lts Pet","volume":91.0,"impact":0.02,"roleImpact":0.1,"roleDry":5,"audited":45,"dryPct":11.1,"mix":0.6},{"role":"Benedictino 2 o 3 Lts","volume":4.0,"impact":0.009090909090909092,"roleImpact":0.2,"roleDry":22,"audited":40,"dryPct":55.0,"mix":0.3},{"role":"Monster","volume":3.0,"impact":0.0,"roleImpact":0.0,"roleDry":18,"audited":94,"dryPct":19.1,"mix":0.2}],"impact":0.02909090909090909,"roleCount":3,"score":2},{"code":"3197599","name":"Garcia Mayra Jesus","route":"3144","roles":[{"role":"Coca Cola 600 o 375 ml Pet","volume":4.0,"impact":0.0125,"roleImpact":0.1,"roleDry":8,"audited":62,"dryPct":12.9,"mix":0.6},{"role":"Monster","volume":2.0,"impact":0.0,"roleImpact":0.0,"roleDry":18,"audited":94,"dryPct":19.1,"mix":0.2},{"role":"Ades 200 ml","volume":1.0,"impact":0.011111111111111112,"roleImpact":0.2,"roleDry":18,"audited":76,"dryPct":23.7,"mix":0.6}],"impact":0.02361111111111111,"roleCount":3,"score":2},{"code":"3199443","name":"Castillo Damaris Rebeca","route":"3144","roles":[{"role":"Benedictino 2 o 3 Lts","volume":2.0,"impact":0.009090909090909092,"roleImpact":0.2,"roleDry":22,"audited":40,"dryPct":55.0,"mix":0.3},{"role":"Ades 200 ml","volume":2.0,"impact":0.011111111111111112,"roleImpact":0.2,"roleDry":18,"audited":76,"dryPct":23.7,"mix":0.6},{"role":"Benedictino 600 ml o Powerade 500 ml","volume":2.0,"impact":0.0,"roleImpact":0.0,"roleDry":8,"audited":53,"dryPct":15.1,"mix":0.1},{"role":"Sprite o Fanta 500 ml Pet","volume":1.0,"impact":0.0,"roleImpact":0.0,"roleDry":9,"audited":68,"dryPct":13.2,"mix":0.1}],"impact":0.020202020202020204,"roleCount":4,"score":1},{"code":"3101063","name":"Navarro Maria Eugenia","route":"3144","roles":[{"role":"Benedictino 2 o 3 Lts","volume":8.0,"impact":0.009090909090909092,"roleImpact":0.2,"roleDry":22,"audited":40,"dryPct":55.0,"mix":0.3},{"role":"Benedictino 600 ml o Powerade 500 ml","volume":1.0,"impact":0.0,"roleImpact":0.0,"roleDry":8,"audited":53,"dryPct":15.1,"mix":0.1},{"role":"Ades 200 ml","volume":0.0,"impact":0.011111111111111112,"roleImpact":0.2,"roleDry":18,"audited":76,"dryPct":23.7,"mix":0.6}],"impact":0.020202020202020204,"roleCount":3,"score":1},{"code":"3110180","name":"Espinosa Graciela Isabel","route":"3144","roles":[{"role":"Ades 200 ml","volume":3.0,"impact":0.011111111111111112,"roleImpact":0.2,"roleDry":18,"audited":76,"dryPct":23.7,"mix":0.6},{"role":"Benedictino 2 o 3 Lts","volume":2.0,"impact":0.009090909090909092,"roleImpact":0.2,"roleDry":22,"audited":40,"dryPct":55.0,"mix":0.3}],"impact":0.020202020202020204,"roleCount":2,"score":1},{"code":"3193727","name":"Fernandez Jose Luis","route":"3141","roles":[{"role":"Benedictino 2 o 3 Lts","volume":2.0,"impact":0.009090909090909092,"roleImpact":0.2,"roleDry":22,"audited":40,"dryPct":55.0,"mix":0.3},{"role":"Ades 200 ml","volume":1.0,"impact":0.011111111111111112,"roleImpact":0.2,"roleDry":18,"audited":76,"dryPct":23.7,"mix":0.6}],"impact":0.020202020202020204,"roleCount":2,"score":1},{"code":"3140391","name":"Machado Juan Jose","route":"3143","roles":[{"role":"Benedictino 2 Lts Sifon","volume":4.0,"impact":0.018181818181818184,"roleImpact":0.2,"roleDry":11,"audited":34,"dryPct":32.4,"mix":0.7},{"role":"Coca Cola 600 ml Pet","volume":1.0,"impact":0.0,"roleImpact":0.0,"roleDry":6,"audited":33,"dryPct":18.2,"mix":0.2}],"impact":0.018181818181818184,"roleCount":2,"score":1},{"code":"3178323","name":"Quea Mollinedo Angel","route":"3145","roles":[{"role":"Benedictino 2 o 3 Lts","volume":2.0,"impact":0.009090909090909092,"roleImpact":0.2,"roleDry":22,"audited":40,"dryPct":55.0,"mix":0.3},{"role":"Coca Cola Zero 600 o 375 ml Pet","volume":0.0,"impact":0.0071428571428571435,"roleImpact":0.1,"roleDry":14,"audited":88,"dryPct":15.9,"mix":0.4}],"impact":0.016233766233766236,"roleCount":2,"score":1},{"code":"3135102","name":"Panificacion Las Delicias Srl","route":"3141","roles":[{"role":"Coca Cola 600 o 375 ml Pet","volume":13.0,"impact":0.0125,"roleImpact":0.1,"roleDry":8,"audited":62,"dryPct":12.9,"mix":0.6},{"role":"Monster","volume":0.0,"impact":0.0,"roleImpact":0.0,"roleDry":18,"audited":94,"dryPct":19.1,"mix":0.2}],"impact":0.0125,"roleCount":2,"score":1},{"code":"3135732","name":"4K S.A.","route":"3145","roles":[{"role":"Coca Cola 600 o 375 ml Pet","volume":75.0,"impact":0.0125,"roleImpact":0.1,"roleDry":8,"audited":62,"dryPct":12.9,"mix":0.6}],"impact":0.0125,"roleCount":1,"score":1},{"code":"3185683","name":"Navarro Claudia Viviana","route":"3142","roles":[{"role":"Coca Cola 600 o 375 ml Pet","volume":0.0,"impact":0.0125,"roleImpact":0.1,"roleDry":8,"audited":62,"dryPct":12.9,"mix":0.6}],"impact":0.0125,"roleCount":1,"score":1},{"code":"3194831","name":"Agudo Pedro Dante","route":"3144","roles":[{"role":"Ades 200 ml","volume":2.0,"impact":0.011111111111111112,"roleImpact":0.2,"roleDry":18,"audited":76,"dryPct":23.7,"mix":0.6}],"impact":0.011111111111111112,"roleCount":1,"score":1},{"code":"3170125","name":"Albertus Silvia Liliana","route":"3142","roles":[{"role":"Ades 200 ml","volume":0.0,"impact":0.011111111111111112,"roleImpact":0.2,"roleDry":18,"audited":76,"dryPct":23.7,"mix":0.6}],"impact":0.011111111111111112,"roleCount":1,"score":1},{"code":"3177079","name":"Chen Zhangcong","route":"3145","roles":[{"role":"Ades 200 ml","volume":18.0,"impact":0.011111111111111112,"roleImpact":0.2,"roleDry":18,"audited":76,"dryPct":23.7,"mix":0.6}],"impact":0.011111111111111112,"roleCount":1,"score":1},{"code":"3135937","name":"Comestibles Alem S. R. L.","route":"3142","roles":[{"role":"Ades 200 ml","volume":9.0,"impact":0.011111111111111112,"roleImpact":0.2,"roleDry":18,"audited":76,"dryPct":23.7,"mix":0.6}],"impact":0.011111111111111112,"roleCount":1,"score":1},{"code":"3136160","name":"Gonzalez Mario Ruben","route":"3142","roles":[{"role":"Benedictino 2 o 3 Lts","volume":2.0,"impact":0.009090909090909092,"roleImpact":0.2,"roleDry":22,"audited":40,"dryPct":55.0,"mix":0.3},{"role":"Monster","volume":0.0,"impact":0.0,"roleImpact":0.0,"roleDry":18,"audited":94,"dryPct":19.1,"mix":0.2}],"impact":0.009090909090909092,"roleCount":2,"score":1},{"code":"3135232","name":"Mahmoud Juan Carlos","route":"3143","roles":[{"role":"Benedictino 2 o 3 Lts","volume":19.0,"impact":0.009090909090909092,"roleImpact":0.2,"roleDry":22,"audited":40,"dryPct":55.0,"mix":0.3},{"role":"Sprite o Fanta 500 ml Pet","volume":3.0,"impact":0.0,"roleImpact":0.0,"roleDry":9,"audited":68,"dryPct":13.2,"mix":0.1}],"impact":0.009090909090909092,"roleCount":2,"score":1},{"code":"3196177","name":"Martin Arnaldo Andres","route":"3142","roles":[{"role":"Benedictino 2 o 3 Lts","volume":2.0,"impact":0.009090909090909092,"roleImpact":0.2,"roleDry":22,"audited":40,"dryPct":55.0,"mix":0.3},{"role":"Benedictino 600 ml o Powerade 500 ml","volume":2.0,"impact":0.0,"roleImpact":0.0,"roleDry":8,"audited":53,"dryPct":15.1,"mix":0.1}],"impact":0.009090909090909092,"roleCount":2,"score":1},{"code":"3137772","name":"Martin Sergio Alberto","route":"3142","roles":[{"role":"Benedictino 2 o 3 Lts","volume":6.0,"impact":0.009090909090909092,"roleImpact":0.2,"roleDry":22,"audited":40,"dryPct":55.0,"mix":0.3},{"role":"Benedictino 600 ml o Powerade 500 ml","volume":5.0,"impact":0.0,"roleImpact":0.0,"roleDry":8,"audited":53,"dryPct":15.1,"mix":0.1}],"impact":0.009090909090909092,"roleCount":2,"score":1},{"code":"3198676","name":"Aguicor S.A.S","route":"3145","roles":[{"role":"Benedictino 2 o 3 Lts","volume":2.0,"impact":0.009090909090909092,"roleImpact":0.2,"roleDry":22,"audited":40,"dryPct":55.0,"mix":0.3}],"impact":0.009090909090909092,"roleCount":1,"score":1},{"code":"3175976","name":"Arevalo Maria Laura","route":"3144","roles":[{"role":"Benedictino 2 o 3 Lts","volume":4.0,"impact":0.009090909090909092,"roleImpact":0.2,"roleDry":22,"audited":40,"dryPct":55.0,"mix":0.3}],"impact":0.009090909090909092,"roleCount":1,"score":1},{"code":"3194833","name":"Carrazano Maria Elvira","route":"3140","roles":[{"role":"Benedictino 2 o 3 Lts","volume":2.0,"impact":0.009090909090909092,"roleImpact":0.2,"roleDry":22,"audited":40,"dryPct":55.0,"mix":0.3}],"impact":0.009090909090909092,"roleCount":1,"score":1},{"code":"3137097","name":"Daisy Flowers S.A.S","route":"3140","roles":[{"role":"Benedictino 2 o 3 Lts","volume":2.0,"impact":0.009090909090909092,"roleImpact":0.2,"roleDry":22,"audited":40,"dryPct":55.0,"mix":0.3}],"impact":0.009090909090909092,"roleCount":1,"score":1},{"code":"3174459","name":"Guerra Esteban Ruben","route":"3142","roles":[{"role":"Benedictino 2 o 3 Lts","volume":2.0,"impact":0.009090909090909092,"roleImpact":0.2,"roleDry":22,"audited":40,"dryPct":55.0,"mix":0.3}],"impact":0.009090909090909092,"roleCount":1,"score":1},{"code":"3191849","name":"Juarez Miguel Eudoro","route":"3142","roles":[{"role":"Benedictino 2 o 3 Lts","volume":4.0,"impact":0.009090909090909092,"roleImpact":0.2,"roleDry":22,"audited":40,"dryPct":55.0,"mix":0.3}],"impact":0.009090909090909092,"roleCount":1,"score":1},{"code":"3135448","name":"Santucci Pablo Martin","route":"3144","roles":[{"role":"Monster","volume":4.0,"impact":0.0,"roleImpact":0.0,"roleDry":18,"audited":94,"dryPct":19.1,"mix":0.2},{"role":"Coca Cola 600 ml Pet","volume":3.0,"impact":0.0,"roleImpact":0.0,"roleDry":6,"audited":33,"dryPct":18.2,"mix":0.2},{"role":"Coca Cola Zero 600 o 375 ml Pet","volume":1.0,"impact":0.0071428571428571435,"roleImpact":0.1,"roleDry":14,"audited":88,"dryPct":15.9,"mix":0.4}],"impact":0.0071428571428571435,"roleCount":3,"score":0},{"code":"3101312","name":"Moreno Diaz Vanesa Del Valle","route":"3144","roles":[{"role":"Monster","volume":1.0,"impact":0.0,"roleImpact":0.0,"roleDry":18,"audited":94,"dryPct":19.1,"mix":0.2},{"role":"Coca Cola Zero 600 o 375 ml Pet","volume":1.0,"impact":0.0071428571428571435,"roleImpact":0.1,"roleDry":14,"audited":88,"dryPct":15.9,"mix":0.4}],"impact":0.0071428571428571435,"roleCount":2,"score":0},{"code":"3175162","name":"Portillo Carlos Ariel","route":"3145","roles":[{"role":"Coca Cola Zero 600 o 375 ml Pet","volume":1.0,"impact":0.0071428571428571435,"roleImpact":0.1,"roleDry":14,"audited":88,"dryPct":15.9,"mix":0.4},{"role":"Sprite o Fanta Lata 220 ml","volume":0.0,"impact":0.0,"roleImpact":0.0,"roleDry":6,"audited":26,"dryPct":23.1,"mix":0.0}],"impact":0.0071428571428571435,"roleCount":2,"score":0},{"code":"3115991","name":"Rellip Manuel Roque","route":"3142","roles":[{"role":"Cepita 1.5 Lts Pet o Ades 1 Lt","volume":1.0,"impact":0.0,"roleImpact":0.0,"roleDry":3,"audited":40,"dryPct":7.5,"mix":0.4},{"role":"Coca Cola Zero 600 o 375 ml Pet","volume":0.0,"impact":0.0071428571428571435,"roleImpact":0.1,"roleDry":14,"audited":88,"dryPct":15.9,"mix":0.4}],"impact":0.0071428571428571435,"roleCount":2,"score":0},{"code":"3136703","name":"Veliz Pedro Miguel","route":"3142","roles":[{"role":"Coca Cola Zero 600 o 375 ml Pet","volume":3.0,"impact":0.0071428571428571435,"roleImpact":0.1,"roleDry":14,"audited":88,"dryPct":15.9,"mix":0.4},{"role":"Monster","volume":0.0,"impact":0.0,"roleImpact":0.0,"roleDry":18,"audited":94,"dryPct":19.1,"mix":0.2}],"impact":0.0071428571428571435,"roleCount":2,"score":0},{"code":"3177425","name":"Carmena Marcelo Ramon","route":"3141","roles":[{"role":"Coca Cola Zero 600 o 375 ml Pet","volume":2.0,"impact":0.0071428571428571435,"roleImpact":0.1,"roleDry":14,"audited":88,"dryPct":15.9,"mix":0.4}],"impact":0.0071428571428571435,"roleCount":1,"score":0},{"code":"3195830","name":"Ortiz Carlos Adrian","route":"3142","roles":[{"role":"Coca Cola Zero 600 o 375 ml Pet","volume":0.0,"impact":0.0071428571428571435,"roleImpact":0.1,"roleDry":14,"audited":88,"dryPct":15.9,"mix":0.4}],"impact":0.0071428571428571435,"roleCount":1,"score":0},{"code":"3171270","name":"Pedraza Sergio Adrian","route":"3142","roles":[{"role":"Coca Cola Zero 600 o 375 ml Pet","volume":1.0,"impact":0.0071428571428571435,"roleImpact":0.1,"roleDry":14,"audited":88,"dryPct":15.9,"mix":0.4}],"impact":0.0071428571428571435,"roleCount":1,"score":0},{"code":"3110093","name":"Ingrao Alberto Sebastian","route":"3145","roles":[{"role":"Powerade 500 o 995 ml","volume":2.0,"impact":0.0,"roleImpact":0.0,"roleDry":4,"audited":51,"dryPct":7.8,"mix":0.1},{"role":"Fanta 500 ml o Lata 220 ml","volume":1.0,"impact":0.0,"roleImpact":0.0,"roleDry":1,"audited":18,"dryPct":5.6,"mix":0.1}],"impact":0.0,"roleCount":2,"score":0},{"code":"3137367","name":"Lazarte Facundo Nicolas","route":"3142","roles":[{"role":"Benedictino 600 ml Pet","volume":1.0,"impact":0.0,"roleImpact":0.0,"roleDry":5,"audited":14,"dryPct":35.7,"mix":0.1},{"role":"Ades o Cepita 200 ml","volume":0.0,"impact":0.0,"roleImpact":0.0,"roleDry":3,"audited":18,"dryPct":16.7,"mix":0.0}],"impact":0.0,"roleCount":2,"score":0},{"code":"3140038","name":"Boullhesen Jose Ricardo","route":"3143","roles":[{"role":"Monster","volume":1.0,"impact":0.0,"roleImpact":0.0,"roleDry":18,"audited":94,"dryPct":19.1,"mix":0.2}],"impact":0.0,"roleCount":1,"score":0},{"code":"3136011","name":"Carmena Marcelo Ramon","route":"3143","roles":[{"role":"Monster","volume":3.0,"impact":0.0,"roleImpact":0.0,"roleDry":18,"audited":94,"dryPct":19.1,"mix":0.2}],"impact":0.0,"roleCount":1,"score":0},{"code":"3177454","name":"Carmena Marcelo Ramon","route":"3143","roles":[{"role":"Ades o Cepita 200 ml","volume":0.0,"impact":0.0,"roleImpact":0.0,"roleDry":3,"audited":18,"dryPct":16.7,"mix":0.0}],"impact":0.0,"roleCount":1,"score":0},{"code":"3191929","name":"Dazkalasky Federico","route":"3141","roles":[{"role":"Benedictino 600 ml Pet","volume":3.0,"impact":0.0,"roleImpact":0.0,"roleDry":5,"audited":14,"dryPct":35.7,"mix":0.1}],"impact":0.0,"roleCount":1,"score":0},{"code":"3101452","name":"Fernandez Karina Nora","route":"3141","roles":[{"role":"Benedictino 600 ml Pet","volume":1.0,"impact":0.0,"roleImpact":0.0,"roleDry":5,"audited":14,"dryPct":35.7,"mix":0.1}],"impact":0.0,"roleCount":1,"score":0},{"code":"3197374","name":"Gonzalez Andrea Viviana","route":"3144","roles":[{"role":"Benedictino 600 ml o Powerade 500 ml","volume":1.0,"impact":0.0,"roleImpact":0.0,"roleDry":8,"audited":53,"dryPct":15.1,"mix":0.1}],"impact":0.0,"roleCount":1,"score":0},{"code":"3134755","name":"Lizarraga Martin Gaston","route":"3141","roles":[{"role":"Benedictino 600 ml o Powerade 500 ml","volume":1.0,"impact":0.0,"roleImpact":0.0,"roleDry":8,"audited":53,"dryPct":15.1,"mix":0.1}],"impact":0.0,"roleCount":1,"score":0},{"code":"3198941","name":"Matarrese Dino Paolo","route":"3142","roles":[{"role":"Monster","volume":0.0,"impact":0.0,"roleImpact":0.0,"roleDry":18,"audited":94,"dryPct":19.1,"mix":0.2}],"impact":0.0,"roleCount":1,"score":0},{"code":"3199835","name":"Montenegro Hebe Josefina","route":"3141","roles":[{"role":"Monster","volume":2.0,"impact":0.0,"roleImpact":0.0,"roleDry":18,"audited":94,"dryPct":19.1,"mix":0.2}],"impact":0.0,"roleCount":1,"score":0},{"code":"3158350","name":"Santa Cruz Virginia Natalia","route":"3144","roles":[{"role":"Benedictino 600 ml o Powerade 500 ml","volume":1.0,"impact":0.0,"roleImpact":0.0,"roleDry":8,"audited":53,"dryPct":15.1,"mix":0.1}],"impact":0.0,"roleCount":1,"score":0},{"code":"3191599","name":"Tucuman Kiosco S.R.L","route":"3145","roles":[{"role":"Monster","volume":1.0,"impact":0.0,"roleImpact":0.0,"roleDry":18,"audited":94,"dryPct":19.1,"mix":0.2}],"impact":0.0,"roleCount":1,"score":0},{"code":"3191621","name":"Tucuman Kioscos S.R.L","route":"3141","roles":[{"role":"Ades o Cepita 200 ml","volume":0.0,"impact":0.0,"roleImpact":0.0,"roleDry":3,"audited":18,"dryPct":16.7,"mix":0.0}],"impact":0.0,"roleCount":1,"score":0},{"code":"3199879","name":"Valoy Andres","route":"3143","roles":[{"role":"Benedictino 600 ml Pet","volume":4.0,"impact":0.0,"roleImpact":0.0,"roleDry":5,"audited":14,"dryPct":35.7,"mix":0.1}],"impact":0.0,"roleCount":1,"score":0}];
 let secoRouteFilter="";
 let secoDetailMode="role";
 let secoSelectedRole="";
@@ -705,21 +678,19 @@ function secoClientImpact(c){
   return (c.roles||[]).reduce((s,r)=>s+(Number(r.impact)||0),0);
 }
 function secoClientScore(c){
-  const roles=(c.roles||[]);
-  const impact=secoClientImpact(c);
-  const p1=roles.filter(r=>secoPriority(r)===1).length;
-  const p2=roles.filter(r=>secoPriority(r)===2).length;
-  return Math.min(100,Math.round(impact*20 + roles.length*8 + p1*18 + p2*8));
+  const maxImpact=Math.max(0,...SECO_CLIENTS.map(x=>secoClientImpact(x)));
+  if(!maxImpact) return 0;
+  return Math.max(0,Math.min(100,Math.round((secoClientImpact(c)/maxImpact)*100)));
 }
 function secoScoreMeta(c){
   const score=secoClientScore(c);
-  if(score>=75) return {label:"Crítico",cls:"critical"};
-  if(score>=55) return {label:"Alto",cls:"high"};
-  if(score>=35) return {label:"Medio",cls:"medium"};
+  if(score>=70) return {label:"Crítico",cls:"critical"};
+  if(score>=40) return {label:"Alto",cls:"high"};
+  if(score>=20) return {label:"Medio",cls:"medium"};
   return {label:"Tranquilo",cls:"low"};
 }
 function secoClientRank(c){
-  return secoClientScore(c)*100 + secoClientImpact(c)*10 + (c.roles||[]).length;
+  return secoClientImpact(c)*100000 + (c.roles||[]).length;
 }
 function secoClientPriority(c){
   const meta=secoScoreMeta(c);
@@ -745,11 +716,11 @@ function renderSecoClientCard(c,index){
       </div>
       <div class="secoRankWrap">
         <div class="secoRankBadge ${scoreMeta.cls}"><b>${score}</b><span>Puntaje Seco</span></div>
-        <div class="secoClientImpact">${impact.toFixed(1)} pts<small>impacto potencial acumulado</small></div>
+        <div class="secoClientImpact">${impact.toFixed(2)} pts<small>impacto real estimado</small></div>
       </div>
     </div>
     <div class="secoClientDevList">
-      ${roles.slice(0,3).map(r=>`<div class="secoClientDev"><b>${r.role} · ${Number(r.impact||0).toFixed(1)} pts</b><span>${secoActionFor(r)}</span></div>`).join("")}
+      ${roles.slice(0,3).map(r=>`<div class="secoClientDev"><b>${r.role} · ${Number(r.impact||0).toFixed(2)} pts</b><span>${secoActionFor(r)}</span></div>`).join("")}
     </div>
     <div class="secoClientFooter"><span class="secoClientHint">Tocá el cliente para ver su detalle Seco y la corrección sugerida.</span></div>
   </div>`;
@@ -808,13 +779,13 @@ function renderSecoClientDetail(c){
       <div class="secoRightMetric"><b>${score}</b><span>Puntaje Seco</span></div>
       <div class="secoRightMetric"><b>${scoreMeta.label}</b><span>Nivel del cliente</span></div>
       <div class="secoRightMetric"><b>${roles.length}</b><span>Roles en Seco</span></div>
-      <div class="secoRightMetric"><b>${impact.toFixed(1)} pts</b><span>Impacto potencial</span></div>
+      <div class="secoRightMetric"><b>${impact.toFixed(2)} pts</b><span>Impacto real estimado</span></div>
     </div>
     <div class="secoRightBlock secoRightAlert"><h3>DESVÍO SECO DEL CLIENTE</h3><p>Cliente ordenado por criticidad Seco. Corregir los roles en este orden, de mayor a menor impacto. No interviene ningún dato ICE.</p>
-      ${roles.map(r=>`<div class="secoRightClientRole"><b><span>${r.role}</span><span>${Number(r.impact||0).toFixed(1)} pts</span></b><span><strong>Acción:</strong> ${secoActionFor(r)}</span></div>`).join("")}
+      ${roles.map(r=>`<div class="secoRightClientRole"><b><span>${r.role}</span><span>${Number(r.impact||0).toFixed(2)} pts</span></b><span><strong>Acción:</strong> ${secoActionFor(r)}</span></div>`).join("")}
     </div>
     <div class="secoRightBlock secoRightAction"><h3>ACCIÓN CORRECTIVA DEL VENDEDOR</h3><p>Recuperar la compra de los roles marcados en Seco en este cliente, empezando por los de mayor impacto, y verificar en la próxima visita que no vuelva a caer.</p></div>
-    <div class="secoRightBlock"><h3>OBJETIVO DE GESTIÓN</h3><p>Priorizar este cliente según su <b>Puntaje Seco</b>. Si está en nivel <b>${scoreMeta.label}</b>, debe trabajarse antes que clientes con menor puntaje.</p></div>`;
+    <div class="secoRightBlock"><h3>OBJETIVO DE GESTIÓN</h3><p>Priorizar este cliente según su <b>Puntaje Seco</b>, calculado de 0 a 100 en relación con el cliente de mayor impacto actual. Nivel: <b>${scoreMeta.label}</b>.</p></div>`;
 }
 function openSecoRoleDetail(role){
   renderSecoRoleDetail(role);
@@ -852,60 +823,87 @@ function secoHeaderIndex(headers,aliases){
 function truthySeco(v){
   if(v===1||v===true) return true;
   const s=normalizeSecoText(v);
-  return ["1","si","sí","seco","true","x","rojo"].includes(s);
+  return ["1","si","seco","true","x","rojo"].includes(s);
 }
-function parseSecoClientRows(rows){
-  if(!rows||rows.length<2) throw new Error("El archivo no tiene filas suficientes.");
-  let headerRow=0;
-  for(let i=0;i<Math.min(rows.length,12);i++){
-    const h=(rows[i]||[]).map(normalizeSecoText).join(" |");
-    if((h.includes("cliente")||h.includes("outnum")||h.includes("codigo")) && h.includes("rol")){headerRow=i;break;}
-  }
-  const headers=rows[headerRow]||[];
-  const iRoute=secoHeaderIndex(headers,["Ruta","route"]);
-  const iCode=secoHeaderIndex(headers,["Cliente","Codigo Cliente","Código Cliente","Outnum","Out-CL","Código"]);
-  const iName=secoHeaderIndex(headers,["Razon Social","Razón Social","Nombre Cliente","Nombre","Cliente Nombre"]);
-  const iRole=secoHeaderIndex(headers,["Rol","Role","Producto","Referencia"]);
-  const iDry=secoHeaderIndex(headers,["Seco","Es Seco","Dry","Estado Seco"]);
-  const iImpact=secoHeaderIndex(headers,["Impacto","Puntos Seco","Impacto Seco"]);
-  if(iCode<0 || iRole<0) throw new Error("Necesito al menos las columnas Cliente/Código y Rol. Ruta y Nombre son recomendables.");
+function secoPctNumber(v){
+  if(typeof v==="number") return Number(v)||0;
+  const n=Number(String(v??"").replace("%","").replace(",",".").trim());
+  return Number.isFinite(n)?n:0;
+}
+function workbookRowsByName(workbook,name){
+  const target=workbook.SheetNames.find(n=>normalizeSecoText(n)===normalizeSecoText(name));
+  if(!target) return null;
+  return XLSX.utils.sheet_to_json(workbook.Sheets[target],{header:1,defval:null,raw:true});
+}
+function parseDescripcionSecoRows(rows){
+  if(!rows||rows.length<2) throw new Error('No encontré la hoja "Descripcion Seco" o está vacía.');
+  const headers=rows[0]||[];
+  const iRole=secoHeaderIndex(headers,["Rol"]), iDry=secoHeaderIndex(headers,["Clientes Secos"]), iAud=secoHeaderIndex(headers,["Clientes Auditados"]);
+  const iPct=secoHeaderIndex(headers,["% Secos"]), iVol=secoHeaderIndex(headers,["Volumen"]), iMix=secoHeaderIndex(headers,["Mix"]), iImpact=secoHeaderIndex(headers,["Secos","Impacto"]);
+  if(iRole<0||iDry<0||iAud<0||iImpact<0) throw new Error('La hoja "Descripcion Seco" no tiene las columnas esperadas.');
+  return rows.slice(1).map(r=>({
+    role:String(r[iRole]??"").trim(), dry:Number(r[iDry]||0), audited:Number(r[iAud]||0), dryPct:secoPctNumber(r[iPct]),
+    volume:Number(r[iVol]||0), mix:secoPctNumber(r[iMix]), impact:secoPctNumber(r[iImpact])
+  })).filter(x=>x.role && normalizeSecoText(x.role)!=="total");
+}
+function splitOutCL(value){
+  const s=String(value??"").trim();
+  const m=s.match(/^\s*(\d+)\s*-\s*(.*)$/);
+  return m?{code:m[1],name:m[2].trim()}:{code:s,name:s};
+}
+function parsePuntajeSecoRows(rows){
+  if(!rows||rows.length<2) throw new Error('No encontré la hoja "Puntaje Seco" o está vacía.');
+  const headers=rows[0]||[];
+  const iRoute=secoHeaderIndex(headers,["Ruta"]);
+  const iOut=secoHeaderIndex(headers,["Out-CL","Cliente","Código"]);
+  const iRole=secoHeaderIndex(headers,["Atributo_Adicional","Rol"]);
+  const iDry=secoHeaderIndex(headers,["Secos","Seco"]);
+  const iVol=secoHeaderIndex(headers,["Volumen"]);
+  if(iOut<0||iRole<0) throw new Error('La hoja "Puntaje Seco" debe tener Out-CL y Atributo_Adicional.');
   const map=new Map();
-  for(let i=headerRow+1;i<rows.length;i++){
+  for(let i=1;i<rows.length;i++){
     const r=rows[i]||[];
-    const code=String(r[iCode]??"").trim();
-    const role=String(r[iRole]??"").trim();
-    if(!code||!role) continue;
     if(iDry>=0 && !truthySeco(r[iDry])) continue;
-    const route=iRoute>=0?String(r[iRoute]??"").trim():"";
-    const name=iName>=0?String(r[iName]??"").trim():"";
-    const ref=secoRoleReference(role);
-    let impact=iImpact>=0?Number(String(r[iImpact]??"").replace(",",".")):NaN;
-    if(!Number.isFinite(impact)) impact=ref?ref.impact:0;
+    const out=splitOutCL(r[iOut]);
+    const rawRole=String(r[iRole]??"").trim();
+    if(!out.code||!rawRole) continue;
+    const ref=secoRoleReference(rawRole);
+    const role=ref?ref.role:rawRole;
+    const allocatedImpact=ref && ref.dry>0 ? Number(ref.impact||0)/Number(ref.dry) : 0;
     const roleObj={
-      role:ref?ref.role:role,
-      dry:1,audited:1,dryPct:100,mix:ref?ref.mix:0,impact:Number(impact)||0
+      role, volume:iVol>=0?Number(r[iVol]||0):0, impact:allocatedImpact,
+      roleImpact:ref?Number(ref.impact||0):0, roleDry:ref?Number(ref.dry||0):0,
+      audited:ref?Number(ref.audited||0):0, dryPct:ref?Number(ref.dryPct||0):0, mix:ref?Number(ref.mix||0):0
     };
-    if(!map.has(code)) map.set(code,{code,name,route,roles:[]});
-    const c=map.get(code);
-    if(!c.name&&name)c.name=name;if(!c.route&&route)c.route=route;
-    if(!c.roles.some(x=>normalizeSecoText(x.role)===normalizeSecoText(roleObj.role))) c.roles.push(roleObj);
+    if(!map.has(out.code)) map.set(out.code,{code:out.code,name:out.name,route:iRoute>=0?String(r[iRoute]??"").replace(/\.0$/,"").trim():"",roles:[]});
+    const c=map.get(out.code);
+    if(!c.roles.some(x=>normalizeSecoText(x.role)===normalizeSecoText(role))) c.roles.push(roleObj);
   }
   return [...map.values()].filter(c=>c.roles.length);
 }
 async function importSecoClients(){
   const file=document.getElementById("secoClientFile").files[0];
   const msg=document.getElementById("secoImportOk");
-  if(!file){msg.style.display="block";msg.textContent="Seleccioná el Excel/CSV exclusivo de Secos.";return;}
+  if(!file){msg.style.display="block";msg.textContent="Seleccioná el Excel que contiene Puntaje Seco y Descripcion Seco.";return;}
   try{
     if(typeof XLSX==="undefined") throw new Error("No se pudo cargar el lector de Excel.");
     const wb=await readWorkbook(file);
-    const clients=parseSecoClientRows(sheetRows(wb));
-    if(!clients.length) throw new Error("No encontré clientes secos en el archivo.");
+    const descRows=workbookRowsByName(wb,"Descripcion Seco");
+    const scoreRows=workbookRowsByName(wb,"Puntaje Seco");
+    if(descRows){
+      const newRoles=parseDescripcionSecoRows(descRows);
+      if(newRoles.length) SECO_DATA=newRoles;
+    }
+    const clients=parsePuntajeSecoRows(scoreRows || sheetRows(wb));
+    if(!clients.length) throw new Error("No encontré clientes secos en la hoja Puntaje Seco.");
     SECO_CLIENTS=clients;
-    secoRouteFilter="";
-    try{localStorage.setItem("gestionSecoClients",JSON.stringify(SECO_CLIENTS));}catch(e){}
+    secoRouteFilter=""; secoSelectedClientCode=""; secoDetailMode="client";
+    try{
+      localStorage.setItem("gestionSecoClientsExcelV102",JSON.stringify(SECO_CLIENTS));
+      localStorage.setItem("gestionSecoRolesExcelV102",JSON.stringify(SECO_DATA));
+    }catch(e){}
     msg.style.display="block";msg.style.background="#eaf8ef";msg.style.color="#166534";msg.style.borderColor="#b8e0c4";
-    msg.textContent=`Secos actualizado: ${SECO_CLIENTS.length} clientes. Esta base es independiente de ICE.`;
+    msg.textContent=`Secos actualizado: ${SECO_CLIENTS.length} clientes desde el Excel real.`;
     renderSecos();
     setTimeout(closeSecoImport,900);
   }catch(err){
@@ -913,7 +911,12 @@ async function importSecoClients(){
   }
 }
 function loadSavedSecoClients(){
-  try{const s=localStorage.getItem("gestionSecoClients");if(s){const x=JSON.parse(s);if(Array.isArray(x))SECO_CLIENTS=x;}}catch(e){}
+  try{
+    const sr=localStorage.getItem("gestionSecoRolesExcelV102");
+    const sc=localStorage.getItem("gestionSecoClientsExcelV102");
+    if(sr){const x=JSON.parse(sr);if(Array.isArray(x)&&x.length)SECO_DATA=x;}
+    if(sc){const x=JSON.parse(sc);if(Array.isArray(x)&&x.length)SECO_CLIENTS=x;}
+  }catch(e){}
 }
 
 function scoreClass(v){
@@ -990,7 +993,7 @@ function baseControls(){
 function setQuick(f){quickFilter=f;renderICE()}
 
 function renderICE(){
-  document.getElementById("pageTitle").innerHTML='Gestión ICE <small style="font-size:11px">V10.1</small>';
+  document.getElementById("pageTitle").innerHTML='Gestión ICE <small style="font-size:11px">V10.2</small>';
   const list=visibleClients().sort((a,b)=>a.score-b.score);
   const avg=list.length?list.reduce((a,c)=>a+c.score,0)/list.length:0;
   const official = routeFilter ? routeOfficialScore(routeFilter) : avg;
@@ -1057,7 +1060,7 @@ function renderSecos(){
   const highImpact=high.reduce((s,x)=>s+x.impact,0);
   const highClients=high.reduce((s,x)=>s+x.dry,0);
   const routes=[...new Set(SECO_CLIENTS.map(c=>c.route).filter(Boolean))].sort();
-  const clients=secoFilteredClients().sort((a,b)=>secoClientRank(b)-secoClientRank(a)).slice(0,30);
+  const clients=secoFilteredClients().sort((a,b)=>secoClientRank(b)-secoClientRank(a)).slice(0,100);
 
   let h=`<div class="secoHero">
     <div class="secoHeroTop">
@@ -1067,11 +1070,11 @@ function renderSecos(){
     <div class="secoFormula">% Secos = Clientes Secos ÷ Auditados · Impacto = % Secos × Mix.</div>
   </div>`;
 
-  h+=`<div class="secoImportRow"><div><b>Base exclusiva de clientes Secos <span class="secoSourceTag">INDEPENDIENTE</span></b><span>Para identificar clientes, cargá un Excel/CSV de Secos. Nunca se toma información del módulo ICE.</span></div><button class="secoImportBtn" onclick="openSecoImport()">Cargar clientes Secos</button></div>`;
+  h+=`<div class="secoImportRow"><div><b>Base exclusiva de clientes Secos <span class="secoSourceTag">INDEPENDIENTE</span></b><span>Base actual: <b>${SECO_CLIENTS.length} clientes Secos</b>. Para actualizar, cargá el mismo Excel con las hojas Puntaje Seco y Descripcion Seco. Nunca se toma información del módulo ICE.</span></div><button class="secoImportBtn" onclick="openSecoImport()">Actualizar Secos desde Excel</button></div>`;
 
   h+=`<div class="secoKpis">
+    <div class="secoKpi"><b>${SECO_CLIENTS.length}</b><span>Clientes Secos</span></div>
     <div class="secoKpi"><b>${high.length}</b><span>Roles P1</span></div>
-    <div class="secoKpi"><b>${highClients}</b><span>Secos P1</span></div>
     <div class="secoKpi"><b>${highImpact.toFixed(1)} pts</b><span>Impacto P1</span></div>
   </div>`;
 
@@ -1082,7 +1085,7 @@ function renderSecos(){
     h+=`<div class="secoEmpty"><b>No hay una base de clientes Secos cargada.</b><br><br>Para mostrar clientes reales sin mezclar ICE, cargá el archivo exclusivo de Secos con columnas como <b>Ruta, Cliente, Nombre, Rol y Seco</b>.</div>`;
   }else{
     h+=`<div class="secoFilterBox routeFilterBox ${secoRouteFilter?"hasRoute":""}"><div class="routeFilterHead"><div class="routeFilterIcon">⌖</div><div class="routeFilterText"><b>Filtrar clientes Secos por ruta</b><span>${secoRouteFilter?`Ruta ${secoRouteFilter}`:"Todas las rutas de la base Secos"}</span></div></div><select class="routeSelect" onchange="secoRouteFilter=this.value;renderSecos()"><option value="">Todas las rutas</option>${routes.map(r=>`<option value="${r}" ${secoRouteFilter===r?"selected":""}>Ruta ${r}</option>`).join("")}</select></div>`;
-    h+=`<div class="secoSubNote">Listado ordenado desde el cliente <b>más crítico</b> al más <b>tranquilo</b>, según su Puntaje Seco y el impacto acumulado de sus roles.</div>`;
+    h+=`<div class="secoSubNote">Orden real: mayor a menor <b>impacto en puntos Seco</b>. El <b>Puntaje Seco 0–100</b> es relativo al cliente más crítico de la base actual.</div>`;
     h+=clients.length?`<div class="secoClientList">${clients.map((c,i)=>renderSecoClientCard(c,i)).join("")}</div>`:`<div class="secoEmpty">No hay clientes Secos para la ruta seleccionada.</div>`;
   }
   document.getElementById("mainContent").innerHTML=h;
@@ -2140,11 +2143,11 @@ setTimeout(()=>loadOnlineExcels(false),0);
     <div class="importHead"><b>Cargar base exclusiva de Secos</b><button onclick="closeSecoImport()" style="border:0;background:#ffffff22;color:#fff;border-radius:9px;padding:6px 10px;cursor:pointer">✕</button></div>
     <div class="importBody">
       <div class="fileDrop">
-        <b>Excel/CSV de clientes Secos</b>
-        <small>Esta carga es independiente de ICE. Formato recomendado: Ruta · Cliente/Código · Nombre/Razón Social · Rol · Seco. Si existe una columna Impacto, se usa; si no, se toma el impacto del rol de la tabla Secos.</small>
-        <input id="secoClientFile" class="fileInput" type="file" accept=".xlsx,.xls,.csv">
+        <b>Excel de Secos · formato actual</b>
+        <small>Usá el mismo Excel que compartiste. La app lee automáticamente las hojas <b>Puntaje Seco</b> y <b>Descripcion Seco</b>, separa código y razón social desde Out-CL y calcula el impacto de cada cliente.</small>
+        <input id="secoClientFile" class="fileInput" type="file" accept=".xlsx,.xls">
       </div>
-      <div class="importNote"><b>No se mezcla con ICE.</b> La base se guarda separadamente como clientes Secos y se usa solamente dentro de esta pantalla.</div>
+      <div class="importNote"><b>No se mezcla con ICE.</b> Puntaje Seco aporta los clientes y roles; Descripcion Seco aporta auditados, mix e impacto. El impacto del rol se distribuye entre sus clientes secos para priorizar de mayor a menor.</div>
       <div class="importOk" id="secoImportOk"></div>
       <div class="importActions"><button class="updateBtn secondary" onclick="closeSecoImport()">Cancelar</button><button class="updateBtn" onclick="importSecoClients()">Cargar Secos</button></div>
     </div>
