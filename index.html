@@ -577,7 +577,21 @@ select,input{font:inherit}
 
 .secoSourceTag{display:inline-block;background:#dcfce7;color:#166534;border-radius:999px;padding:4px 8px;font-size:9px;font-weight:900;margin-left:6px}
 .secoClientImpact{font-size:18px;font-weight:900;color:#991b1b}.secoClientImpact small{display:block;font-size:9px;color:#64748b;text-align:right;margin-top:2px}
-@media(max-width:700px){.sidebar{grid-template-columns:repeat(6,minmax(0,1fr))}.secoKpis{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.secoKpi{padding:10px 6px}.secoKpi b{font-size:18px}.secoKpi span{font-size:9px}.secoCardHead{padding:12px 10px}.secoAction{padding:10px}.secoRole{font-size:13px}.secoClientCard{padding:12px 10px}.secoClientTop{grid-template-columns:minmax(0,1fr)}.secoClientScore{align-items:flex-start}.secoClientScore .scoreHero{font-size:18px}.secoClientFooter{align-items:flex-start;flex-direction:column}}
+.secoClientCard.secoSelected{border-color:#4fc1c6;box-shadow:0 6px 16px rgba(15,23,42,.08)}
+.secoRankWrap{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.secoRankBadge{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:74px;padding:8px 10px;border-radius:14px;background:#f8fafc;border:1px solid #e2e8f0}
+.secoRankBadge b{font-size:26px;line-height:1;color:#0f172a}.secoRankBadge span{font-size:10px;font-weight:800;color:#64748b;margin-top:4px}
+.secoRankBadge.critical{background:#fee2e2;border-color:#fecaca}.secoRankBadge.critical b{color:#991b1b}
+.secoRankBadge.high{background:#fff7ed;border-color:#fed7aa}.secoRankBadge.high b{color:#b45309}
+.secoRankBadge.medium{background:#fef3c7;border-color:#fde68a}.secoRankBadge.medium b{color:#92400e}
+.secoRankBadge.low{background:#dcfce7;border-color:#bbf7d0}.secoRankBadge.low b{color:#166534}
+.secoScoreLine{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px}
+.secoScoreTag{display:inline-block;border-radius:999px;padding:4px 8px;font-size:10px;font-weight:900}
+.secoScoreTag.critical{background:#fee2e2;color:#991b1b}
+.secoScoreTag.high{background:#fff7ed;color:#b45309}
+.secoScoreTag.medium{background:#fef3c7;color:#92400e}
+.secoScoreTag.low{background:#dcfce7;color:#166534}
+@media(max-width:700px){.sidebar{grid-template-columns:repeat(6,minmax(0,1fr))}.secoKpis{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.secoKpi{padding:10px 6px}.secoKpi b{font-size:18px}.secoKpi span{font-size:9px}.secoCardHead{padding:12px 10px}.secoAction{padding:10px}.secoRole{font-size:13px}.secoClientCard{padding:12px 10px}.secoClientTop{grid-template-columns:minmax(0,1fr)}.secoClientScore{align-items:flex-start}.secoClientScore .scoreHero{font-size:18px}.secoClientFooter{align-items:flex-start;flex-direction:column}.secoRankWrap{align-items:flex-start}.secoRankBadge{min-width:68px}}
 
 </style>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -595,7 +609,7 @@ select,input{font:inherit}
 </aside>
 
 <section class="left" id="leftPane">
-  <div class="head"><h2 id="pageTitle">Gestión ICE <small style="font-size:11px">V10.0</small></h2><span>☰ ⌕</span></div>
+  <div class="head"><h2 id="pageTitle">Gestión ICE <small style="font-size:11px">V10.1</small></h2><span>☰ ⌕</span></div>
   <div class="content" id="mainContent"></div>
 </section>
 
@@ -690,35 +704,54 @@ function secoRoleReference(role){
 function secoClientImpact(c){
   return (c.roles||[]).reduce((s,r)=>s+(Number(r.impact)||0),0);
 }
+function secoClientScore(c){
+  const roles=(c.roles||[]);
+  const impact=secoClientImpact(c);
+  const p1=roles.filter(r=>secoPriority(r)===1).length;
+  const p2=roles.filter(r=>secoPriority(r)===2).length;
+  return Math.min(100,Math.round(impact*20 + roles.length*8 + p1*18 + p2*8));
+}
+function secoScoreMeta(c){
+  const score=secoClientScore(c);
+  if(score>=75) return {label:"Crítico",cls:"critical"};
+  if(score>=55) return {label:"Alto",cls:"high"};
+  if(score>=35) return {label:"Medio",cls:"medium"};
+  return {label:"Tranquilo",cls:"low"};
+}
 function secoClientRank(c){
-  return secoClientImpact(c)*100 + (c.roles||[]).length;
+  return secoClientScore(c)*100 + secoClientImpact(c)*10 + (c.roles||[]).length;
 }
 function secoClientPriority(c){
-  const imp=secoClientImpact(c);
-  if(imp>=2) return {label:"Atacar hoy",cls:"p1"};
-  if(imp>=.7) return {label:"Prioridad 2",cls:"p2"};
+  const meta=secoScoreMeta(c);
+  if(meta.cls==="critical") return {label:"Atacar hoy",cls:"p1"};
+  if(meta.cls==="high") return {label:"Prioridad 2",cls:"p2"};
   return {label:"Controlar",cls:"p3"};
 }
 function secoFilteredClients(){
   return SECO_CLIENTS.filter(c=>!secoRouteFilter || c.route===secoRouteFilter);
 }
-function renderSecoClientCard(c){
+function renderSecoClientCard(c,index){
   const pr=secoClientPriority(c);
+  const scoreMeta=secoScoreMeta(c);
+  const score=secoClientScore(c);
   const roles=[...(c.roles||[])].sort((a,b)=>(b.impact||0)-(a.impact||0));
   const impact=secoClientImpact(c);
-  return `<div class="secoClientCard" onclick="openSecoClientDetail('${String(c.code).replace(/'/g,"\'")}')">
+  return `<div class="secoClientCard ${String(secoSelectedClientCode)===String(c.code)?'secoSelected':''}" onclick="openSecoClientDetail('${String(c.code).replace(/'/g,"\'")}')">
     <div class="secoClientTop">
       <div>
         <div class="secoClientName">${c.name||"Cliente sin nombre"}</div>
         <div class="secoClientMeta">Ruta ${c.route||"-"} · Cliente ${c.code||"-"} · ${roles.length} rol${roles.length===1?"":"es"} en Seco</div>
-        <div class="secoMiniBadges"><span class="secoPriority ${pr.cls}">${pr.label}</span><span class="secoSourceTag">SOLO SECOS</span></div>
+        <div class="secoScoreLine"><span class="secoScoreTag ${scoreMeta.cls}">${scoreMeta.label}</span><span class="secoMiniBadge">Orden #${index+1}</span><span class="secoSourceTag">SOLO SECOS</span></div>
       </div>
-      <div class="secoClientImpact">${impact.toFixed(1)} pts<small>impacto potencial acumulado</small></div>
+      <div class="secoRankWrap">
+        <div class="secoRankBadge ${scoreMeta.cls}"><b>${score}</b><span>Puntaje Seco</span></div>
+        <div class="secoClientImpact">${impact.toFixed(1)} pts<small>impacto potencial acumulado</small></div>
+      </div>
     </div>
     <div class="secoClientDevList">
       ${roles.slice(0,3).map(r=>`<div class="secoClientDev"><b>${r.role} · ${Number(r.impact||0).toFixed(1)} pts</b><span>${secoActionFor(r)}</span></div>`).join("")}
     </div>
-    <div class="secoClientFooter"><span class="secoClientHint">Tocá el cliente para ver sus desvíos Secos y acciones en el panel derecho.</span></div>
+    <div class="secoClientFooter"><span class="secoClientHint">Tocá el cliente para ver su detalle Seco y la corrección sugerida.</span></div>
   </div>`;
 }
 
@@ -765,19 +798,23 @@ function renderSecoClientDetail(c){
   secoDetailMode="client";
   const roles=[...(c.roles||[])].sort((a,b)=>(b.impact||0)-(a.impact||0));
   const impact=secoClientImpact(c);
+  const score=secoClientScore(c);
+  const scoreMeta=secoScoreMeta(c);
   const dh=document.getElementById("detailHead");
   if(dh) dh.querySelector("span").textContent="Secos · Cliente "+c.code;
   document.getElementById("detail").innerHTML=`
-    <button class="secoRightBack" onclick="showSecoPriorityDefault()">‹ Volver al desvío prioritario</button>
     <div class="person"><div class="avatar">${initials(c.name||"SC")}</div><div><b style="font-size:20px">${c.name||"Cliente sin nombre"}</b><div style="color:#8190a0;margin-top:5px">Ruta ${c.route||"-"} · Código ${c.code||"-"}</div></div></div>
     <div class="secoRightMetrics" style="margin-top:12px">
+      <div class="secoRightMetric"><b>${score}</b><span>Puntaje Seco</span></div>
+      <div class="secoRightMetric"><b>${scoreMeta.label}</b><span>Nivel del cliente</span></div>
       <div class="secoRightMetric"><b>${roles.length}</b><span>Roles en Seco</span></div>
       <div class="secoRightMetric"><b>${impact.toFixed(1)} pts</b><span>Impacto potencial</span></div>
     </div>
-    <div class="secoRightBlock secoRightAlert"><h3>DESVÍOS SECOS DEL CLIENTE</h3><p>Corregir los roles en este orden, de mayor a menor impacto. No interviene ningún dato ICE.</p>
+    <div class="secoRightBlock secoRightAlert"><h3>DESVÍO SECO DEL CLIENTE</h3><p>Cliente ordenado por criticidad Seco. Corregir los roles en este orden, de mayor a menor impacto. No interviene ningún dato ICE.</p>
       ${roles.map(r=>`<div class="secoRightClientRole"><b><span>${r.role}</span><span>${Number(r.impact||0).toFixed(1)} pts</span></b><span><strong>Acción:</strong> ${secoActionFor(r)}</span></div>`).join("")}
     </div>
-    <div class="secoRightBlock secoRightAction"><h3>OBJETIVO DEL VENDEDOR</h3><p>Recuperar la compra de los roles marcados en Seco en este cliente y verificar en la próxima visita que no vuelva a caer.</p></div>`;
+    <div class="secoRightBlock secoRightAction"><h3>ACCIÓN CORRECTIVA DEL VENDEDOR</h3><p>Recuperar la compra de los roles marcados en Seco en este cliente, empezando por los de mayor impacto, y verificar en la próxima visita que no vuelva a caer.</p></div>
+    <div class="secoRightBlock"><h3>OBJETIVO DE GESTIÓN</h3><p>Priorizar este cliente según su <b>Puntaje Seco</b>. Si está en nivel <b>${scoreMeta.label}</b>, debe trabajarse antes que clientes con menor puntaje.</p></div>`;
 }
 function openSecoRoleDetail(role){
   renderSecoRoleDetail(role);
@@ -953,7 +990,7 @@ function baseControls(){
 function setQuick(f){quickFilter=f;renderICE()}
 
 function renderICE(){
-  document.getElementById("pageTitle").innerHTML='Gestión ICE <small style="font-size:11px">V10.0</small>';
+  document.getElementById("pageTitle").innerHTML='Gestión ICE <small style="font-size:11px">V10.1</small>';
   const list=visibleClients().sort((a,b)=>a.score-b.score);
   const avg=list.length?list.reduce((a,c)=>a+c.score,0)/list.length:0;
   const official = routeFilter ? routeOfficialScore(routeFilter) : avg;
@@ -1020,7 +1057,7 @@ function renderSecos(){
   const highImpact=high.reduce((s,x)=>s+x.impact,0);
   const highClients=high.reduce((s,x)=>s+x.dry,0);
   const routes=[...new Set(SECO_CLIENTS.map(c=>c.route).filter(Boolean))].sort();
-  const clients=secoFilteredClients().sort((a,b)=>secoClientRank(b)-secoClientRank(a)).slice(0,20);
+  const clients=secoFilteredClients().sort((a,b)=>secoClientRank(b)-secoClientRank(a)).slice(0,30);
 
   let h=`<div class="secoHero">
     <div class="secoHeroTop">
@@ -1038,27 +1075,24 @@ function renderSecos(){
     <div class="secoKpi"><b>${highImpact.toFixed(1)} pts</b><span>Impacto P1</span></div>
   </div>`;
 
-  h+=`<div class="secoGuide"><b>Regla de corrección</b><span>🔴 Primero roles con impacto ≥ 1 punto. 🟡 Luego 0,3 a 0,9. ⚪ Después mantenimiento. La gestión se mide por <b>clientes secos recuperados</b>.</span></div>`;
+  h+=`<div class="secoGuide"><b>Regla de corrección</b><span>🔴 Ordenar los clientes por <b>Puntaje Seco</b>, trabajar primero los más críticos y, dentro de cada cliente, recuperar primero los roles de mayor impacto. La gestión se mide por <b>clientes secos recuperados</b>.</span></div>`;
 
-  h+=`<div class="secoSectionTitle">Roles que más afectan el Seco</div><div class="secoSubNote">Priorización exclusiva del indicador Seco.</div>`;
-  h+=`<div class="secoList">${rows.map(x=>{
-    const p=secoPriority(x),cls=p===1?'high':(p===2?'mid':'low'),pc=p===1?'p1':(p===2?'p2':'p3');
-    return `<div class="secoCard ${normalizeSecoText(secoSelectedRole)===normalizeSecoText(x.role)?"secoSelected":""}" onclick="openSecoRoleDetail('${String(x.role).replace(/'/g,"\'")}')"><div class="secoCardHead"><div><div class="secoRole">${x.role}<span class="secoPriority ${pc}">P${p}</span></div><div class="secoNumbers">${x.dry} secos / ${x.audited} auditados · ${x.dryPct.toFixed(1)}% secos · Mix ${x.mix.toFixed(1)}%</div></div><div class="secoImpact ${cls}">${x.impact.toFixed(1)}<small>pts impacto</small></div></div><div class="secoAction"><b>MEDIDA CORRECTIVA</b><span>${secoActionFor(x)}</span></div></div>`;
-  }).join("")}</div>`;
-
-  h+=`<div class="secoSectionTitle">Clientes que más afectan el Seco</div>`;
+  h+=`<div class="secoSectionTitle">Clientes Secos priorizados</div>`;
   if(!SECO_CLIENTS.length){
     h+=`<div class="secoEmpty"><b>No hay una base de clientes Secos cargada.</b><br><br>Para mostrar clientes reales sin mezclar ICE, cargá el archivo exclusivo de Secos con columnas como <b>Ruta, Cliente, Nombre, Rol y Seco</b>.</div>`;
   }else{
     h+=`<div class="secoFilterBox routeFilterBox ${secoRouteFilter?"hasRoute":""}"><div class="routeFilterHead"><div class="routeFilterIcon">⌖</div><div class="routeFilterText"><b>Filtrar clientes Secos por ruta</b><span>${secoRouteFilter?`Ruta ${secoRouteFilter}`:"Todas las rutas de la base Secos"}</span></div></div><select class="routeSelect" onchange="secoRouteFilter=this.value;renderSecos()"><option value="">Todas las rutas</option>${routes.map(r=>`<option value="${r}" ${secoRouteFilter===r?"selected":""}>Ruta ${r}</option>`).join("")}</select></div>`;
-    h+=`<div class="secoSubNote">Ordenados por <b>impacto acumulado de los roles en Seco</b>. No interviene ningún dato ICE.</div>`;
-    h+=clients.length?`<div class="secoClientList">${clients.map(renderSecoClientCard).join("")}</div>`:`<div class="secoEmpty">No hay clientes Secos para la ruta seleccionada.</div>`;
+    h+=`<div class="secoSubNote">Listado ordenado desde el cliente <b>más crítico</b> al más <b>tranquilo</b>, según su Puntaje Seco y el impacto acumulado de sus roles.</div>`;
+    h+=clients.length?`<div class="secoClientList">${clients.map((c,i)=>renderSecoClientCard(c,i)).join("")}</div>`:`<div class="secoEmpty">No hay clientes Secos para la ruta seleccionada.</div>`;
   }
   document.getElementById("mainContent").innerHTML=h;
-  // El panel derecho pertenece también al módulo Secos cuando esta pestaña está activa.
-  if(secoDetailMode==="client" && secoSelectedClientCode){
-    const c=SECO_CLIENTS.find(x=>String(x.code)===String(secoSelectedClientCode));
-    if(c) renderSecoClientDetail(c); else showSecoPriorityDefault();
+  if(SECO_CLIENTS.length){
+    if(secoDetailMode==="client" && secoSelectedClientCode){
+      const c=SECO_CLIENTS.find(x=>String(x.code)===String(secoSelectedClientCode));
+      if(c) renderSecoClientDetail(c); else renderSecoClientDetail(clients[0]);
+    }else if(clients[0]){
+      renderSecoClientDetail(clients[0]);
+    }
   }else{
     showSecoPriorityDefault();
   }
